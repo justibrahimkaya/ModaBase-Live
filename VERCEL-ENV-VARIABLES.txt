@@ -1,0 +1,25 @@
+# Vercel Environment Variables - Kopyala/Yapıştır (GÜNCEL DOĞRU FORMAT)
+DATABASE_URL=postgresql://postgres:08513628-JUst@db.wcutymcedxgeyrnpuyvt.supabase.co:5432/postgres
+NEXTAUTH_SECRET=production-secret-key-minimum-32-characters-long-for-security
+NEXTAUTH_URL=https://www.modabase.com.tr
+NODE_ENV=production
+NEXT_PUBLIC_APP_URL=https://www.modabase.com.tr
+NEXT_PUBLIC_COMPANY_NAME=ModaBase
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=info@modabase.com.tr
+SMTP_PASS=xxxx xxxx xxxx xxxx
+EMAIL_FROM=ModaBase <info@modabase.com.tr>
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=info@modabase.com.tr
+EMAIL_PASS=xxxx xxxx xxxx xxxx
+PAYTR_MERCHANT_ID=test-merchant-id
+PAYTR_MERCHANT_KEY=test-merchant-key
+PAYTR_MERCHANT_SALT=test-merchant-salt
+ENCRYPTION_KEY=modabase-encryption-key-32-chars-production
+JWT_SECRET=modabase-jwt-secret-key-production-2024
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+FACEBOOK_CLIENT_ID=
+FACEBOOK_CLIENT_SECRET= 
