@@ -1,0 +1,411 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Admin Status Values: "PENDING", "APPROVED", "REJECTED"
+// SQLite doesn't support enums, so using String with constraints
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  passwordHash String? // Şifre hash'i - OAuth kullanıcıları için opsiyonel
+  resetToken String?  // Şifre sıfırlama tokeni
+  resetTokenExpiry DateTime? // Token geçerlilik süresi
+  name      String?
+  surname   String?
+  phone     String?
+  image     String? // Profile image URL for social login
+  emailVerified DateTime? // Email verification for NextAuth
+  provider  String? // OAuth provider (google, facebook, etc.)
+  role      String   @default("USER") // USER, ADMIN, MODERATOR
+  
+  // Admin Approval System
+  adminStatus String? // Admin başvuru durumu (sadece ADMIN rolü için) - "PENDING", "APPROVED", "REJECTED"
+  appliedAt   DateTime?    // Admin başvuru tarihi
+  approvedAt  DateTime?    // Admin onay tarihi
+  rejectedAt  DateTime?    // Admin red tarihi
+  rejectionReason String?  // Red nedeni
+  businessInfo String?     // İşletme bilgileri (JSON format)
+  
+  isActive  Boolean  @default(true)
+  lastLoginAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  addresses Address[]
+  orders    Order[]
+  reviews   Review[]
+  reviewHelpfulVotes ReviewHelpful[]
+  cartHistories CartHistory[]
+  favorites Favorite[]
+  wishlists Wishlist[]
+  accounts  Account[]
+  sessions  Session[]
+  stockNotifications UserStockNotification[]
+}
+
+// NextAuth.js Required Models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  name        String
+  surname     String
+  email       String
+  phone       String
+  city        String
+  district    String
+  neighborhood String
+  address     String
+  type        String   // DELIVERY veya INVOICE
+  isDefault   Boolean  @default(false)
+  // E-fatura alanları
+  invoiceType String?  // BIREYSEL veya KURUMSAL
+  tcKimlikNo  String?  // Bireysel için
+  vergiNo     String?  // Kurumsal için
+  vergiDairesi String? // Kurumsal için
+  companyName String?  // Kurumsal için şirket adı
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
+  orders      Order[]
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  image       String? // Büyük resim verileri için
+  isActive    Boolean  @default(true)
+  parentId    String?  // Ana kategori ID'si (null ise ana kategori)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  products    Product[]
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  description  String
+  price        Float
+  originalPrice Float?
+  images       String // JSON string - büyük veri için
+  stock        Int      @default(0)
+  minStockLevel Int     @default(5) // Minimum stok seviyesi
+  maxStockLevel Int?    // Maksimum stok seviyesi
+  reservedStock Int     @default(0) // Rezerve edilmiş stok (sepetteki ürünler)
+  categoryId   String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  category     Category @relation(fields: [categoryId], references: [id])
+  reviews      Review[]
+  orderItems   OrderItem[]
+  cartItems    CartItem[]
+  favorites    Favorite[]
+  wishlists    Wishlist[]
+  stockMovements StockMovement[]
+  variants     ProductVariant[]
+  stockNotifications UserStockNotification[]
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  productId String
+  size      String?  // Beden (S, M, L, XL, 36, 37, 38, vs.)
+  color     String?  // Renk (Kırmızı, Mavi, vs.)
+  colorCode String?  // Renk kodu (#FF0000, #0000FF, vs.)
+  stock     Int      @default(0)
+  price     Float?   // Farklı fiyat varsa
+  sku       String?  // Stok kodu
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@unique([productId, size, color])
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  userId      String?
+  addressId   String?
+  invoiceAddressId String?
+  status      String   @default("PENDING")
+  total       Float
+  discount    Float?   // Uygulanan indirim
+  shippingCost Float?  // Kargo ücreti
+  shippingMethod String? // Kargo tipi
+  paymentMethod  String? // Ödeme tipi
+  note        String?  // Müşteri notu
+  trackingNumber String? // Kargo takip numarası
+  shippingCompany String? // Kargo firması
+  shippingTrackingUrl String? // Kargo takip URL'i
+  shippedAt   DateTime? // Kargo tarihi
+  deliveredAt DateTime? // Teslimat tarihi
+  adminNotes  String?  // Admin notları
+  // Guest checkout için alanlar
+  guestName   String?
+  guestSurname String?
+  guestEmail  String?
+  guestPhone  String?
+  // E-fatura snapshot alanları
+  invoiceType String?  // BIREYSEL veya KURUMSAL
+  tcKimlikNo  String?
+  vergiNo     String?
+  vergiDairesi String?
+  unvan       String?
+  // E-fatura entegrasyon alanları
+  einvoiceStatus String? // PENDING, SUCCESS, ERROR
+  einvoiceUuid   String?
+  einvoicePdfUrl String?
+  einvoiceError  String?
+  // İade ve değişim süreçleri için yeni alanlar
+  canCancel   Boolean  @default(true) // İptal edilebilir mi?
+  canReturn   Boolean  @default(true) // İade edilebilir mi?
+  canExchange Boolean  @default(true) // Değişim yapılabilir mi?
+  cancelReason String? // İptal nedeni
+  returnReason String? // İade nedeni
+  exchangeReason String? // Değişim nedeni
+  cancelRequestedAt DateTime? // İptal talep tarihi
+  returnRequestedAt DateTime? // İade talep tarihi
+  exchangeRequestedAt DateTime? // Değişim talep tarihi
+  cancelApprovedAt DateTime? // İptal onay tarihi
+  returnApprovedAt DateTime? // İade onay tarihi
+  exchangeApprovedAt DateTime? // Değişim onay tarihi
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User?    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  address     Address? @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  items       OrderItem[]
+  stockMovements StockMovement[]
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+  size      String?
+  color     String?
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+  reviews   Review[] // Sipariş kalemi yorumları
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  orderItemId String? // Sadece satın alanlar yorum yazabilsin
+  rating    Int      // 1-5 arası rating
+  title     String?  // Yorum başlığı
+  comment   String?  // Yorum içeriği
+  images    String?  // Yorum fotoğrafları (JSON array)
+  isApproved Boolean @default(false) // Admin moderasyonu
+  isVerifiedPurchase Boolean @default(false) // Doğrulanmış alışveriş
+  helpfulCount Int @default(0) // Yararlı oylama sayısı
+  unhelpfulCount Int @default(0) // Yararsız oylama sayısı
+  adminReply String? // Admin yanıtı
+  adminReplyDate DateTime? // Admin yanıt tarihi
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  orderItem OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  helpfulVotes ReviewHelpful[]
+  
+  @@unique([userId, productId]) // Bir kullanıcı bir ürüne sadece bir kez yorum yapabilir
+}
+
+model ReviewHelpful {
+  id        String   @id @default(cuid())
+  reviewId  String
+  userId    String
+  isHelpful Boolean  // true = yararlı, false = yararsız
+  createdAt DateTime @default(now())
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  
+  @@unique([reviewId, userId]) // Bir kullanıcı bir yoruma sadece bir kez oy verebilir
+}
+
+model Cart {
+  id        String      @id @default(cuid())
+  userId    String?     // İleride authentication eklenirse
+  isArchived Boolean    @default(false) // Sepet geçmişi için
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  items     CartItem[]
+  cartHistory CartHistory?
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  productId String
+  quantity  Int      @default(1)
+  size      String?
+  color     String?
+  product   Product  @relation(fields: [productId], references: [id])
+  cart      Cart     @relation(fields: [cartId], references: [id])
+}
+
+model CartHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  cartId    String   @unique
+  name      String   // Kullanıcının verdiği isim (örn: "Alışveriş Listesi 1")
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  cart      Cart     @relation(fields: [cartId], references: [id])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+  @@unique([userId, productId])
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+  @@unique([userId, productId])
+}
+
+model StockMovement {
+  id          String   @id @default(cuid())
+  productId   String
+  orderId     String?
+  type        String   // IN, OUT, RESERVED, RELEASED
+  quantity    Int
+  description String?
+  createdAt   DateTime @default(now())
+  product     Product  @relation(fields: [productId], references: [id])
+  order       Order?   @relation(fields: [orderId], references: [id])
+}
+
+model ShippingCompany {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  code        String   @unique // API kodu
+  apiUrl      String?  // API endpoint
+  apiKey      String?  // API anahtarı
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserStockNotification {
+  id        String   @id @default(cuid())
+  userId    String?  // Kayıtlı kullanıcı için
+  guestEmail String? // Misafir kullanıcı için
+  productId String
+  isActive  Boolean  @default(true)
+  notifiedAt DateTime? // Bildirim gönderildiğinde işaretlenir
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, productId])
+  @@unique([guestEmail, productId])
+}
+
+model Business {
+  id                    String   @id @default(cuid())
+  businessName          String
+  businessType          String   // limited, anonim, sahis, etc.
+  taxNumber             String   @unique
+  tradeRegistryNumber   String?
+  email                 String   @unique
+  phone                 String
+  website               String?
+  address               String
+  city                  String
+  district              String?
+  postalCode            String?
+  contactName           String
+  contactSurname        String
+  contactTitle          String?
+  contactPhone          String?
+  contactEmail          String
+  password              String
+  termsAccepted         Boolean  @default(false)
+  privacyAccepted       Boolean  @default(false)
+  marketingAccepted     Boolean  @default(false)
+  // Admin Approval System
+  adminStatus           String @default("PENDING") // Approval status - "PENDING", "APPROVED", "REJECTED"
+  appliedAt             DateTime @default(now()) // Başvuru tarihi
+  approvedAt            DateTime? // Onay tarihi
+  rejectedAt            DateTime? // Red tarihi
+  rejectionReason       String? // Red nedeni
+  approvedBy            String? // Onaylayan admin ID
+  
+  isActive              Boolean  @default(false)
+  emailVerified         Boolean  @default(false)
+  emailVerificationToken String?
+  emailVerificationExpiry DateTime?
+  resetToken            String?
+  resetTokenExpiry      DateTime?
+  lastLoginAt           DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+

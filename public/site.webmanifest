@@ -1,0 +1,43 @@
+{
+  "name": "ModaBase - Modern E-Ticaret Platformu",
+  "short_name": "ModaBase",
+  "description": "En yeni moda trendleri, premium markalar ve güvenli alışveriş deneyimi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "tr",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512x512.png", 
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["shopping", "lifestyle", "fashion"],
+  "shortcuts": [
+    {
+      "name": "Ürünler",
+      "short_name": "Ürünler",
+      "description": "Tüm ürünleri görüntüle",
+      "url": "/products",
+      "icons": [{"src": "/icon-192x192.png", "sizes": "192x192", "type": "image/svg+xml"}]
+    },
+    {
+      "name": "Sepet",
+      "short_name": "Sepet",
+      "description": "Sepetimi görüntüle",
+      "url": "/cart",
+      "icons": [{"src": "/icon-192x192.png", "sizes": "192x192", "type": "image/svg+xml"}]
+    }
+  ]
+}

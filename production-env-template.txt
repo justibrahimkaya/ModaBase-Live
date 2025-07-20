@@ -1,0 +1,90 @@
+# ===========================================
+# MODABASE PRODUCTION ENVIRONMENT VARIABLES
+# ===========================================
+
+# Database (Production) - SUPABASE POSTGRESQL
+# 1. supabase.com'a git → "Start your project"
+# 2. "New Project" oluştur → Project Name: ModaBase Production
+# 3. Region: Europe (eu-central-1) seç
+# 4. Settings → Database → Connection String kopyala
+DATABASE_URL="postgresql://postgres.[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres"
+
+# NextAuth Configuration
+NEXTAUTH_SECRET="modabase-2024-production-secret-key-lorem-ipsum-dolor-sit-amet-32-chars"
+NEXTAUTH_URL="https://www.modabase.com.tr"
+
+# Email Service (SMTP) - GMAIL APP PASSWORD GEREKLI
+# 1. Gmail hesabı → Google Account Settings → Security
+# 2. "2-Step Verification" aktif et
+# 3. "App passwords" → "ModaBase" için password oluştur
+# 4. 16 haneli kodu aşağıya yaz
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_USER="info@modabase.com.tr"
+SMTP_PASS="xxxx xxxx xxxx xxxx"
+EMAIL_FROM="ModaBase <info@modabase.com.tr>"
+
+# Email Alternative Variables (Kod tutarlılığı için - aynı değerler)
+EMAIL_HOST="smtp.gmail.com"
+EMAIL_PORT="587"
+EMAIL_USER="info@modabase.com.tr"
+EMAIL_PASS="xxxx xxxx xxxx xxxx"
+
+# Payment Gateway (PayTR) - GERÇEKLEŞTİRME SONRASI GÜNCELLENECEK
+# PayTR ile sözleşme yap → Gerçek merchant bilgilerini al
+# Test için geçici değerler:
+PAYTR_MERCHANT_ID="test-merchant-id"
+PAYTR_MERCHANT_KEY="test-merchant-key" 
+PAYTR_MERCHANT_SALT="test-merchant-salt"
+
+# Application Settings
+NODE_ENV="production"
+NEXT_PUBLIC_APP_URL="https://www.modabase.com.tr"
+NEXT_PUBLIC_COMPANY_NAME="ModaBase"
+
+# Security
+ENCRYPTION_KEY="your-32-character-encryption-key"
+JWT_SECRET="your-jwt-secret-key"
+
+# Social Login (Şu anda disabled - boş bırakılabilir)
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+FACEBOOK_CLIENT_ID=""
+FACEBOOK_CLIENT_SECRET=""
+
+# File Upload (Cloudinary)
+CLOUDINARY_URL="cloudinary://api_key:api_secret@cloud_name"
+
+# Analytics & Monitoring
+NEXT_PUBLIC_GA_ID="GA-MEASUREMENT-ID"
+SENTRY_DSN="your-sentry-dsn"
+
+# Social Media
+NEXT_PUBLIC_INSTAGRAM_URL="https://instagram.com/modabase"
+NEXT_PUBLIC_FACEBOOK_URL="https://facebook.com/modabase"
+NEXT_PUBLIC_TWITTER_URL="https://twitter.com/modabase"
+
+# ===========================================
+# HIZLI DEPLOYMENT REHBERİ:
+# ===========================================
+
+# 🔴 KRİTİK ÖNCELIK:
+# 1. Supabase PostgreSQL kur (10 dk)
+# 2. Gmail App Password al (5 dk)  
+# 3. Vercel environment variables güncelle (2 dk)
+
+# 🟡 SONRASINDA:
+# 4. PayTR gerçek merchant bilgileri
+# 5. Production domain test et
+# 6. Email sistemi test et
+# 7. Business registration flow test et
+
+# 📋 DEPLOYMENT CHECKLIST:
+# ✅ 1. Hosting: Vercel
+# ✅ 2. Database: Supabase PostgreSQL (ÜCRETSİZ)
+# ✅ 3. Email: Gmail SMTP + App Password
+# ✅ 4. SSL: Otomatik (Vercel)
+# ✅ 5. Environment Variables: Bu dosyadaki değerler
+# ✅ 6. Build Test: npm run build
+# ✅ 7. Production Test: Tüm özellikler çalışır durumda
+# ===========================================

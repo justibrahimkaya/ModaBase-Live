@@ -1,0 +1,17 @@
+# WhatsApp Entegrasyonu Environment Variables
+# Bu dosyayı .env.local dosyanıza ekleyin
+
+# WhatsApp Numaraları (Ülke kodu ile birlikte, boşluk olmadan)
+WHATSAPP_SUPPORT_NUMBER=905555555555
+WHATSAPP_BUSINESS_NUMBER=905555555555
+WHATSAPP_ADMIN_NUMBER=905555555555
+
+# Örnek kullanım:
+# WHATSAPP_SUPPORT_NUMBER=905321234567
+# WHATSAPP_BUSINESS_NUMBER=905321234568
+# WHATSAPP_ADMIN_NUMBER=905321234569
+
+# Not: 
+# - Numaralar ülke kodu ile başlamalı (Türkiye için 90)
+# - Boşluk, tire veya parantez olmamalı
+# - Sadece rakamlar kullanılmalı 
