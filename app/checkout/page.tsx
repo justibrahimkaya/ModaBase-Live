@@ -5,6 +5,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useCart } from '@/components/CartContext'
 import { useRouter } from 'next/navigation'
+import { ShippingQuote } from '@/lib/shippingService'
 
 const steps = [
   { id: 1, label: 'Teslimat Bilgileri' },
@@ -39,7 +40,7 @@ const shippingOptions = [
 
 export default function CheckoutPage() {
   // Tüm hook'lar en başta
-  const { items, getTotal, clearCart, loading } = useCart()
+  const { items, getTotal, loading } = useCart()
   const [step, setStep] = useState(1)
   const [delivery, setDelivery] = useState({
     name: '',
@@ -72,8 +73,9 @@ export default function CheckoutPage() {
   })
   const [invoiceErrors, setInvoiceErrors] = useState<{ [key: string]: string }>({})
   const [selectedShipping, setSelectedShipping] = useState('standard')
-  const [orderSuccess, setOrderSuccess] = useState(false)
-  const [orderNumber, setOrderNumber] = useState<string | null>(null)
+  const [selectedCargoCompany, setSelectedCargoCompany] = useState<string>('')
+  const [cargoQuotes, setCargoQuotes] = useState<ShippingQuote[]>([])
+  const [isLoadingCargo, setIsLoadingCargo] = useState(false)
   const [isPlacingOrder, setIsPlacingOrder] = useState(false)
   const [couponCode, setCouponCode] = useState('')
   const [couponStatus, setCouponStatus] = useState<'idle' | 'success' | 'error'>('idle')
@@ -93,17 +95,6 @@ export default function CheckoutPage() {
     }
   }, [loading, items, router]);
 
-  // Sipariş başarılıysa otomatik yönlendirme
-  useEffect(() => {
-    if (orderSuccess && orderNumber) {
-      const timer = setTimeout(() => {
-        router.push(`/order/${orderNumber}`)
-      }, 3000)
-      return () => clearTimeout(timer)
-    }
-    return undefined
-  }, [orderSuccess, orderNumber, router])
-
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center text-lg">Sepet yükleniyor...</div>;
   }
@@ -114,13 +105,49 @@ export default function CheckoutPage() {
   // Kargo ücretini hesapla
   const getShippingCost = () => {
     const subtotal = getTotal()
-    const selectedOption = shippingOptions.find(option => option.id === selectedShipping)
     
-    if (selectedOption?.id === 'free' && subtotal >= 2500) {
-      return 0
+    // Ücretsiz kargo kontrolü
+    if (subtotal >= 2500) return 0
+    
+    // Gerçek kargo firması seçilmişse
+    if (selectedCargoCompany && cargoQuotes.length > 0) {
+      const selectedQuote = cargoQuotes.find(q => q.companyId === selectedCargoCompany)
+      return selectedQuote ? selectedQuote.price : 0
     }
     
+    // Standart kargo seçenekleri
+    const selectedOption = shippingOptions.find(option => option.id === selectedShipping)
     return selectedOption?.price || 49.90
+  }
+
+  // Kargo fiyatlarını hesapla
+  const calculateCargoPrices = async () => {
+    if (!delivery.city || !delivery.district) return
+    
+    setIsLoadingCargo(true)
+    try {
+      const response = await fetch('/api/shipping/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items,
+          fromAddress: 'İstanbul, Türkiye', // Mağaza adresi
+          toAddress: `${delivery.city}, ${delivery.district}`
+        })
+      })
+      
+      const data = await response.json()
+      if (data.success) {
+        setCargoQuotes(data.quotes)
+        if (data.quotes.length > 0) {
+          setSelectedCargoCompany(data.quotes[0].companyId) // En ucuz olanı seç
+        }
+      }
+    } catch (error) {
+      console.error('Kargo fiyatı hesaplanamadı:', error)
+    } finally {
+      setIsLoadingCargo(false)
+    }
   }
 
   // Stepper bileşeni
@@ -196,80 +223,6 @@ export default function CheckoutPage() {
     }
   }
 
-  const handlePlaceOrder = async () => {
-    setIsPlacingOrder(true)
-    try {
-      // Teslimat adresini kaydet (veya ileride kullanıcıya bağla)
-      const deliveryAddressRes = await fetch('/api/addresses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...delivery,
-          type: 'DELIVERY'
-        })
-      })
-      const deliveryAddress = await deliveryAddressRes.json()
-      let invoiceAddress = null
-      if (showInvoiceAddress) {
-        const invoiceAddressRes = await fetch('/api/addresses', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...invoice,
-            type: 'INVOICE'
-          })
-        })
-        invoiceAddress = await invoiceAddressRes.json()
-      }
-      // Sipariş ürünlerini hazırla
-      const orderItems = items.map(item => ({
-        productId: item.product.id,
-        quantity: item.quantity,
-        price: item.product.price,
-        size: item.size,
-        color: item.color
-      }))
-      // Siparişi backend'e kaydet
-      const orderBody: any = {
-        addressId: deliveryAddress.id,
-        invoiceAddressId: invoiceAddress ? invoiceAddress.id : null,
-        shippingMethod: selectedShipping,
-        paymentMethod: 'CREDIT_CARD',
-        discount,
-        shippingCost: getShippingCost(),
-        note: '',
-        items: orderItems,
-        total: getTotal() - discount + getShippingCost(),
-        // E-fatura snapshot alanları
-        invoiceType: invoice.invoiceType,
-        tcKimlikNo: invoice.tcKimlikNo,
-        vergiNo: invoice.vergiNo,
-        vergiDairesi: invoice.vergiDairesi,
-        unvan: invoice.unvan
-      }
-      // Eğer kullanıcı giriş yapmamışsa guest bilgilerini ekle
-      if (!window.localStorage.getItem('session_user')) {
-        orderBody.guestName = delivery.name
-        orderBody.guestSurname = delivery.surname
-        orderBody.guestEmail = delivery.email
-        orderBody.guestPhone = delivery.phone
-      }
-      const orderRes = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderBody)
-      })
-      const order = await orderRes.json()
-      setOrderNumber(order.id)
-      setOrderSuccess(true)
-      clearCart()
-    } catch (error) {
-      alert('Sipariş oluşturulurken bir hata oluştu!')
-    } finally {
-      setIsPlacingOrder(false)
-    }
-  }
-
   const handleApplyCoupon = () => {
     const code = couponCode.trim().toUpperCase()
     if (validCoupons[code]) {
@@ -290,40 +243,101 @@ export default function CheckoutPage() {
   const handlePaytrPayment = async () => {
     setIsPlacingOrder(true)
     try {
-      // Sipariş tutarı ve müşteri bilgileriyle backend'e istek at
+      // Önce siparişi oluştur
+      const orderData = {
+        items: items.map(item => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.product.price,
+          size: item.size,
+          color: item.color
+        })),
+        total: total,
+        discount: discount,
+        shippingCost: getShippingCost(),
+        shippingMethod: selectedShipping,
+        paymentMethod: 'PAYTR',
+        // Teslimat bilgileri
+        guestName: delivery.name,
+        guestSurname: delivery.surname,
+        guestEmail: delivery.email,
+        guestPhone: delivery.phone,
+        // Adres bilgileri
+        address: {
+          title: delivery.addressTitle,
+          city: delivery.city,
+          district: delivery.district,
+          neighborhood: delivery.neighborhood,
+          address: delivery.address
+        },
+        // Fatura bilgileri (varsa)
+        invoiceType: showInvoiceAddress ? invoice.invoiceType : null,
+        tcKimlikNo: showInvoiceAddress ? invoice.tcKimlikNo : null,
+        vergiNo: showInvoiceAddress ? invoice.vergiNo : null,
+        vergiDairesi: showInvoiceAddress ? invoice.vergiDairesi : null,
+        unvan: showInvoiceAddress ? invoice.unvan : null
+      }
+
+      // Siparişi oluştur
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      })
+
+      const orderResult = await orderResponse.json()
+      
+      if (!orderResult.success) {
+        throw new Error(orderResult.error || 'Sipariş oluşturulamadı')
+      }
+
+      const orderId = orderResult.order.id
+
+      // PayTR için sepet bilgilerini hazırla
+      const userBasket = items.map(item => 
+        `${item.product.name}~${item.size || 'Tek Beden'}~${item.color || 'Tek Renk'}~${item.product.price}~${item.quantity}`
+      ).join('|')
+
+      // PayTR token isteği
+      const paytrData = {
+        merchant_oid: orderId,
+        amount: Math.round(total * 100), // PayTR kuruş cinsinden ister
+        email: delivery.email,
+        user_ip: '127.0.0.1', // Gerçek IP alınacak
+        user_name: delivery.name + ' ' + delivery.surname,
+        user_address: `${delivery.city}, ${delivery.district}, ${delivery.address}`,
+        user_phone: delivery.phone,
+        user_basket: userBasket,
+        no_installment: '0', // Taksit seçeneği
+        max_installment: '12', // Maksimum taksit
+        currency: 'TL',
+        test_mode: '1', // Test modu
+        merchant_ok_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/order/${orderId}`,
+        merchant_fail_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/order/${orderId}?status=failed`,
+        timeout_limit: '30'
+      }
+
       const res = await fetch('/api/paytr/init', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: total * 100, // PayTR kuruş cinsinden ister
-          email: delivery.email,
-          user_ip: '127.0.0.1', // Test için sabit
-          user_name: delivery.name + ' ' + delivery.surname,
-          user_address: delivery.address,
-          user_phone: delivery.phone
-        })
+        body: JSON.stringify(paytrData)
       })
+
       const data = await res.json()
+      
       if (data.success && data.token) {
-        setPaytrUrl(data.paytr_url)
+        setPaytrUrl(`${data.paytr_url}?token=${data.token}`)
         setShowPaytrIframe(true)
       } else {
-        alert('PayTR ödeme başlatılamadı!')
+        throw new Error(data.error || 'PayTR ödeme başlatılamadı')
       }
     } catch (error) {
-      alert('PayTR ödeme başlatılırken hata oluştu!')
+      console.error('PayTR payment error:', error)
+      alert('PayTR ödeme başlatılırken hata oluştu: ' + (error instanceof Error ? error.message : 'Bilinmeyen hata'))
     } finally {
       setIsPlacingOrder(false)
     }
   }
-
-  // PayTR iframe ödeme başarılı simülasyonu
-  const handlePaytrSuccess = async () => {
-    setShowPaytrIframe(false)
-    await handlePlaceOrder()
-  }
-
-
 
   return (
     <>
@@ -339,10 +353,83 @@ export default function CheckoutPage() {
               {/* Kargo Seçimi */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Kargo Seçimi</h3>
+                
+                {/* Gerçek Kargo Firmaları */}
+                {delivery.city && delivery.district && (
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium text-gray-900">Kargo Firmaları</h4>
+                      <button
+                        type="button"
+                        onClick={calculateCargoPrices}
+                        disabled={isLoadingCargo}
+                        className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                      >
+                        {isLoadingCargo ? 'Hesaplanıyor...' : 'Fiyatları Güncelle'}
+                      </button>
+                    </div>
+                    
+                    {isLoadingCargo && (
+                      <div className="text-center py-4">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto"></div>
+                        <p className="text-sm text-gray-500 mt-2">Kargo fiyatları hesaplanıyor...</p>
+                      </div>
+                    )}
+                    
+                    {cargoQuotes.length > 0 && (
+                      <div className="space-y-3 mb-4">
+                        {cargoQuotes.map((quote) => (
+                          <label
+                            key={quote.companyId}
+                            className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
+                              selectedCargoCompany === quote.companyId
+                                ? 'border-primary-500 bg-primary-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="cargoCompany"
+                              value={quote.companyId}
+                              checked={selectedCargoCompany === quote.companyId}
+                              onChange={(e) => setSelectedCargoCompany(e.target.value)}
+                              className="sr-only"
+                            />
+                            <div className="flex items-center justify-center w-5 h-5 border-2 rounded-full mr-3">
+                              {selectedCargoCompany === quote.companyId && (
+                                <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                                    <span className="text-xs font-bold text-gray-600">
+                                      {quote.companyName?.split(' ')[0]?.charAt(0) || 'K'}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <div className="font-medium text-gray-900">{quote.companyName}</div>
+                                    <div className="text-sm text-gray-500">{quote.estimatedDays} iş günü</div>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <span className="font-semibold text-gray-900">{quote.price.toFixed(2)}₺</span>
+                                </div>
+                              </div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {/* Standart Kargo Seçenekleri */}
                 <div className="space-y-3">
                   {shippingOptions.map((option) => {
                     const isFree = option.id === 'free' && subtotal >= 2500
-                    const isSelected = selectedShipping === option.id
+                    const isSelected = selectedShipping === option.id && !selectedCargoCompany
                     return (
                       <label
                         key={option.id}
@@ -356,8 +443,11 @@ export default function CheckoutPage() {
                           type="radio"
                           name="shipping"
                           value={option.id}
-                          checked={selectedShipping === option.id}
-                          onChange={(e) => setSelectedShipping(e.target.value)}
+                          checked={selectedShipping === option.id && !selectedCargoCompany}
+                          onChange={(e) => {
+                            setSelectedShipping(e.target.value)
+                            setSelectedCargoCompany('')
+                          }}
                           className="sr-only"
                         />
                         <div className="flex items-center justify-center w-5 h-5 border-2 rounded-full mr-3">
@@ -587,7 +677,7 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          {step === 3 && !orderSuccess && (
+          {step === 3 && (
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Sipariş Özeti</h2>
               {/* Ürünler */}
@@ -670,103 +760,32 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          {/* PayTR Iframe Modal (Test Modu) */}
+          {/* PayTR Iframe Modal */}
           {showPaytrIframe && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-              <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full flex flex-col items-center">
-                <h2 className="text-xl font-bold mb-4">PayTR Ödeme (Test Modu)</h2>
+              <div className="bg-white rounded-lg shadow-lg p-4 max-w-4xl w-full h-5/6 flex flex-col">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold">PayTR Güvenli Ödeme</h2>
+                  <button
+                    onClick={() => setShowPaytrIframe(false)}
+                    className="text-gray-500 hover:text-gray-700 text-2xl"
+                  >
+                    ×
+                  </button>
+                </div>
                 <iframe
                   ref={paytrIframeRef}
                   src={paytrUrl || ''}
-                  title="PayTR Iframe"
-                  className="w-full h-64 border rounded mb-4"
+                  title="PayTR Güvenli Ödeme"
+                  className="w-full h-full border rounded"
+                  allow="payment"
                 />
-                <button
-                  onClick={handlePaytrSuccess}
-                  className="btn-primary w-full"
-                >
-                  Ödeme Başarılı (Simülasyon)
-                </button>
-                <button
-                  onClick={() => setShowPaytrIframe(false)}
-                  className="btn-secondary w-full mt-2"
-                >
-                  İptal
-                </button>
               </div>
             </div>
           )}
-
-          {/* Sipariş Başarılı Ekranı */}
-          <div className="bg-white rounded-lg shadow-lg border border-green-200 p-8 flex flex-col items-center text-center animate-fade-in">
-            <svg className="h-16 w-16 text-green-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2l4-4m5 2a9 9 0 11-18 0a9 9 0 0118 0z" /></svg>
-            <h2 className="text-3xl font-bold text-green-700 mb-2">Siparişiniz Alındı!</h2>
-            <p className="text-lg text-gray-700 mb-4">Sipariş numaranız: <span className="font-mono text-primary-600">{orderNumber}</span></p>
-            <p className="text-gray-600 mb-6">Siparişiniz en kısa sürede hazırlanıp kargoya verilecektir.<br />Teşekkür ederiz!</p>
-            {/* Guest için hesap oluşturma teklifi */}
-            <GuestRegisterForm email={delivery.email} show={orderSuccess && !window.localStorage.getItem('session_user')} />
-            <a href={`/order/${orderNumber}`} className="btn-primary px-8 py-3 text-lg mt-4">Sipariş Detayını Görüntüle</a>
-            <a href="/" className="btn-secondary px-8 py-3 text-lg mt-2">Ana Sayfaya Dön</a>
-            <p className="text-xs text-gray-400 mt-4">3 saniye içinde otomatik olarak sipariş detayına yönlendirileceksiniz.</p>
-          </div>
         </div>
       </main>
       <Footer />
     </>
-  )
-}
-
-// GuestRegisterForm bileşeni
-type GuestRegisterFormProps = { email: string; show: boolean };
-function GuestRegisterForm({ email, show }: GuestRegisterFormProps) {
-  if (!show) return null;
-  
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState('')
-
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      })
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || 'Kayıt başarısız')
-      }
-      setSuccess(true)
-      // Otomatik login için sayfı yenile
-      setTimeout(() => window.location.reload(), 1000)
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <form onSubmit={handleRegister} className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6 w-full max-w-md mx-auto">
-      <h3 className="text-lg font-semibold text-blue-900 mb-2">Hesap Oluşturun</h3>
-      <p className="text-sm text-blue-800 mb-4">Siparişinizi ve geçmişinizi kolayca takip etmek için hesabınızı oluşturun.</p>
-      <div className="mb-3 text-left">
-        <label className="block text-sm font-medium text-gray-700 mb-1">E-posta</label>
-        <input type="email" value={email} disabled className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100" />
-      </div>
-      <div className="mb-3 text-left">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Şifre</label>
-        <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" required minLength={6} />
-      </div>
-      {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
-      {success && <div className="text-green-600 text-sm mb-2">Hesabınız oluşturuldu! Giriş yapılıyor...</div>}
-      <button type="submit" className="btn-primary w-full" disabled={loading}>
-        {loading ? 'Oluşturuluyor...' : 'Hesap Oluştur'}
-      </button>
-    </form>
   )
 }

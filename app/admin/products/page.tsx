@@ -27,6 +27,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import Image from 'next/image'
+import SEOGenerator from '@/components/SEOGenerator'
 
 interface Product {
   id: string
@@ -73,7 +74,12 @@ const initialForm = {
   minStockLevel: '5',
   maxStockLevel: '',
   categoryId: '',
-  variants: [] as ProductVariant[]
+  variants: [] as ProductVariant[],
+  // SEO alanları
+  metaTitle: '',
+  metaDescription: '',
+  keywords: '',
+  altText: ''
 }
 
 const commonSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45']
@@ -205,6 +211,17 @@ export default function AdminProductsPage() {
         .replace(/^-|-$/g, '')
       setForm((prev: any) => ({ ...prev, slug }))
     }
+  }
+
+  const handleSEOGenerated = (seoData: any) => {
+    setForm((prev: any) => ({
+      ...prev,
+      metaTitle: seoData.metaTitle,
+      metaDescription: seoData.metaDescription,
+      keywords: seoData.keywords.join(', '),
+      altText: seoData.altText,
+      slug: seoData.urlSlug
+    }))
   }
 
   const handleImageUpload = async (files: FileList | File[]) => {
@@ -987,6 +1004,16 @@ export default function AdminProductsPage() {
                 
                 {/* Right Column - Images */}
                 <div className="space-y-6">
+                  {/* SEO Section */}
+                  <SEOGenerator
+                    productName={form.name}
+                    category={categories.find(cat => cat.id === form.categoryId)?.name || ''}
+                    brand="ModaBase"
+                    {...(parseFloat(form.price) > 0 && { price: parseFloat(form.price) })}
+                    {...(form.description && { description: form.description })}
+                    onSEOGenerated={handleSEOGenerated}
+                  />
+                  
                   <div className="bg-gray-50 rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-semibold text-gray-900">Ürün Fotoğrafları</h3>

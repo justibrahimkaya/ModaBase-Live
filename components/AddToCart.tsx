@@ -65,7 +65,7 @@ export default function AddToCart({ product, selectedSize, selectedColor, quanti
     }
   }
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!selectedSize || !selectedColor) {
       alert('Lütfen beden ve renk seçiniz')
       return
@@ -81,26 +81,34 @@ export default function AddToCart({ product, selectedSize, selectedColor, quanti
         name: product.name,
         image: mainImage,
         price: product.price,
-        originalPrice: product.originalPrice || 0
+        originalPrice: product.originalPrice || 0,
+        stock: 10 // Mock stok - gerçek uygulamada API'den gelecek
       },
       size: selectedSize,
       color: selectedColor,
       quantity: quantity
     }
     
-    addItem(cartItem)
-    
-    setTimeout(() => {
+    try {
+      const result = await addItem(cartItem)
+      if (result.success) {
+        setIsAddedToCart(true)
+        setShowToast(true)
+        
+        // Reset after 3 seconds
+        setTimeout(() => {
+          setIsAddedToCart(false)
+          setShowToast(false)
+        }, 3000)
+      } else {
+        alert(result.error || 'Ürün sepete eklenirken hata oluştu')
+      }
+    } catch (error) {
+      console.error('Sepete ekleme hatası:', error)
+      alert('Ürün sepete eklenirken hata oluştu')
+    } finally {
       setIsAddingToCart(false)
-      setIsAddedToCart(true)
-      setShowToast(true)
-      
-      // Reset after 3 seconds
-      setTimeout(() => {
-        setIsAddedToCart(false)
-        setShowToast(false)
-      }, 2500)
-    }, 1000)
+    }
   }
 
   const handleAddToWishlist = async () => {

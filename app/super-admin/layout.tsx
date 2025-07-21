@@ -188,7 +188,7 @@ export default function SuperAdminLayout({
       {/* Mobile sidebar */}
       <div className={`fixed inset-0 z-50 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`}>
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSidebarOpen(false)}></div>
-        <div className="fixed inset-y-0 left-0 flex w-80 flex-col">
+        <div className="fixed inset-y-0 left-0 flex w-72 flex-col">
           {/* Mobile Sidebar Content */}
           <div className="flex flex-col flex-grow bg-gradient-to-br from-red-900 via-pink-900 to-red-900 backdrop-blur-xl border-r border-white/10 shadow-2xl">
             {/* Mobile Header */}
@@ -204,78 +204,81 @@ export default function SuperAdminLayout({
                 </div>
                 <div className="ml-2">
                   <h1 className="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                    Süper Admin
+                    ModaBase
                   </h1>
-                  <p className="text-xs text-gray-400">Sistem Yönetimi</p>
+                  <p className="text-xs text-gray-400">Süper Admin</p>
                 </div>
               </div>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
+                className="p-3 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-manipulation"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             {/* Mobile Navigation */}
-            <nav className="flex-1 space-y-1.5 px-4 py-4 overflow-y-auto">
+            <nav className="flex-1 space-y-2 px-3 py-4 overflow-y-auto">
               {navigation.map((item) => (
                 <a
                   key={item.name}
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
-                  className={`group relative flex items-center px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 ${
+                  className={`group relative flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 touch-manipulation ${
                     item.isActive
                       ? 'bg-gradient-to-r from-red-500/20 to-pink-600/20 text-white border border-red-500/30'
                       : 'text-gray-300 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <div className={`p-1.5 rounded-lg mr-2 ${item.isActive ? 'bg-gradient-to-r ' + item.color : 'bg-white/10'}`}>
-                    <item.icon className="h-3.5 w-3.5" />
+                  <div className={`p-2 rounded-lg mr-3 ${item.isActive ? 'bg-gradient-to-r ' + item.color : 'bg-white/10'}`}>
+                    <item.icon className="h-4 w-4" />
                   </div>
-                  {item.name}
+                  <span className="flex-1">{item.name}</span>
                   {item.isActive && (
-                    <ChevronRight className="h-3 w-3 ml-auto text-red-400" />
+                    <ChevronRight className="h-4 w-4 ml-2 text-red-400" />
                   )}
                 </a>
               ))}
             </nav>
 
             {/* Mobile User Info & Logout */}
-            <div className="border-t border-white/10 p-3">
-              <div className="flex items-center mb-3">
-                <div className="h-8 w-8 bg-gradient-to-r from-red-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg">
-                  <span className="text-xs font-bold text-white">
+            <div className="border-t border-white/10 p-4">
+              <div className="flex items-center mb-4">
+                <div className="h-10 w-10 bg-gradient-to-r from-red-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-sm font-bold text-white">
                     {superAdmin.name?.[0]}{superAdmin.surname?.[0]}
                   </span>
                 </div>
-                <div className="ml-2">
-                  <p className="text-xs font-medium text-white">
+                <div className="ml-3 flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">
                     {superAdmin.name} {superAdmin.surname}
                   </p>
-                  <p className="text-xs text-gray-400">Süper Admin</p>
+                  <p className="text-xs text-gray-400 truncate">{superAdmin.email}</p>
+                  <div className="flex items-center mt-1">
+                    <div className="px-2 py-0.5 bg-gradient-to-r from-red-500/20 to-pink-500/20 border border-red-400/40 rounded-full">
+                      <span className="text-xs font-bold text-red-300">👑 Süper Admin</span>
+                    </div>
+                  </div>
                 </div>
               </div>
               
               {/* View Site Button - Mobile */}
               <button
                 onClick={() => window.open('/', '_blank')}
-                className="flex items-center w-full px-3 py-2 mb-2 text-xs font-medium text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-lg hover:bg-blue-500/20 hover:text-blue-200 transition-all duration-200"
+                className="flex items-center w-full px-4 py-3 mb-3 text-sm font-medium text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-lg hover:bg-blue-500/20 hover:text-blue-200 transition-all duration-200 touch-manipulation"
               >
-                <div className="p-1 bg-blue-500/20 rounded mr-2">
-                  <Globe className="h-3.5 w-3.5" />
+                <div className="p-2 bg-blue-500/20 rounded mr-3">
+                  <Globe className="h-4 w-4" />
                 </div>
                 <span className="flex-1">Siteyi Görüntüle</span>
-                <ExternalLink className="h-3 w-3 opacity-60" />
+                <ExternalLink className="h-4 w-4 opacity-60" />
               </button>
               
               <button
                 onClick={handleLogout}
-                className="flex items-center w-full px-3 py-2 text-xs font-medium text-red-300 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 hover:text-red-200 transition-all duration-200"
+                className="flex items-center w-full px-4 py-3 text-sm font-medium text-red-300 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 hover:text-red-200 transition-all duration-200 touch-manipulation"
               >
-                <div className="p-1 bg-red-500/20 rounded mr-2">
-                  <LogOut className="h-3.5 w-3.5" />
-                </div>
+                <LogOut className="mr-3 h-4 w-4" />
                 Çıkış Yap
               </button>
             </div>
@@ -376,7 +379,7 @@ export default function SuperAdminLayout({
         <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-white/10 bg-gradient-to-r from-red-900/90 to-pink-900/90 backdrop-blur-xl px-4 shadow-sm lg:hidden">
           <button
             type="button"
-            className="-m-2.5 p-2.5 text-gray-400 hover:text-white lg:hidden"
+            className="-m-2.5 p-2.5 text-gray-400 hover:text-white lg:hidden touch-manipulation"
             onClick={() => setSidebarOpen(true)}
           >
             <span className="sr-only">Kenar çubuğunu aç</span>
@@ -397,8 +400,10 @@ export default function SuperAdminLayout({
         </div>
 
         {/* Page content */}
-        <main className="min-h-screen">
-          {children}
+        <main className="min-h-screen py-4 sm:py-6">
+          <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-8">
+            {children}
+          </div>
         </main>
       </div>
     </div>

@@ -140,10 +140,10 @@ export default function Header() {
             <nav className="hidden lg:flex items-center space-x-2">
               {[
                 { name: 'Ana Sayfa', href: '/', gradient: 'from-blue-500 to-purple-600' },
-                { name: 'Kadın', href: '/products?search=kadın', gradient: 'from-pink-500 to-rose-600' },
-                { name: 'Erkek', href: '/products?search=erkek', gradient: 'from-cyan-500 to-blue-600' },
-                { name: 'Çocuk', href: '/products?search=çocuk', gradient: 'from-yellow-500 to-orange-600' },
-                { name: 'Aksesuar', href: '/products?search=aksesuar', gradient: 'from-purple-500 to-pink-600' },
+                { name: 'Kadın', href: '/products?category=kadin', gradient: 'from-pink-500 to-rose-600' },
+                { name: 'Erkek', href: '/products?category=erkek', gradient: 'from-cyan-500 to-blue-600' },
+                { name: 'Çocuk', href: '/products?category=cocuk', gradient: 'from-yellow-500 to-orange-600' },
+                { name: 'Aksesuar', href: '/products?category=aksesuar', gradient: 'from-purple-500 to-pink-600' },
                 { name: 'İndirimler', href: '/products?discount=true', gradient: 'from-red-500 to-pink-600' },
               ].map((item) => (
                 <a
@@ -346,10 +346,10 @@ export default function Header() {
                 {/* Mobile Navigation Links */}
                 {[
                   { name: 'Ana Sayfa', href: '/', gradient: 'from-blue-500 to-purple-600' },
-                  { name: 'Kadın', href: '/products?search=kadın', gradient: 'from-pink-500 to-rose-600' },
-                  { name: 'Erkek', href: '/products?search=erkek', gradient: 'from-cyan-500 to-blue-600' },
-                  { name: 'Çocuk', href: '/products?search=çocuk', gradient: 'from-yellow-500 to-orange-600' },
-                  { name: 'Aksesuar', href: '/products?search=aksesuar', gradient: 'from-purple-500 to-pink-600' },
+                  { name: 'Kadın', href: '/products?category=kadin', gradient: 'from-pink-500 to-rose-600' },
+                  { name: 'Erkek', href: '/products?category=erkek', gradient: 'from-cyan-500 to-blue-600' },
+                  { name: 'Çocuk', href: '/products?category=cocuk', gradient: 'from-yellow-500 to-orange-600' },
+                  { name: 'Aksesuar', href: '/products?category=aksesuar', gradient: 'from-purple-500 to-pink-600' },
                   { name: 'İndirimler', href: '/products?discount=true', gradient: 'from-red-500 to-pink-600' },
                 ].map((item) => (
                   <a

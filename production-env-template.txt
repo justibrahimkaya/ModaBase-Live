@@ -7,10 +7,10 @@
 # 2. "New Project" oluştur → Project Name: ModaBase Production
 # 3. Region: Europe (eu-central-1) seç
 # 4. Settings → Database → Connection String kopyala
-DATABASE_URL="postgresql://postgres.[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres"
+DATABASE_URL="postgresql://username:password@host:5432/database"
 
 # NextAuth Configuration
-NEXTAUTH_SECRET="modabase-2024-production-secret-key-lorem-ipsum-dolor-sit-amet-32-chars"
+NEXTAUTH_SECRET="your_nextauth_secret_here"
 NEXTAUTH_URL="https://www.modabase.com.tr"
 
 # Email Service (SMTP) - GMAIL APP PASSWORD GEREKLI
@@ -33,9 +33,12 @@ EMAIL_PASS="xxxx xxxx xxxx xxxx"
 # Payment Gateway (PayTR) - GERÇEKLEŞTİRME SONRASI GÜNCELLENECEK
 # PayTR ile sözleşme yap → Gerçek merchant bilgilerini al
 # Test için geçici değerler:
-PAYTR_MERCHANT_ID="test-merchant-id"
-PAYTR_MERCHANT_KEY="test-merchant-key" 
-PAYTR_MERCHANT_SALT="test-merchant-salt"
+PAYTR_MERCHANT_ID="596379"
+PAYTR_MERCHANT_KEY="srMxKnSgipN1Z1Td"
+PAYTR_MERCHANT_SALT="TzXLtjFSuyDPsi8B"
+PAYTR_TEST_MODE="false"
+PAYTR_NOTIFICATION_URL="https://www.modabase.com.tr/api/paytr/notification"
+NEXT_PUBLIC_BASE_URL="https://www.modabase.com.tr"
 
 # Application Settings
 NODE_ENV="production"
@@ -63,6 +66,11 @@ SENTRY_DSN="your-sentry-dsn"
 NEXT_PUBLIC_INSTAGRAM_URL="https://instagram.com/modabase"
 NEXT_PUBLIC_FACEBOOK_URL="https://facebook.com/modabase"
 NEXT_PUBLIC_TWITTER_URL="https://twitter.com/modabase"
+
+# WhatsApp Business API (Opsiyonel)
+WHATSAPP_API_URL="https://graph.facebook.com/v17.0/YOUR_PHONE_NUMBER_ID/messages"
+WHATSAPP_ACCESS_TOKEN="your_whatsapp_access_token"
+WHATSAPP_PHONE_NUMBER_ID="your_phone_number_id"
 
 # ===========================================
 # HIZLI DEPLOYMENT REHBERİ:

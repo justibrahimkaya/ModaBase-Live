@@ -1,7 +1,32 @@
-# Vercel Environment Variables - Kopyala/Yapıştır (GÜNCEL DOĞRU FORMAT)
-DATABASE_URL=postgresql://postgres:08513628-JUst@db.wcutymcedxgeyrnpuyvt.supabase.co:5432/postgres
-NEXTAUTH_SECRET=production-secret-key-minimum-32-characters-long-for-security
+# Vercel Environment Variables - ModaBase
+# Bu değişkenleri Vercel Dashboard → Settings → Environment Variables bölümüne ekleyin
+
+# Database
+DATABASE_URL=postgresql://username:password@host:5432/database
+
+# NextAuth
 NEXTAUTH_URL=https://www.modabase.com.tr
+NEXTAUTH_SECRET=your_nextauth_secret_here
+
+# Email
+EMAIL_SERVER_HOST=smtp.gmail.com
+EMAIL_SERVER_PORT=587
+EMAIL_SERVER_USER=your_email@gmail.com
+EMAIL_SERVER_PASSWORD=your_app_password
+
+# PayTR
+PAYTR_MERCHANT_ID=596379
+PAYTR_MERCHANT_KEY=srMxKnSgipN1Z1Td
+PAYTR_MERCHANT_SALT=TzXLtjFSuyDPsi8B
+PAYTR_TEST_MODE=false
+PAYTR_NOTIFICATION_URL=https://www.modabase.com.tr/api/paytr/notification
+NEXT_PUBLIC_BASE_URL=https://www.modabase.com.tr
+
+# WhatsApp (Opsiyonel)
+WHATSAPP_API_URL=https://graph.facebook.com/v17.0/YOUR_PHONE_NUMBER_ID/messages
+WHATSAPP_ACCESS_TOKEN=your_whatsapp_access_token
+WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
+
 NODE_ENV=production
 NEXT_PUBLIC_APP_URL=https://www.modabase.com.tr
 NEXT_PUBLIC_COMPANY_NAME=ModaBase
@@ -10,13 +35,9 @@ SMTP_PORT=587
 SMTP_USER=info@modabase.com.tr
 SMTP_PASS=xxxx xxxx xxxx xxxx
 EMAIL_FROM=ModaBase <info@modabase.com.tr>
-EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=info@modabase.com.tr
 EMAIL_PASS=xxxx xxxx xxxx xxxx
-PAYTR_MERCHANT_ID=test-merchant-id
-PAYTR_MERCHANT_KEY=test-merchant-key
-PAYTR_MERCHANT_SALT=test-merchant-salt
 ENCRYPTION_KEY=modabase-encryption-key-32-chars-production
 JWT_SECRET=modabase-jwt-secret-key-production-2024
 GOOGLE_CLIENT_ID=
