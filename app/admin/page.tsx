@@ -24,6 +24,7 @@ import {
   Search
 } from 'lucide-react'
 import SEODashboard from '@/components/SEODashboard'
+import SEOEditModal from '@/components/SEOEditModal'
 
 interface DashboardStats {
   totalOrders: number
@@ -52,6 +53,12 @@ export default function AdminDashboard() {
   const [mounted, setMounted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showSEOWidget, setShowSEOWidget] = useState(false)
+  const [seoModalOpen, setSeoModalOpen] = useState(false)
+  const [seoModalData, setSeoModalData] = useState<{
+    pageType: string
+    pageId?: string | undefined
+    initialData?: any
+  } | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -425,8 +432,8 @@ export default function AdminDashboard() {
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8">
           <SEODashboard 
             onEditSEO={(pageType, pageId) => {
-              console.log('SEO Edit:', pageType, pageId)
-              // TODO: SEO edit modal'ını aç
+              setSeoModalData({ pageType, pageId: pageId || undefined })
+              setSeoModalOpen(true)
             }}
           />
         </div>
@@ -548,6 +555,20 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* SEO Edit Modal */}
+      {seoModalData && (
+        <SEOEditModal
+          isOpen={seoModalOpen}
+          onClose={() => {
+            setSeoModalOpen(false)
+            setSeoModalData(null)
+          }}
+          pageType={seoModalData.pageType}
+          pageId={seoModalData.pageId}
+          initialData={seoModalData.initialData}
+        />
+      )}
     </div>
   )
 }
