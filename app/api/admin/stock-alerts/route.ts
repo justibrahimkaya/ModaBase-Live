@@ -12,21 +12,30 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Minimum stok seviyesinin altındaki ürünler
+    // Tüm ürünleri getir
     const allProducts = await prisma.product.findMany({
       include: {
         category: true
       }
     })
     
+    // Minimum stok seviyesinin altındaki ürünler
     const lowStockProducts = allProducts.filter(product => 
       product.stock <= product.minStockLevel && product.stock > 0
-    ).sort((a, b) => a.stock - b.stock)
+    ).map(product => ({
+      ...product,
+      categoryName: product.category.name,
+      categorySlug: product.category.slug
+    })).sort((a, b) => a.stock - b.stock)
 
     // Stokta olmayan ürünler
     const outOfStockProducts = allProducts.filter(product => 
       product.stock === 0
-    ).sort((a, b) => a.name.localeCompare(b.name))
+    ).map(product => ({
+      ...product,
+      categoryName: product.category.name,
+      categorySlug: product.category.slug
+    })).sort((a, b) => a.name.localeCompare(b.name))
 
     // Son 7 günlük stok hareketleri
     const recentMovements = await prisma.stockMovement.findMany({

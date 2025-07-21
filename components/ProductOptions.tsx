@@ -75,7 +75,7 @@ export default function ProductOptions({
 
   const increaseQuantity = () => {
     if (selectedVariant && quantity < selectedVariant.stock) {
-      setQuantity(quantity + 1)
+    setQuantity(quantity + 1)
     }
   }
 

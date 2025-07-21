@@ -127,6 +127,7 @@ model Category {
   products    Product[]
   parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryHierarchy")
+  seoSettings SEOSettings? @relation("CategorySEO")
 }
 
 model Product {
@@ -153,6 +154,7 @@ model Product {
   stockMovements StockMovement[] @relation("ProductStockMovements")
   variants     ProductVariant[]
   stockNotifications UserStockNotification[] @relation("ProductStockNotifications")
+  seoSettings  SEOSettings? @relation("ProductSEO")
 }
 
 model ProductVariant {
@@ -406,6 +408,67 @@ model Business {
   lastLoginAt           DateTime?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+}
+
+// SEO Settings Model
+model SEOSettings {
+  id              String   @id @default(cuid())
+  pageType        String   // 'homepage', 'category', 'product', 'general'
+  pageId          String?  // Genel page ID (homepage için null)
+  productId       String?  // Ürün ID'si (sadece product type için)
+  categoryId      String?  // Kategori ID'si (sadece category type için)
+  pageSlug        String?  // URL slug (homepage için '/')
+  
+  // Basic SEO
+  metaTitle       String
+  metaDescription String
+  keywords        String
+  
+  // Open Graph
+  ogTitle         String?
+  ogDescription   String?
+  ogImage         String?
+  ogType          String?  // 'website', 'product', 'article'
+  
+  // Twitter Card
+  twitterCard     String?  // 'summary', 'summary_large_image'
+  twitterTitle    String?
+  twitterDescription String?
+  twitterImage    String?
+  
+  // Structured Data
+  structuredData  String?  // JSON formatında schema.org data
+  
+  // Advanced SEO
+  canonicalUrl    String?
+  robotsMeta      String?  // 'index,follow', 'noindex,nofollow'
+  hreflang        String?  // Çoklu dil desteği için
+  
+  // Analytics & Tracking
+  googleAnalyticsId String?
+  googleTagManagerId String?
+  facebookPixelId  String?
+  
+  // Performance
+  isActive        Boolean  @default(true)
+  priority        Int      @default(0) // Öncelik sırası
+  
+  // Audit & Monitoring
+  lastAuditDate   DateTime?
+  seoScore        Int?     // 0-100 arası SEO skoru
+  auditNotes      String?  // SEO denetim notları
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  product         Product? @relation("ProductSEO", fields: [productId], references: [id], onDelete: Cascade)
+  category        Category? @relation("CategorySEO", fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  @@unique([pageType, pageId])
+  @@unique([pageType, pageSlug])
+  @@unique([productId])
+  @@unique([categoryId])
 }
 
 

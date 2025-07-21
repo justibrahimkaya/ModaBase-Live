@@ -20,8 +20,10 @@ import {
   FileText,
   Eye,
   FolderOpen,
-  Truck
+  Truck,
+  Search
 } from 'lucide-react'
+import SEODashboard from '@/components/SEODashboard'
 
 interface DashboardStats {
   totalOrders: number
@@ -34,11 +36,22 @@ interface DashboardStats {
   userRole?: string
 }
 
+interface QuickAction {
+  title: string
+  description: string
+  href: string
+  icon: any
+  color: string
+  count?: number
+  isSEOWidget?: boolean
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showSEOWidget, setShowSEOWidget] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -186,7 +199,7 @@ export default function AdminDashboard() {
     }
   ]
 
-  const quickActions = [
+  const quickActions: QuickAction[] = [
     {
       title: 'Siparişleri Yönet',
       description: 'Sipariş durumlarını güncelle ve takip et',
@@ -203,13 +216,6 @@ export default function AdminDashboard() {
       color: 'from-purple-500 to-violet-600',
       count: stats?.lowStockProducts || 0
     },
-    ...(stats?.userRole === 'ADMIN' ? [{
-      title: 'Kategoriler',
-      description: 'Ürün kategorilerini yönet',
-      href: '/admin/categories',
-      icon: FolderOpen,
-      color: 'from-orange-500 to-red-600'
-    }] : []),
     {
       title: 'Stok Uyarıları',
       description: 'Düşük stok seviyelerini kontrol et',
@@ -218,13 +224,14 @@ export default function AdminDashboard() {
       color: 'from-yellow-500 to-orange-600',
       count: stats?.lowStockProducts || 0
     },
-    ...(stats?.userRole === 'ADMIN' ? [{
-      title: 'Kargo Firmaları',
-      description: 'Kargo firma ayarları',
-      href: '/admin/shipping',
-      icon: Truck,
-      color: 'from-cyan-500 to-blue-600'
-    }] : []),
+    {
+      title: 'SEO Yönetimi',
+      description: 'Arama motoru optimizasyonu',
+      href: '#',
+      icon: Search,
+      color: 'from-purple-500 to-indigo-600',
+      isSEOWidget: true
+    },
     {
       title: 'E-Faturalar',
       description: 'Fatura yönetimi ve raporlama',
@@ -232,20 +239,37 @@ export default function AdminDashboard() {
       icon: FileText,
       color: 'from-teal-500 to-emerald-600'
     },
-    ...(stats?.userRole === 'ADMIN' ? [{
-      title: 'Kullanıcı Yönetimi',
-      description: 'Sistem kullanıcılarını yönet',
-      href: '/admin/users',
-      icon: Users,
-      color: 'from-pink-500 to-rose-600'
-    }] : []),
     {
       title: 'Ayarlar',
       description: 'Sistem konfigürasyonu',
       href: '/admin/settings',
       icon: Activity,
       color: 'from-slate-500 to-gray-600'
-    }
+    },
+    // Admin-only actions
+    ...(stats?.userRole === 'ADMIN' ? [
+      {
+        title: 'Kategoriler',
+        description: 'Ürün kategorilerini yönet',
+        href: '/admin/categories',
+        icon: FolderOpen,
+        color: 'from-orange-500 to-red-600'
+      },
+      {
+        title: 'Kargo Firmaları',
+        description: 'Kargo firma ayarları',
+        href: '/admin/shipping',
+        icon: Truck,
+        color: 'from-cyan-500 to-blue-600'
+      },
+      {
+        title: 'Kullanıcı Yönetimi',
+        description: 'Sistem kullanıcılarını yönet',
+        href: '/admin/users',
+        icon: Users,
+        color: 'from-pink-500 to-rose-600'
+      }
+    ] : [])
   ]
 
   return (
@@ -345,31 +369,68 @@ export default function AdminDashboard() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
           {quickActions.map((action, index) => (
-            <a
-              key={index}
-              href={action.href}
-              className="group relative bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl p-6 transition-all duration-300 hover:scale-105"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-xl bg-gradient-to-r ${action.color} group-hover:scale-110 transition-transform duration-300`}>
-                  <action.icon className="h-6 w-6 text-white" />
-                </div>
-                {action.count !== undefined && action.count > 0 && (
-                  <div className="bg-red-500/20 text-red-300 text-xs font-bold px-2 py-1 rounded-full">
-                    {action.count}
+            action.isSEOWidget ? (
+              <div
+                key={index}
+                className="group relative bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl p-6 transition-all duration-300 hover:scale-105 cursor-pointer"
+                onClick={() => setShowSEOWidget(!showSEOWidget)}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`p-3 rounded-xl bg-gradient-to-r ${action.color} group-hover:scale-110 transition-transform duration-300`}>
+                    <action.icon className="h-6 w-6 text-white" />
                   </div>
-                )}
+                  {action.count !== undefined && action.count > 0 && (
+                    <div className="bg-red-500/20 text-red-300 text-xs font-bold px-2 py-1 rounded-full">
+                      {action.count}
+                    </div>
+                  )}
+                </div>
+                <h3 className="text-white font-semibold mb-2 group-hover:text-gray-200 transition-colors">
+                  {action.title}
+                </h3>
+                <p className="text-gray-400 text-sm group-hover:text-gray-300 transition-colors">
+                  {action.description}
+                </p>
               </div>
-              <h3 className="text-white font-semibold mb-2 group-hover:text-gray-200 transition-colors">
-                {action.title}
-              </h3>
-              <p className="text-gray-400 text-sm group-hover:text-gray-300 transition-colors">
-                {action.description}
-              </p>
-            </a>
+            ) : (
+              <a
+                key={index}
+                href={action.href}
+                className="group relative bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl p-6 transition-all duration-300 hover:scale-105"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`p-3 rounded-xl bg-gradient-to-r ${action.color} group-hover:scale-110 transition-transform duration-300`}>
+                    <action.icon className="h-6 w-6 text-white" />
+                  </div>
+                  {action.count !== undefined && action.count > 0 && (
+                    <div className="bg-red-500/20 text-red-300 text-xs font-bold px-2 py-1 rounded-full">
+                      {action.count}
+                    </div>
+                  )}
+                </div>
+                <h3 className="text-white font-semibold mb-2 group-hover:text-gray-200 transition-colors">
+                  {action.title}
+                </h3>
+                <p className="text-gray-400 text-sm group-hover:text-gray-300 transition-colors">
+                  {action.description}
+                </p>
+              </a>
+            )
           ))}
         </div>
       </div>
+
+      {/* SEO Widget */}
+      {showSEOWidget && (
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8">
+          <SEODashboard 
+            onEditSEO={(pageType, pageId) => {
+              console.log('SEO Edit:', pageType, pageId)
+              // TODO: SEO edit modal'ını aç
+            }}
+          />
+        </div>
+      )}
 
       {/* Recent Orders */}
       <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8">

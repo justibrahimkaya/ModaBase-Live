@@ -257,21 +257,21 @@ export default function AdminProductsPage() {
           continue
         }
         
-        // Convert to base64 for demo purposes
-        const reader = new FileReader()
-        const base64Promise = new Promise<string>((resolve) => {
-          reader.onload = (e) => {
-            resolve(e.target?.result as string)
-          }
-          reader.readAsDataURL(file)
-        })
-        
-        const base64 = await base64Promise
-        newImages.push(base64)
+          // Convert to base64 for demo purposes
+          const reader = new FileReader()
+          const base64Promise = new Promise<string>((resolve) => {
+            reader.onload = (e) => {
+              resolve(e.target?.result as string)
+            }
+            reader.readAsDataURL(file)
+          })
+          
+          const base64 = await base64Promise
+          newImages.push(base64)
       }
       
       if (newImages.length > 0) {
-        setForm({ ...form, images: [...form.images, ...newImages] })
+      setForm({ ...form, images: [...form.images, ...newImages] })
         setError('') // Başarılı yüklemede hata mesajını temizle
       }
     } catch (error) {
