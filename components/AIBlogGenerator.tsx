@@ -215,16 +215,17 @@ export default function AIBlogGenerator({ onBlogCreated }: AIBlogGeneratorProps)
       )}
 
       {/* Info */}
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-        <h4 className="font-medium text-blue-900 mb-2">🤖 AI Blog Yazısı Oluşturucu Hakkında</h4>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• OpenAI GPT-4 kullanarak kaliteli içerik üretir</li>
-          <li>• SEO dostu başlıklar ve içerikler oluşturur</li>
-          <li>• 800-1200 kelime arası detaylı yazılar</li>
-          <li>• Otomatik slug ve meta veri oluşturur</li>
-          <li>• Unsplash'ten uygun görseller seçer</li>
-        </ul>
-      </div>
+                   <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+               <h4 className="font-medium text-blue-900 mb-2">🤖 AI Blog Yazısı Oluşturucu Hakkında</h4>
+               <ul className="text-sm text-blue-800 space-y-1">
+                 <li>• Akıllı template sistemi ile kaliteli içerik üretir</li>
+                 <li>• SEO dostu başlıklar ve içerikler oluşturur</li>
+                 <li>• 800-1200 kelime arası detaylı yazılar</li>
+                 <li>• Otomatik slug ve meta veri oluşturur</li>
+                 <li>• Unsplash'ten uygun görseller seçer</li>
+                 <li>• Ücretsiz ve hızlı çalışır</li>
+               </ul>
+             </div>
     </div>
   )
 } 

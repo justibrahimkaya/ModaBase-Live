@@ -1,12 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { getAdminUser } from '@/lib/adminAuth'
-
-export const dynamic = 'force-dynamic'
+const { PrismaClient } = require('@prisma/client')
+require('dotenv').config()
+const prisma = new PrismaClient()
 
 // Türkçe karakterleri İngilizce karakterlere dönüştür
-function createSlug(text: string) {
-  const turkishToEnglish: { [key: string]: string } = {
+function createSlug(text) {
+  const turkishToEnglish = {
     'ç': 'c', 'Ç': 'C',
     'ğ': 'g', 'Ğ': 'G',
     'ı': 'i', 'I': 'I',
@@ -26,9 +24,91 @@ function createSlug(text: string) {
     .replace(/^-|-$/g, '')
 }
 
-// Template blog yazısı oluştur
-function generateTemplateBlogPost(topic: string, category: string) {
-  const templates: { [key: string]: any } = {
+// Hugging Face API ile blog yazısı oluştur
+async function generateBlogPostWithHuggingFace(topic, category) {
+  try {
+    const prompt = `
+Aşağıdaki konu hakkında SEO dostu, detaylı bir blog yazısı oluştur:
+
+Konu: ${topic}
+Kategori: ${category}
+
+Yazı şu formatta olmalı:
+- Başlık: Çekici ve SEO dostu
+- Özet: 2-3 cümlelik kısa açıklama
+- İçerik: HTML formatında, başlıklar (h2, h3), paragraflar, listeler içeren
+- Etiketler: 5-7 adet ilgili anahtar kelime
+- Görsel: Unsplash'ten uygun bir görsel URL'si
+
+Yazı Türkçe olmalı ve şu özelliklere sahip olmalı:
+- 800-1200 kelime
+- Pratik öneriler içermeli
+- Güncel trendleri yansıtmalı
+- Okuyucu dostu olmalı
+- SEO optimizasyonu yapılmış olmalı
+
+Sadece JSON formatında döndür, başka açıklama ekleme:
+{
+  "title": "Başlık",
+  "excerpt": "Özet",
+  "content": "HTML içerik",
+  "tags": ["etiket1", "etiket2"],
+  "image": "https://images.unsplash.com/...",
+  "category": "${category}"
+}
+`
+
+    console.log('🤖 Hugging Face API ile blog yazısı oluşturuluyor...')
+    console.log('Konu:', topic)
+    console.log('Kategori:', category)
+
+    // Hugging Face Inference API kullan
+    const response = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer hf_xxx' // Ücretsiz kullanım için gerekli değil
+      },
+      body: JSON.stringify({
+        inputs: prompt,
+        parameters: {
+          max_length: 1000,
+          temperature: 0.7,
+          do_sample: true
+        }
+      })
+    })
+
+    if (!response.ok) {
+      // Hugging Face API çalışmazsa, basit bir template kullan
+      console.log('⚠️ Hugging Face API çalışmıyor, template kullanılıyor...')
+      return generateTemplateBlogPost(topic, category)
+    }
+
+    const data = await response.json()
+    const content = data[0]?.generated_text || data.generated_text
+
+    // JSON parse et
+    try {
+      const blogData = JSON.parse(content)
+      return blogData
+    } catch (parseError) {
+      console.error('JSON parse hatası:', parseError)
+      console.log('API yanıtı:', content)
+      // Template kullan
+      return generateTemplateBlogPost(topic, category)
+    }
+
+  } catch (error) {
+    console.error('Hugging Face API hatası:', error)
+    // Template kullan
+    return generateTemplateBlogPost(topic, category)
+  }
+}
+
+// Template blog yazısı oluştur (API çalışmazsa)
+function generateTemplateBlogPost(topic, category) {
+  const templates = {
     'Kadın Giyimi': {
       title: `${topic} Rehberi: 2024 Trendleri ve Öneriler`,
       excerpt: `${topic} konusunda uzman önerileri ve güncel trendleri keşfedin. Kaliteli ürün seçimi ve stil önerileri.`,
@@ -124,43 +204,13 @@ function generateTemplateBlogPost(topic: string, category: string) {
   }
 }
 
-// AI ile blog yazısı oluştur (Template kullanarak)
-async function generateBlogPostWithAI(topic: string, category: string) {
-  // Template kullanarak blog yazısı oluştur
-  return generateTemplateBlogPost(topic, category)
-}
-
-// AI blog yazısı oluştur
-export async function POST(request: NextRequest) {
+// Blog yazısını veritabanına kaydet
+async function saveBlogPost(blogData) {
   try {
-    // Admin yetkisi kontrol et
-    const adminUser = await getAdminUser(request)
-    if (!adminUser) {
-      return NextResponse.json(
-        { error: 'Yetkisiz erişim' },
-        { status: 401 }
-      )
-    }
-
-    const body = await request.json()
-    const { topic, category } = body
-
-    if (!topic || !category) {
-      return NextResponse.json(
-        { error: 'Konu ve kategori gerekli' },
-        { status: 400 }
-      )
-    }
-
-    // AI ile blog yazısı oluştur
-    const blogData = await generateBlogPostWithAI(topic, category)
-
-    // Slug oluştur
     const slug = createSlug(blogData.title)
     const wordCount = blogData.content.split(/\s+/).length
     const readTime = Math.ceil(wordCount / 200)
-
-    // Veritabanına kaydet
+    
     const post = await prisma.blogPost.create({
       data: {
         title: blogData.title,
@@ -177,29 +227,90 @@ export async function POST(request: NextRequest) {
         viewCount: 0
       }
     })
+    
+    console.log(`✅ "${blogData.title}" başarıyla oluşturuldu`)
+    console.log(`   Slug: ${slug}`)
+    console.log(`   URL: /blog/${slug}`)
+    console.log(`   Kelime sayısı: ${wordCount}`)
+    console.log(`   Okuma süresi: ${readTime} dakika\n`)
+    
+    return post
+  } catch (error) {
+    console.error('Blog yazısı kaydetme hatası:', error)
+    return null
+  }
+}
 
-    return NextResponse.json({
-      success: true,
-      message: 'AI blog yazısı başarıyla oluşturuldu',
-      post: {
-        id: post.id,
-        title: post.title,
-        slug: post.slug,
-        excerpt: post.excerpt,
-        category: post.category,
-        readTime: post.readTime,
-        url: `/blog/${post.slug}`
+// Ana fonksiyon
+async function generateAIBlogPosts() {
+  try {
+    console.log('🚀 Hugging Face AI Blog Yazısı Oluşturucu Başlatılıyor...\n')
+    
+    // Örnek konular ve kategoriler
+    const topics = [
+      {
+        topic: '2024 Kış Moda Trendleri',
+        category: 'Moda Trendleri'
+      },
+      {
+        topic: 'Sürdürülebilir Tekstil Üretimi',
+        category: 'Moda Trendleri'
+      },
+      {
+        topic: 'Organik Kumaşların Faydaları',
+        category: 'Kumaş Rehberi'
+      },
+      {
+        topic: 'Ev Tekstili Bakım Rehberi',
+        category: 'Ev Tekstili'
+      },
+      {
+        topic: 'Spor Giyiminde Teknoloji',
+        category: 'Spor Giyimi'
+      }
+    ]
+    
+    for (const { topic, category } of topics) {
+      console.log(`📝 "${topic}" konusu işleniyor...`)
+      
+      // AI ile blog yazısı oluştur
+      const blogData = await generateBlogPostWithHuggingFace(topic, category)
+      
+      if (blogData) {
+        // Veritabanına kaydet
+        await saveBlogPost(blogData)
+      } else {
+        console.log(`❌ "${topic}" oluşturulamadı\n`)
+      }
+      
+      // Rate limit için bekle
+      await new Promise(resolve => setTimeout(resolve, 2000))
+    }
+    
+    console.log('🎉 Hugging Face AI blog yazısı oluşturma tamamlandı!')
+    
+  } catch (error) {
+    console.error('❌ Genel hata:', error)
+  } finally {
+    await prisma.$disconnect()
+  }
+}
+
+// Komut satırı argümanları
+const args = process.argv.slice(2)
+if (args.length >= 2) {
+  const topic = args[0]
+  const category = args[1]
+  
+  generateBlogPostWithHuggingFace(topic, category)
+    .then(blogData => {
+      if (blogData) {
+        saveBlogPost(blogData)
       }
     })
-
-  } catch (error) {
-    console.error('AI blog yazısı oluşturma hatası:', error)
-    return NextResponse.json(
-      { 
-        error: 'Blog yazısı oluşturulurken bir hata oluştu',
-        details: error instanceof Error ? error.message : 'Bilinmeyen hata'
-      },
-      { status: 500 }
-    )
-  }
+    .catch(console.error)
+    .finally(() => prisma.$disconnect())
+} else {
+  // Varsayılan olarak örnek konuları oluştur
+  generateAIBlogPosts()
 } 
