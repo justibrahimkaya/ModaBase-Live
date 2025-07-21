@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import SEODashboard from '@/components/SEODashboard'
 import SEOEditModal from '@/components/SEOEditModal'
+import AIBlogGenerator from '@/components/AIBlogGenerator'
 
 interface DashboardStats {
   totalOrders: number
@@ -428,16 +429,21 @@ export default function AdminDashboard() {
       </div>
 
       {/* SEO Widget */}
-      {showSEOWidget && (
+              {showSEOWidget && (
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8">
+            <SEODashboard
+              onEditSEO={(pageType, pageId) => {
+                setSeoModalData({ pageType, pageId: pageId || undefined })
+                setSeoModalOpen(true)
+              }}
+            />
+          </div>
+        )}
+
+        {/* AI Blog Generator */}
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8">
-          <SEODashboard 
-            onEditSEO={(pageType, pageId) => {
-              setSeoModalData({ pageType, pageId: pageId || undefined })
-              setSeoModalOpen(true)
-            }}
-          />
+          <AIBlogGenerator />
         </div>
-      )}
 
       {/* Recent Orders */}
       <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8">
