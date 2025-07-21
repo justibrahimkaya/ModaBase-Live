@@ -471,4 +471,29 @@ model SEOSettings {
   @@unique([categoryId])
 }
 
+// Blog Post Model
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String
+  content     String   // HTML content
+  author      String
+  publishedAt DateTime?
+  tags        String[] // Array of tags
+  image       String   // Featured image URL
+  readTime    Int      // Reading time in minutes
+  category    String
+  viewCount   Int      @default(0)
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // SEO - will be handled via pageId in SEOSettings
+  
+  @@index([category])
+  @@index([publishedAt])
+  @@index([isPublished])
+}
+
 

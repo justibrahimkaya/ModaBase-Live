@@ -144,6 +144,7 @@ export default function Header() {
                 { name: 'Erkek', href: '/products?category=erkek', gradient: 'from-cyan-500 to-blue-600' },
                 { name: 'Çocuk', href: '/products?category=cocuk', gradient: 'from-yellow-500 to-orange-600' },
                 { name: 'Aksesuar', href: '/products?category=aksesuar', gradient: 'from-purple-500 to-pink-600' },
+                { name: 'Blog', href: '/blog', gradient: 'from-indigo-500 to-purple-600' },
                 { name: 'İndirimler', href: '/products?discount=true', gradient: 'from-red-500 to-pink-600' },
               ].map((item) => (
                 <a
