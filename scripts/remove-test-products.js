@@ -4,110 +4,56 @@ const prisma = new PrismaClient()
 
 async function removeTestProducts() {
   try {
-    console.log('🧹 Test ürünleri temizleniyor...')
+    console.log('🔍 Test ürünleri aranıyor...')
     
-    // Test ürünleri (seed.ts'deki ürünler)
-    const testProductSlugs = [
-      'kadin-yaz-elbisesi-cicekli',
-      'kadin-bluz-pamuklu', 
-      'kadin-etek-midi',
-      'kadin-gomlek-klasik'
-    ]
-    
-    // Önce test ürünlerinin ID'lerini al
+    // Test ürünlerini bul
     const testProducts = await prisma.product.findMany({
       where: {
-        slug: {
-          in: testProductSlugs
-        }
+        OR: [
+          { name: { contains: 'Kadın Bluz - Pamuklu' } },
+          { name: { contains: 'Kadın Yaz Elbisesi - Çiçekli Desen' } },
+          { name: { contains: 'Erkek' } },
+          { name: { contains: 'Çocuk' } },
+          { name: { contains: 'Aksesuar' } }
+        ]
       },
-      select: { id: true, name: true }
-    })
-    
-    if (testProducts.length === 0) {
-      console.log('ℹ️  Test ürünü bulunamadı')
-    } else {
-      console.log(`📋 ${testProducts.length} test ürünü bulundu:`)
-      testProducts.forEach(p => console.log(`   - ${p.name}`))
-      
-      // Önce bu ürünlerin review'larını sil
-      const deletedReviews = await prisma.review.deleteMany({
-        where: {
-          productId: {
-            in: testProducts.map(p => p.id)
-          }
-        }
-      })
-      
-      console.log(`✅ ${deletedReviews.count} test review silindi`)
-      
-      // Sonra ürünleri sil
-      const deletedProducts = await prisma.product.deleteMany({
-        where: {
-          slug: {
-            in: testProductSlugs
-          }
-        }
-      })
-      
-      console.log(`✅ ${deletedProducts.count} test ürünü silindi`)
-    }
-    
-    // Test kullanıcılarını da sil
-    const testUserEmails = [
-      'ayse@example.com',
-      'fatma@example.com'
-    ]
-    
-    const deletedUsers = await prisma.user.deleteMany({
-      where: {
-        email: {
-          in: testUserEmails
-        }
-      }
-    })
-    
-    console.log(`✅ ${deletedUsers.count} test kullanıcısı silindi`)
-    
-    // Kalan ürünleri listele
-    const remainingProducts = await prisma.product.findMany({
       include: {
-        category: true
+        reviews: true,
+        orderItems: true,
+        cartItems: true,
+        favorites: true,
+        wishlists: true,
+        stockMovements: true,
+        stockNotifications: true,
+        variants: true
       }
     })
+
+    console.log(`📦 ${testProducts.length} test ürünü bulundu:`)
     
-    console.log('\n📦 Kalan Ürünler:')
-    if (remainingProducts.length === 0) {
-      console.log('   Hiç ürün yok - temiz database ✨')
-    } else {
-      remainingProducts.forEach(product => {
-        console.log(`   - ${product.name} (${product.category.name})`)
+    for (const product of testProducts) {
+      console.log(`\n🗑️  Siliniyor: ${product.name} (ID: ${product.id})`)
+      console.log(`   - Yorumlar: ${product.reviews.length}`)
+      console.log(`   - Sipariş kalemleri: ${product.orderItems.length}`)
+      console.log(`   - Sepet kalemleri: ${product.cartItems.length}`)
+      console.log(`   - Favoriler: ${product.favorites.length}`)
+      console.log(`   - İstek listesi: ${product.wishlists.length}`)
+      console.log(`   - Stok hareketleri: ${product.stockMovements.length}`)
+      console.log(`   - Stok bildirimleri: ${product.stockNotifications.length}`)
+      console.log(`   - Varyantlar: ${product.variants.length}`)
+      
+      // Ürünü sil (cascade delete ile ilişkili kayıtlar da silinecek)
+      await prisma.product.delete({
+        where: { id: product.id }
       })
+      
+      console.log(`   ✅ Başarıyla silindi!`)
     }
-    
-    // Kalan kullanıcıları listele (admin hariç)
-    const remainingUsers = await prisma.user.findMany({
-      where: {
-        role: {
-          not: 'SITE_ADMIN'
-        }
-      }
-    })
-    
-    console.log('\n👥 Kalan Kullanıcılar:')
-    if (remainingUsers.length === 0) {
-      console.log('   Hiç normal kullanıcı yok - temiz database ✨')
-    } else {
-      remainingUsers.forEach(user => {
-        console.log(`   - ${user.name} ${user.surname} (${user.email})`)
-      })
-    }
-    
-    console.log('\n🎉 Database temizleme tamamlandı!')
+
+    console.log('\n🎉 Tüm test ürünleri başarıyla silindi!')
     
   } catch (error) {
-    console.error('❌ Hata:', error.message)
-    throw error
+    console.error('❌ Hata:', error)
   } finally {
     await prisma.$disconnect()
   }

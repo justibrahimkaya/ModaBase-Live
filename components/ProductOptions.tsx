@@ -2,7 +2,22 @@
 
 import { Minus, Plus } from 'lucide-react'
 
+interface ProductVariant {
+  id: string
+  productId: string
+  size: string | null
+  color: string | null
+  colorCode: string | null
+  stock: number
+  price: number | null
+  sku: string | null
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
 interface ProductOptionsProps {
+  variants: ProductVariant[]
   selectedSize: string
   setSelectedSize: (size: string) => void
   selectedColor: string
@@ -11,23 +26,28 @@ interface ProductOptionsProps {
   setQuantity: (quantity: number) => void
 }
 
-const sizes = [
-  { id: 'xs', name: 'XS', available: true },
-  { id: 's', name: 'S', available: true },
-  { id: 'm', name: 'M', available: true },
-  { id: 'l', name: 'L', available: true },
-  { id: 'xl', name: 'XL', available: true },
-  { id: 'xxl', name: 'XXL', available: false }
+// Standart beden listesi
+const allSizes = [
+  { id: 'xs', name: 'XS' },
+  { id: 's', name: 'S' },
+  { id: 'm', name: 'M' },
+  { id: 'l', name: 'L' },
+  { id: 'xl', name: 'XL' },
+  { id: 'xxl', name: 'XXL' }
 ]
 
-const colors = [
-  { id: 'blue', name: 'Mavi', hex: '#3b82f6', available: true },
-  { id: 'red', name: 'Kırmızı', hex: '#ef4444', available: true },
-  { id: 'green', name: 'Yeşil', hex: '#10b981', available: true },
-  { id: 'yellow', name: 'Sarı', hex: '#f59e0b', available: false }
+// Standart renk listesi
+const allColors = [
+  { id: 'blue', name: 'Mavi', hex: '#3b82f6' },
+  { id: 'red', name: 'Kırmızı', hex: '#ef4444' },
+  { id: 'green', name: 'Yeşil', hex: '#10b981' },
+  { id: 'yellow', name: 'Sarı', hex: '#f59e0b' },
+  { id: 'black', name: 'Siyah', hex: '#000000' },
+  { id: 'white', name: 'Beyaz', hex: '#ffffff' }
 ]
 
 export default function ProductOptions({
+  variants,
   selectedSize,
   setSelectedSize,
   selectedColor,
@@ -35,8 +55,28 @@ export default function ProductOptions({
   quantity,
   setQuantity
 }: ProductOptionsProps) {
+  // Mevcut varyantlardan bedenleri çıkar
+  const availableSizes = allSizes.map(size => ({
+    ...size,
+    available: variants.some(v => v.size?.toLowerCase() === size.id && v.stock > 0)
+  }))
+
+  // Mevcut varyantlardan renkleri çıkar
+  const availableColors = allColors.map(color => ({
+    ...color,
+    available: variants.some(v => v.color?.toLowerCase() === color.id && v.stock > 0)
+  }))
+
+  // Seçili varyantın stok miktarını bul
+  const selectedVariant = variants.find(v => 
+    v.size?.toLowerCase() === selectedSize && 
+    v.color?.toLowerCase() === selectedColor
+  )
+
   const increaseQuantity = () => {
-    setQuantity(quantity + 1)
+    if (selectedVariant && quantity < selectedVariant.stock) {
+      setQuantity(quantity + 1)
+    }
   }
 
   const decreaseQuantity = () => {
@@ -56,7 +96,7 @@ export default function ProductOptions({
           </button>
         </div>
         <div className="grid grid-cols-6 gap-2">
-          {sizes.map((size) => (
+          {availableSizes.map((size) => (
             <button
               key={size.id}
               onClick={() => size.available && setSelectedSize(size.id)}
@@ -75,7 +115,7 @@ export default function ProductOptions({
         </div>
         {selectedSize && (
           <p className="text-sm text-green-600 mt-2">
-            ✓ {sizes.find(s => s.id === selectedSize)?.name} bedeni seçildi
+            ✓ {availableSizes.find(s => s.id === selectedSize)?.name} bedeni seçildi
           </p>
         )}
       </div>
@@ -84,7 +124,7 @@ export default function ProductOptions({
       <div>
         <h3 className="font-semibold text-gray-900 mb-3">Renk</h3>
         <div className="flex space-x-3">
-          {colors.map((color) => (
+          {availableColors.map((color) => (
             <button
               key={color.id}
               onClick={() => color.available && setSelectedColor(color.id)}
@@ -109,7 +149,7 @@ export default function ProductOptions({
         </div>
         {selectedColor && (
           <p className="text-sm text-green-600 mt-2">
-            ✓ {colors.find(c => c.id === selectedColor)?.name} rengi seçildi
+            ✓ {availableColors.find(c => c.id === selectedColor)?.name} rengi seçildi
           </p>
         )}
       </div>
@@ -130,13 +170,17 @@ export default function ProductOptions({
           </span>
           <button
             onClick={increaseQuantity}
-            className="w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+            disabled={selectedVariant ? quantity >= selectedVariant.stock : false}
+            className="w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus className="h-4 w-4" />
           </button>
         </div>
         <p className="text-sm text-gray-600 mt-2">
-          Stokta 15 adet kaldı
+          {selectedVariant 
+            ? `Stokta ${selectedVariant.stock} adet kaldı`
+            : 'Beden ve renk seçiniz'
+          }
         </p>
       </div>
 
@@ -146,12 +190,17 @@ export default function ProductOptions({
           <h4 className="font-medium text-gray-900 mb-2">Seçimleriniz</h4>
           <div className="space-y-1 text-sm text-gray-600">
             {selectedSize && (
-              <p>Beden: {sizes.find(s => s.id === selectedSize)?.name}</p>
+              <p>Beden: {availableSizes.find(s => s.id === selectedSize)?.name}</p>
             )}
             {selectedColor && (
-              <p>Renk: {colors.find(c => c.id === selectedColor)?.name}</p>
+              <p>Renk: {availableColors.find(c => c.id === selectedColor)?.name}</p>
             )}
             <p>Adet: {quantity}</p>
+            {selectedVariant && (
+              <p className="text-green-600 font-medium">
+                Stok: {selectedVariant.stock} adet
+              </p>
+            )}
           </div>
         </div>
       )}

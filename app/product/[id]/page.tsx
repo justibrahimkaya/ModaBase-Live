@@ -15,6 +15,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
       where: { id: params.id },
       include: {
         category: true,
+        variants: {
+          where: {
+            isActive: true
+          },
+          orderBy: [
+            { size: 'asc' },
+            { color: 'asc' }
+          ]
+        },
         reviews: {
           include: {
             user: {
@@ -77,6 +86,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             ...product,
             originalPrice: product.originalPrice || 0
           }}
+          variants={product.variants}
           averageRating={averageRating}
           similarProducts={similarProducts.map((p: any) => ({
             ...p,

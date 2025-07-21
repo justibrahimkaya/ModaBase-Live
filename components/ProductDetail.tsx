@@ -15,6 +15,20 @@ import SocialShare from './SocialShare'
 import StockNotification from './StockNotification'
 import WhatsAppButton from './WhatsAppButton'
 
+interface ProductVariant {
+  id: string
+  productId: string
+  size: string | null
+  color: string | null
+  colorCode: string | null
+  stock: number
+  price: number | null
+  sku: string | null
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
 interface Product {
   id: string
   name: string
@@ -49,11 +63,12 @@ interface Product {
 
 interface ProductDetailProps {
   product: Product
+  variants: ProductVariant[]
   averageRating: number
   similarProducts: Product[]
 }
 
-export default function ProductDetail({ product, averageRating, similarProducts }: ProductDetailProps) {
+export default function ProductDetail({ product, variants, averageRating, similarProducts }: ProductDetailProps) {
   const [selectedSize, setSelectedSize] = useState('')
   const [selectedColor, setSelectedColor] = useState('')
   const [quantity, setQuantity] = useState(1)
@@ -89,6 +104,7 @@ export default function ProductDetail({ product, averageRating, similarProducts 
               averageRating={averageRating}
             />
             <ProductOptions 
+              variants={variants}
               selectedSize={selectedSize}
               setSelectedSize={setSelectedSize}
               selectedColor={selectedColor}

@@ -145,14 +145,14 @@ model Product {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   category     Category @relation(fields: [categoryId], references: [id])
-  reviews      Review[]
-  orderItems   OrderItem[]
-  cartItems    CartItem[]
-  favorites    Favorite[]
-  wishlists    Wishlist[]
-  stockMovements StockMovement[]
+  reviews      Review[] @relation("ProductReviews")
+  orderItems   OrderItem[] @relation("ProductOrderItems")
+  cartItems    CartItem[] @relation("ProductCartItems")
+  favorites    Favorite[] @relation("ProductFavorites")
+  wishlists    Wishlist[] @relation("ProductWishlists")
+  stockMovements StockMovement[] @relation("ProductStockMovements")
   variants     ProductVariant[]
-  stockNotifications UserStockNotification[]
+  stockNotifications UserStockNotification[] @relation("ProductStockNotifications")
 }
 
 model ProductVariant {
@@ -236,7 +236,7 @@ model OrderItem {
   size      String?
   color     String?
   order     Order   @relation(fields: [orderId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation("ProductOrderItems", fields: [productId], references: [id], onDelete: Cascade)
   reviews   Review[] // Sipariş kalemi yorumları
 }
 
@@ -258,7 +258,7 @@ model Review {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  product   Product  @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  product   Product  @relation("ProductReviews", fields: [productId], references: [id], onDelete: Cascade)
   orderItem OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   helpfulVotes ReviewHelpful[]
   
@@ -294,7 +294,7 @@ model CartItem {
   quantity  Int      @default(1)
   size      String?
   color     String?
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation("ProductCartItems", fields: [productId], references: [id], onDelete: Cascade)
   cart      Cart     @relation(fields: [cartId], references: [id])
 }
 
@@ -314,7 +314,7 @@ model Favorite {
   productId String
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation("ProductFavorites", fields: [productId], references: [id], onDelete: Cascade)
   @@unique([userId, productId])
 }
 
@@ -324,7 +324,7 @@ model Wishlist {
   productId String
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation("ProductWishlists", fields: [productId], references: [id], onDelete: Cascade)
   @@unique([userId, productId])
 }
 
@@ -336,7 +336,7 @@ model StockMovement {
   quantity    Int
   description String?
   createdAt   DateTime @default(now())
-  product     Product  @relation(fields: [productId], references: [id])
+  product     Product  @relation("ProductStockMovements", fields: [productId], references: [id], onDelete: Cascade)
   order       Order?   @relation(fields: [orderId], references: [id])
 }
 
@@ -361,7 +361,7 @@ model UserStockNotification {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product  @relation("ProductStockNotifications", fields: [productId], references: [id], onDelete: Cascade)
   
   @@unique([userId, productId])
   @@unique([guestEmail, productId])
