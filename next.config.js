@@ -6,9 +6,9 @@ const nextConfig = {
   // API body size limit - büyük resim dosyaları için
   api: {
     bodyParser: {
-      sizeLimit: '10mb', // 10MB limit
+      sizeLimit: '50mb', // 50MB limit - büyük resimler için
     },
-    responseLimit: '10mb',
+    responseLimit: '50mb',
   },
   
   // Image optimization settings
@@ -35,6 +35,10 @@ const nextConfig = {
     ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
+    // Base64 resimler için
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   
   // Security headers
@@ -127,6 +131,7 @@ const nextConfig = {
   // Experimental features for better performance
   experimental: {
     optimizePackageImports: ['@headlessui/react', 'lucide-react', 'framer-motion'],
+    serverComponentsExternalPackages: ['@prisma/client'],
   },
   
   // Server external packages

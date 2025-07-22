@@ -332,9 +332,9 @@ export default function AdminProductsPage() {
           continue
         }
         
-        // Dosya boyutu kontrolü (5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          setError(`${file.name} dosyası çok büyük. Maksimum 5MB olmalıdır.`)
+        // Dosya boyutu kontrolü (2MB - daha küçük limit)
+        if (file.size > 2 * 1024 * 1024) {
+          setError(`${file.name} dosyası çok büyük. Maksimum 2MB olmalıdır.`)
           continue
         }
         
@@ -345,21 +345,19 @@ export default function AdminProductsPage() {
           continue
         }
         
-          // Convert to base64 for demo purposes
-          const reader = new FileReader()
-          const base64Promise = new Promise<string>((resolve) => {
-            reader.onload = (e) => {
-              resolve(e.target?.result as string)
-            }
-            reader.readAsDataURL(file)
-          })
-          
-          const base64 = await base64Promise
-          newImages.push(base64)
+        try {
+          // Resmi sıkıştır ve küçült
+          const compressedImage = await compressImage(file)
+          newImages.push(compressedImage)
+        } catch (error) {
+          console.error('Resim sıkıştırma hatası:', error)
+          setError(`${file.name} işlenirken hata oluştu.`)
+          continue
+        }
       }
       
       if (newImages.length > 0) {
-      setForm({ ...form, images: [...form.images, ...newImages] })
+        setForm({ ...form, images: [...form.images, ...newImages] })
         setError('') // Başarılı yüklemede hata mesajını temizle
       }
     } catch (error) {
@@ -367,6 +365,49 @@ export default function AdminProductsPage() {
     } finally {
       setImageUploading(false)
     }
+  }
+
+  // Resim sıkıştırma fonksiyonu
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      const img = new window.Image()
+      
+      img.onload = () => {
+        // Maksimum boyutları belirle
+        const maxWidth = 800
+        const maxHeight = 800
+        
+        let { width, height } = img
+        
+        // Boyutları orantılı olarak küçült
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width
+            width = maxWidth
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height
+            height = maxHeight
+          }
+        }
+        
+        canvas.width = width
+        canvas.height = height
+        
+        // Resmi çiz
+        ctx?.drawImage(img, 0, 0, width, height)
+        
+        // JPEG formatında sıkıştır (0.7 kalite)
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7)
+        resolve(compressedDataUrl)
+      }
+      
+      img.onerror = () => reject(new Error('Resim yüklenemedi'))
+      img.src = URL.createObjectURL(file)
+    })
   }
 
   const removeImage = (index: number) => {
@@ -1235,7 +1276,7 @@ export default function AdminProductsPage() {
                             Fotoğrafları buraya sürükleyin veya tıklayın
                           </p>
                           <p className="text-sm text-gray-500 mb-2">
-                            JPG, PNG, WebP formatları desteklenir (Maks. 5MB)
+                            JPG, PNG, WebP formatları desteklenir (Maks. 2MB)
                           </p>
                           <p className="text-xs text-gray-400">
                             {8 - form.images.length} fotoğraf daha ekleyebilirsiniz

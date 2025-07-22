@@ -4,13 +4,6 @@ import { requireAdmin } from '@/lib/adminAuth'
 
 export const dynamic = 'force-dynamic'
 
-// Body parser'ı devre dışı bırak - büyük dosyalar için
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-}
-
 // GET: Tüm ürünleri getir
 export async function GET(request: NextRequest) {
   const authError = await requireAdmin(request)
@@ -93,7 +86,6 @@ export async function POST(request: NextRequest) {
   if (authError) return authError
 
   try {
-    // Manuel body parsing - büyük dosyalar için
     const body = await request.json()
     const { 
       name, 
