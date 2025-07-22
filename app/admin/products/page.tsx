@@ -153,12 +153,26 @@ export default function AdminProductsPage() {
   const [previewImage, setPreviewImage] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchProducts()
-    fetchCategories()
+    let mounted = true
+    
+    const loadData = async () => {
+      if (mounted) {
+        await fetchProducts()
+        await fetchCategories()
+      }
+    }
+    
+    loadData()
+    
+    return () => {
+      mounted = false
+    }
   }, [])
 
   useEffect(() => {
-    filterProducts()
+    if (products.length > 0 || searchTerm || selectedCategory) {
+      filterProducts()
+    }
   }, [products, searchTerm, selectedCategory])
 
   const fetchProducts = async () => {
@@ -167,8 +181,11 @@ export default function AdminProductsPage() {
       const response = await fetch('/api/admin/products')
       if (response.ok) {
         const data = await response.json()
-        setProducts(data)
+        setProducts(data.products || [])
       }
+    } catch (error) {
+      console.error('Ürünler yüklenirken hata:', error)
+      setProducts([])
     } finally {
       setLoading(false)
     }
@@ -201,17 +218,22 @@ export default function AdminProductsPage() {
   }
 
   const filterProducts = () => {
-    let filtered = products
+    if (!Array.isArray(products)) {
+      setFilteredProducts([])
+      return
+    }
+    
+    let filtered = [...products]
     
     if (searchTerm) {
       filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase())
+        product?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product?.description?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
     
     if (selectedCategory) {
-      filtered = filtered.filter(product => product.categoryId === selectedCategory)
+      filtered = filtered.filter(product => product?.categoryId === selectedCategory)
     }
     
     setFilteredProducts(filtered)
@@ -583,8 +605,8 @@ export default function AdminProductsPage() {
           lastModified: ''
         })
         
-        // Ürünleri yeniden yükle
-        fetchProducts()
+        // Sayfayı yenile (fetchProducts yerine)
+        window.location.reload()
       }, 100)
       
     } catch (error: any) {
