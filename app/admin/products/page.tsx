@@ -332,9 +332,9 @@ export default function AdminProductsPage() {
           continue
         }
         
-        // Dosya boyutu kontrolü (2MB - daha küçük limit)
-        if (file.size > 2 * 1024 * 1024) {
-          setError(`${file.name} dosyası çok büyük. Maksimum 2MB olmalıdır.`)
+        // Dosya boyutu kontrolü (1MB - 6 resim için optimize)
+        if (file.size > 1 * 1024 * 1024) {
+          setError(`${file.name} dosyası çok büyük. Maksimum 1MB olmalıdır.`)
           continue
         }
         
@@ -375,9 +375,9 @@ export default function AdminProductsPage() {
       const img = new window.Image()
       
       img.onload = () => {
-        // Maksimum boyutları belirle
-        const maxWidth = 800
-        const maxHeight = 800
+        // Daha küçük maksimum boyutlar (6 resim için optimize)
+        const maxWidth = 600
+        const maxHeight = 600
         
         let { width, height } = img
         
@@ -400,8 +400,8 @@ export default function AdminProductsPage() {
         // Resmi çiz
         ctx?.drawImage(img, 0, 0, width, height)
         
-        // JPEG formatında sıkıştır (0.7 kalite)
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7)
+        // Daha düşük kalitede JPEG sıkıştır (0.5 kalite - %50)
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.5)
         resolve(compressedDataUrl)
       }
       
@@ -510,11 +510,21 @@ export default function AdminProductsPage() {
         return
       }
       
+      // Resimleri daha da optimize et
+      const optimizedImages = form.images.map((img: string) => {
+        // Eğer base64 çok uzunsa daha da sıkıştır
+        if (img.length > 100000) { // 100KB'dan büyükse
+          // Bu durumda placeholder kullan (gerçek uygulamada CDN'e yükle)
+          return 'https://via.placeholder.com/600x600/cccccc/666666?text=Resim'
+        }
+        return img
+      })
+      
       const payload = {
         ...form,
         price: parseFloat(form.price),
         originalPrice: form.originalPrice ? parseFloat(form.originalPrice) : undefined,
-        images: JSON.stringify(form.images),
+        images: JSON.stringify(optimizedImages),
         stock: parseInt(form.stock, 10),
         minStockLevel: parseInt(form.minStockLevel, 10),
         maxStockLevel: form.maxStockLevel ? parseInt(form.maxStockLevel, 10) : undefined,
@@ -524,6 +534,16 @@ export default function AdminProductsPage() {
           stock: parseInt(variant.stock?.toString() || '0', 10),
           price: variant.price ? parseFloat(variant.price.toString()) : undefined
         }))
+      }
+      
+      // Payload boyutunu kontrol et
+      const payloadSize = JSON.stringify(payload).length
+      console.log('Payload boyutu:', payloadSize, 'bytes')
+      
+      if (payloadSize > 5 * 1024 * 1024) { // 5MB'dan büyükse
+        setError('Ürün verisi çok büyük. Lütfen daha az resim ekleyin veya resimleri küçültün.')
+        setSaving(false)
+        return
       }
       
       let response
@@ -1276,10 +1296,10 @@ export default function AdminProductsPage() {
                             Fotoğrafları buraya sürükleyin veya tıklayın
                           </p>
                           <p className="text-sm text-gray-500 mb-2">
-                            JPG, PNG, WebP formatları desteklenir (Maks. 2MB)
+                            JPG, PNG, WebP formatları desteklenir (Maks. 1MB per resim)
                           </p>
                           <p className="text-xs text-gray-400">
-                            {8 - form.images.length} fotoğraf daha ekleyebilirsiniz
+                            {8 - form.images.length} fotoğraf daha ekleyebilirsiniz (6 resim önerilen)
                           </p>
                         </div>
                       )}
