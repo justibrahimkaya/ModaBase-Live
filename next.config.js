@@ -3,14 +3,6 @@ const nextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
   
-  // API body size limit - büyük resim dosyaları için
-  api: {
-    bodyParser: {
-      sizeLimit: '50mb', // 50MB limit - büyük resimler için
-    },
-    responseLimit: '50mb',
-  },
-  
   // Image optimization settings
   images: {
     remotePatterns: [
@@ -131,10 +123,9 @@ const nextConfig = {
   // Experimental features for better performance
   experimental: {
     optimizePackageImports: ['@headlessui/react', 'lucide-react', 'framer-motion'],
-    serverComponentsExternalPackages: ['@prisma/client'],
   },
   
-  // Server external packages
+  // Server external packages (Next.js 15 format)
   serverExternalPackages: ['@prisma/client'],
   
   // Compiler options
