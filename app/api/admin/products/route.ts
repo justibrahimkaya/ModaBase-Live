@@ -4,6 +4,13 @@ import { requireAdmin } from '@/lib/adminAuth'
 
 export const dynamic = 'force-dynamic'
 
+// Body parser'ı tamamen devre dışı bırak
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+}
+
 // GET: Tüm ürünleri getir
 export async function GET(request: NextRequest) {
   const authError = await requireAdmin(request)
@@ -86,7 +93,32 @@ export async function POST(request: NextRequest) {
   if (authError) return authError
 
   try {
-    const body = await request.json()
+    // Manuel body parsing - büyük dosyalar için
+    const chunks = []
+    const reader = request.body?.getReader()
+    
+    if (!reader) {
+      return NextResponse.json({ error: 'Request body okunamadı' }, { status: 400 })
+    }
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      chunks.push(value)
+    }
+
+    const bodyText = new TextDecoder().decode(Buffer.concat(chunks))
+    let body
+    
+    try {
+      body = JSON.parse(bodyText)
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError)
+      console.error('Body text length:', bodyText.length)
+      console.error('Body text preview:', bodyText.substring(0, 200))
+      return NextResponse.json({ error: 'JSON parse hatası: Geçersiz veri formatı' }, { status: 400 })
+    }
+
     const { 
       name, 
       slug, 
