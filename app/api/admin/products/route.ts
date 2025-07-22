@@ -189,8 +189,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'En az 1 fotoğraf yüklemelisiniz.' }, { status: 400 })
     }
 
-    if (imageArray.length > 8) {
-      return NextResponse.json({ error: 'En fazla 8 fotoğraf yükleyebilirsiniz.' }, { status: 400 })
+    if (imageArray.length > 20) {
+      return NextResponse.json({ error: 'En fazla 20 fotoğraf yükleyebilirsiniz.' }, { status: 400 })
     }
 
     // Slug benzersizlik kontrolü

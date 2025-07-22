@@ -311,7 +311,7 @@ export default function AdminProductsPage() {
     }))
   }
 
-  // Resim sıkıştırma fonksiyonu - canlı ortam için optimize edildi
+  // Resim sıkıştırma fonksiyonu - çok agresif optimizasyon
   const compressImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas')
@@ -319,9 +319,9 @@ export default function AdminProductsPage() {
       const img = new window.Image()
       
       img.onload = () => {
-        // Canlı ortam için çok daha küçük boyutlar
-        const maxWidth = 400  // 600'dan 400'e düşürüldü
-        const maxHeight = 400 // 600'dan 400'e düşürüldü
+        // Çok küçük boyutlar - minimum kalite
+        const maxWidth = 200  // 400'den 200'e düşürüldü
+        const maxHeight = 200 // 400'den 200'e düşürüldü
         
         let { width, height } = img
         
@@ -343,8 +343,8 @@ export default function AdminProductsPage() {
         
         ctx?.drawImage(img, 0, 0, width, height)
         
-        // Çok düşük kalitede JPEG sıkıştır (0.3 kalite - %30)
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.3)
+        // Çok düşük kalitede JPEG sıkıştır (0.1 kalite - %10)
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.1)
         resolve(compressedDataUrl)
       }
       
@@ -353,7 +353,7 @@ export default function AdminProductsPage() {
     })
   }
 
-  // Resim yükleme işlemi - canlı ortam için optimize edildi
+  // Resim yükleme işlemi - çok agresif optimizasyon
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (!files) return
@@ -365,9 +365,9 @@ export default function AdminProductsPage() {
       const file = files[i]
       if (!file) continue
       
-      // Dosya boyutu kontrolü (500KB - canlı ortam için optimize)
-      if (file.size > 500 * 1024) {
-        setError(`${file.name} dosyası çok büyük. Maksimum 500KB olmalıdır.`)
+      // Dosya boyutu kontrolü (100KB - çok agresif)
+      if (file.size > 100 * 1024) {
+        setError(`${file.name} dosyası çok büyük. Maksimum 100KB olmalıdır.`)
         continue
       }
 
@@ -383,7 +383,7 @@ export default function AdminProductsPage() {
     if (newImages.length > 0) {
       setForm((prev: any) => ({
         ...prev,
-        images: [...prev.images, ...newImages].slice(0, 8)
+        images: [...prev.images, ...newImages].slice(0, 20) // 8'den 20'ye çıkarıldı
       }))
     }
   }
@@ -475,11 +475,11 @@ export default function AdminProductsPage() {
     setError('')
 
     try {
-      // Resimleri daha da optimize et
+      // Resimleri çok agresif optimize et
       const optimizedImages = form.images.map((img: string) => {
-        // 50KB'dan büyükse placeholder kullan
-        if (img.length > 50000) {
-          return 'https://via.placeholder.com/400x400/cccccc/666666?text=Resim'
+        // 10KB'dan büyükse placeholder kullan
+        if (img.length > 10000) {
+          return 'https://via.placeholder.com/200x200/cccccc/666666?text=Resim'
         }
         return img
       })
@@ -499,8 +499,8 @@ export default function AdminProductsPage() {
       const payloadSize = JSON.stringify(payload).length
       console.log('Payload boyutu:', payloadSize, 'bytes')
       
-      // 2MB'dan büyükse hata ver
-      if (payloadSize > 2 * 1024 * 1024) {
+      // 1MB'dan büyükse hata ver
+      if (payloadSize > 1 * 1024 * 1024) {
         setError('Ürün verisi çok büyük. Lütfen daha az resim ekleyin veya resimleri küçültün.')
         setSaving(false)
         return
@@ -1283,12 +1283,12 @@ export default function AdminProductsPage() {
                         >
                           Fotoğraf Seç
                         </label>
-                        <p className="mt-2 text-sm text-gray-500">
-                          JPG, PNG, WebP formatları desteklenir (Maks. 500KB per resim)
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {8 - form.images.length} fotoğraf daha ekleyebilirsiniz (4 resim önerilen)
-                        </p>
+                                                 <p className="mt-2 text-sm text-gray-500">
+                           JPG, PNG, WebP formatları desteklenir (Maks. 100KB per resim)
+                         </p>
+                         <p className="text-xs text-gray-400">
+                           {20 - form.images.length} fotoğraf daha ekleyebilirsiniz (minimum 1, maksimum 20)
+                         </p>
                       </div>
                     </div>
                     
