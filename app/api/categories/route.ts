@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const main = searchParams.get('main')
     const parentId = searchParams.get('parentId')
+    const includeBusiness = searchParams.get('includeBusiness') === 'true'
 
     let whereClause: any = { isActive: true }
 
@@ -17,6 +18,18 @@ export async function GET(request: NextRequest) {
     // Belirli bir ana kategori altındaki alt kategorileri getir
     if (parentId) {
       whereClause.parentId = parentId
+    }
+
+    // İşletme kategorilerini dahil et
+    if (includeBusiness) {
+      // businessId null olanlar (sistem kategorileri) VEYA businessId olanlar (işletme kategorileri)
+      whereClause.OR = [
+        { businessId: null },
+        { businessId: { not: null } }
+      ]
+    } else {
+      // Sadece sistem kategorileri
+      whereClause.businessId = null
     }
 
     const categories = await prisma.category.findMany({
@@ -31,9 +44,18 @@ export async function GET(request: NextRequest) {
               select: { products: true }
             }
           }
+        },
+        business: {
+          select: {
+            id: true,
+            businessName: true
+          }
         }
       },
-      orderBy: { name: 'asc' }
+      orderBy: [
+        { businessId: 'asc' }, // Önce sistem kategorileri
+        { name: 'asc' }
+      ]
     })
 
     return NextResponse.json(categories)

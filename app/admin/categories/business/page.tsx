@@ -16,7 +16,7 @@ interface Category {
   parentId?: string
   parent?: Category
   children?: Category[]
-  businessId?: string // İşletme ID'si
+  businessId?: string
   business?: {
     id: string
     businessName: string
@@ -31,14 +31,12 @@ const initialForm = {
   slug: '',
   description: '',
   image: '',
-  parentId: '',
-  businessId: '' // İşletme ID'si eklendi
+  parentId: ''
 }
 
-export default function AdminCategoriesPage() {
+export default function BusinessCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [mainCategories, setMainCategories] = useState<Category[]>([])
-  const [businesses, setBusinesses] = useState<any[]>([]) // İşletmeler listesi
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
@@ -47,6 +45,7 @@ export default function AdminCategoriesPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [currentBusiness, setCurrentBusiness] = useState<any>(null)
 
   // Yeni state'ler
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
@@ -57,27 +56,36 @@ export default function AdminCategoriesPage() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string>('')
   const [dragOver, setDragOver] = useState(false)
-  const [selectedBusiness, setSelectedBusiness] = useState<string>('') // Seçili işletme filtresi
 
   const stats = {
     total: categories.length,
     withProducts: categories.filter(c => c._count && c._count.products > 0).length,
     empty: categories.filter(c => !c._count || c._count.products === 0).length,
-    totalProducts: categories.reduce((sum, c) => sum + (c._count?.products || 0), 0),
-    businessCategories: categories.filter(c => c.businessId).length, // İşletme kategorileri
-    systemCategories: categories.filter(c => !c.businessId).length // Sistem kategorileri
+    totalProducts: categories.reduce((sum, c) => sum + (c._count?.products || 0), 0)
   }
 
   useEffect(() => {
+    fetchCurrentBusiness()
     fetchCategories()
     fetchMainCategories()
-    fetchBusinesses()
   }, [])
+
+  const fetchCurrentBusiness = async () => {
+    try {
+      const response = await fetch('/api/admin/profile')
+      if (response.ok) {
+        const data = await response.json()
+        setCurrentBusiness(data)
+      }
+    } catch (error) {
+      console.error('İşletme bilgileri yüklenirken hata:', error)
+    }
+  }
 
   const fetchCategories = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/admin/categories')
+      const response = await fetch('/api/admin/categories/business')
       if (response.ok) {
         const data = await response.json()
         setCategories(data)
@@ -99,18 +107,6 @@ export default function AdminCategoriesPage() {
     }
   }
 
-  const fetchBusinesses = async () => {
-    try {
-      const response = await fetch('/api/admin/businesses')
-      if (response.ok) {
-        const data = await response.json()
-        setBusinesses(data)
-      }
-    } catch (error) {
-      console.error('İşletmeler yüklenirken hata:', error)
-    }
-  }
-
   const openModal = (category?: Category) => {
     setError('')
     setSuccess('')
@@ -124,8 +120,7 @@ export default function AdminCategoriesPage() {
         slug: category.slug,
         description: category.description || '',
         image: category.image || '',
-        parentId: category.parentId || '',
-        businessId: category.businessId || ''
+        parentId: category.parentId || ''
       })
       if (category.image) {
         setImagePreview(category.image)
@@ -238,18 +233,18 @@ export default function AdminCategoriesPage() {
       const categoryData = { 
         ...form, 
         image: imageUrl,
-        businessId: form.businessId || null // İşletme ID'si varsa ekle, yoksa null
+        businessId: currentBusiness?.id // Mevcut işletme ID'si
       }
       let response
       
       if (editId) {
-        response = await fetch(`/api/admin/categories/${editId}`, {
+        response = await fetch(`/api/admin/categories/business/${editId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(categoryData)
         })
       } else {
-        response = await fetch('/api/admin/categories', {
+        response = await fetch('/api/admin/categories/business', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(categoryData)
@@ -278,7 +273,7 @@ export default function AdminCategoriesPage() {
     setError('')
     setSuccess('')
     try {
-      const response = await fetch(`/api/admin/categories/${id}`, {
+      const response = await fetch(`/api/admin/categories/business/${id}`, {
         method: 'DELETE'
       })
       if (!response.ok) {
@@ -294,35 +289,12 @@ export default function AdminCategoriesPage() {
     }
   }
 
-  const handleBulkDelete = async () => {
-    if (selectedCategories.length === 0) return
-    if (!confirm(`${selectedCategories.length} kategoriyi silmek istediğinizden emin misiniz?`)) return
-
-    setLoading(true)
-    try {
-      for (const id of selectedCategories) {
-        await fetch(`/api/admin/categories/${id}`, { method: 'DELETE' })
-      }
-      setSuccess(`${selectedCategories.length} kategori silindi!`)
-      setSelectedCategories([])
-      fetchCategories()
-    } catch (err: any) {
-      setError('Toplu silme işlemi başarısız')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const filteredCategories = categories
-    .filter(category => {
-      const matchesSearch = category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        category.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (category.description && category.description.toLowerCase().includes(searchTerm.toLowerCase()))
-      
-      const matchesBusiness = !selectedBusiness || category.businessId === selectedBusiness
-      
-      return matchesSearch && matchesBusiness
-    })
+    .filter(category => 
+      category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      category.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (category.description && category.description.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
     .sort((a, b) => {
       let aValue, bValue
       switch (sortBy) {
@@ -354,13 +326,23 @@ export default function AdminCategoriesPage() {
     )
   }
 
+  if (!currentBusiness) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Kategoriler</h1>
-          <p className="text-gray-600 mt-1">Ürün kategorilerini yönetin</p>
+          <h1 className="text-3xl font-bold text-gray-900">İşletme Kategorileri</h1>
+          <p className="text-gray-600 mt-1">
+            {currentBusiness.businessName} - Ürün kategorilerini yönetin
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -381,7 +363,7 @@ export default function AdminCategoriesPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
@@ -421,18 +403,6 @@ export default function AdminCategoriesPage() {
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">İşletme Kategorileri</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.businessCategories}</p>
-            </div>
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <Building2 className="w-6 h-6 text-purple-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
               <p className="text-sm font-medium text-gray-600">Toplam Ürün</p>
               <p className="text-2xl font-bold text-gray-900">{stats.totalProducts}</p>
             </div>
@@ -459,23 +429,6 @@ export default function AdminCategoriesPage() {
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-            </div>
-
-            {/* Business Filter */}
-            <div className="lg:w-64">
-              <select
-                value={selectedBusiness}
-                onChange={(e) => setSelectedBusiness(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Tüm İşletmeler</option>
-                <option value="">Sistem Kategorileri</option>
-                {businesses.map(business => (
-                  <option key={business.id} value={business.id}>
-                    {business.businessName}
-                  </option>
-                ))}
-              </select>
             </div>
 
             {/* Sort */}
@@ -581,15 +534,6 @@ export default function AdminCategoriesPage() {
                       {category.description && (
                         <p className="text-xs text-gray-400 mb-3 line-clamp-2">{category.description}</p>
                       )}
-                      
-                      {/* İşletme bilgisi */}
-                      {category.business && (
-                        <div className="flex items-center justify-center gap-1 text-xs text-purple-600 mb-2">
-                          <Building2 className="w-3 h-3" />
-                          <span>{category.business.businessName}</span>
-                        </div>
-                      )}
-                      
                       <div className="flex items-center justify-center gap-2 text-sm">
                         <Package className="w-4 h-4 text-gray-400" />
                         <span className="text-gray-600">{category._count?.products || 0} ürün</span>
@@ -608,7 +552,6 @@ export default function AdminCategoriesPage() {
                       <th className="text-left py-3 px-4 font-medium text-gray-900">Kategori Adı</th>
                       <th className="text-left py-3 px-4 font-medium text-gray-900">Slug</th>
                       <th className="text-left py-3 px-4 font-medium text-gray-900">Açıklama</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-900">İşletme</th>
                       <th className="text-left py-3 px-4 font-medium text-gray-900">Ürün Sayısı</th>
                       <th className="text-left py-3 px-4 font-medium text-gray-900">İşlemler</th>
                     </tr>
@@ -641,16 +584,6 @@ export default function AdminCategoriesPage() {
                         <td className="py-3 px-4 text-gray-600 font-mono text-sm">{category.slug}</td>
                         <td className="py-3 px-4 text-gray-600 text-sm max-w-xs truncate">
                           {category.description || '-'}
-                        </td>
-                        <td className="py-3 px-4">
-                          {category.business ? (
-                            <div className="flex items-center gap-1 text-purple-600">
-                              <Building2 className="w-3 h-3" />
-                              <span className="text-sm">{category.business.businessName}</span>
-                            </div>
-                          ) : (
-                            <span className="text-sm text-gray-500">Sistem</span>
-                          )}
                         </td>
                         <td className="py-3 px-4">
                           <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
@@ -788,28 +721,6 @@ export default function AdminCategoriesPage() {
                       ))}
                     </select>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      İşletme (Opsiyonel)
-                    </label>
-                    <select
-                      name="businessId"
-                      value={form.businessId}
-                      onChange={handleFormChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">Sistem Kategorisi</option>
-                      {businesses.map(business => (
-                        <option key={business.id} value={business.id}>
-                          {business.businessName}
-                        </option>
-                      ))}
-                    </select>
-                    <p className="text-xs text-gray-500 mt-1">
-                      İşletme seçilirse, bu kategori sadece o işletmenin ürünleri için kullanılır.
-                    </p>
-                  </div>
                 </div>
 
                 {/* Sağ kolon */}
@@ -921,4 +832,4 @@ export default function AdminCategoriesPage() {
       )}
     </div>
   )
-}
+} 

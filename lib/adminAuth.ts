@@ -147,3 +147,25 @@ export async function requireAdminOrModerator(request: NextRequest): Promise<Nex
 
   return null
 }
+
+export async function requireBusinessAdmin(request: NextRequest): Promise<NextResponse | { businessId: string } | null> {
+  const adminUser = await getAdminUser(request)
+  
+  if (!adminUser) {
+    return NextResponse.json(
+      { error: 'İşletme admin yetkisi gerekli' },
+      { status: 401 }
+    )
+  }
+
+  // Sadece BUSINESS_ADMIN rolüne sahip kullanıcılar
+  if (adminUser.role !== 'BUSINESS_ADMIN') {
+    return NextResponse.json(
+      { error: 'İşletme admin yetkisi gerekli' },
+      { status: 401 }
+    )
+  }
+
+  // İşletme ID'sini döndür
+  return { businessId: adminUser.id }
+}

@@ -24,7 +24,7 @@ export default function Categories() {
 
   const fetchMainCategories = async () => {
     try {
-      const response = await fetch('/api/categories?main=true')
+      const response = await fetch('/api/categories?main=true&includeBusiness=true')
       if (response.ok) {
         const data = await response.json()
         setCategories(data)

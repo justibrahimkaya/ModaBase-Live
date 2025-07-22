@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { requireAdmin } from '@/lib/adminAuth'
+import { requireBusinessAdmin } from '@/lib/adminAuth'
 
 export const dynamic = 'force-dynamic'
 
-// GET: Tüm kategorileri getir
+// GET: İşletme sahibinin kategorilerini getir
 export async function GET(request: NextRequest) {
-  const authError = await requireAdmin(request)
+  const authError = await requireBusinessAdmin(request)
   if (authError) return authError
 
+  // İşletme sahibinin ID'sini al
+  const businessId = authError.businessId
+
   const categories = await prisma.category.findMany({
+    where: {
+      businessId: businessId
+    },
     include: {
       _count: {
         select: {
@@ -31,12 +37,6 @@ export async function GET(request: NextRequest) {
             }
           }
         }
-      },
-      business: {
-        select: {
-          id: true,
-          businessName: true
-        }
       }
     },
     orderBy: [
@@ -47,16 +47,19 @@ export async function GET(request: NextRequest) {
   return NextResponse.json(categories)
 }
 
-// POST: Yeni kategori ekle
+// POST: İşletme sahibi için yeni kategori ekle
 export async function POST(request: NextRequest) {
-  const authError = await requireAdmin(request)
+  const authError = await requireBusinessAdmin(request)
   if (authError) return authError
 
+  const businessId = authError.businessId
   const body = await request.json()
-  const { name, slug, description, image, parentId, businessId } = body
+  const { name, slug, description, image, parentId } = body
+  
   if (!name || !slug) {
     return NextResponse.json({ error: 'Zorunlu alanlar eksik.' }, { status: 400 })
   }
+
   try {
     const category = await prisma.category.create({
       data: {
@@ -65,12 +68,12 @@ export async function POST(request: NextRequest) {
         description,
         image,
         parentId: parentId || null,
-        businessId: businessId || null
+        businessId: businessId
       }
     })
     return NextResponse.json(category)
   } catch (error: any) {
-    console.error('Category creation error:', error)
+    console.error('Business category creation error:', error)
     
     // Unique constraint hatası
     if (error.code === 'P2002') {
@@ -86,4 +89,4 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({ error: 'Kategori eklenemedi: ' + error.message }, { status: 400 })
   }
-}
+} 

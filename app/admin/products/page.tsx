@@ -177,12 +177,28 @@ export default function AdminProductsPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/categories')
-      if (response.ok) {
-        const data = await response.json()
-        setCategories(data)
+      // Hem sistem hem de işletme kategorilerini getir
+      const [systemResponse, businessResponse] = await Promise.all([
+        fetch('/api/categories'),
+        fetch('/api/admin/categories/business').catch(() => null) // İşletme kategorileri yoksa hata verme
+      ])
+      
+      let allCategories: Category[] = []
+      
+      if (systemResponse.ok) {
+        const systemCategories = await systemResponse.json()
+        allCategories = [...systemCategories]
       }
-    } catch {}
+      
+      if (businessResponse?.ok) {
+        const businessCategories = await businessResponse.json()
+        allCategories = [...allCategories, ...businessCategories]
+      }
+      
+      setCategories(allCategories)
+    } catch (error) {
+      console.error('Kategoriler yüklenirken hata:', error)
+    }
   }
 
   const filterProducts = () => {

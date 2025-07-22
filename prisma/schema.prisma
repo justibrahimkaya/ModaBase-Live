@@ -120,6 +120,7 @@ model Category {
   image       String? // Büyük resim verileri için
   isActive    Boolean  @default(true)
   parentId    String?  // Ana kategori ID'si (null ise ana kategori)
+  businessId  String?  // İşletme ID'si (null ise sistem kategorisi)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
@@ -127,6 +128,7 @@ model Category {
   products    Product[]
   parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryHierarchy")
+  business    Business?  @relation("BusinessCategories", fields: [businessId], references: [id])
   seoSettings SEOSettings? @relation("CategorySEO")
 }
 
@@ -478,6 +480,7 @@ model Business {
   
   // Relations
   transferNotifications TransferNotification[]
+  categories            Category[] @relation("BusinessCategories")
 }
 
 // SEO Settings Model

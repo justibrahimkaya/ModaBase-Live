@@ -146,6 +146,15 @@ export default function AdminLayout({
       roles: ['SITE_ADMIN']
     },
     {
+      name: 'İşletme Kategorileri',
+      href: '/admin/categories/business',
+      icon: FolderOpen,
+      color: 'from-purple-500 to-indigo-600',
+      bgColor: 'bg-purple-50',
+      isActive: pathname.startsWith('/admin/categories/business'),
+      roles: ['BUSINESS_ADMIN']
+    },
+    {
       name: 'Stok Uyarıları',
       href: '/admin/stock-alerts',
       icon: AlertTriangle,
