@@ -4,18 +4,87 @@ import { requireAdmin } from '@/lib/adminAuth'
 
 export const dynamic = 'force-dynamic'
 
+// Body parser'ı devre dışı bırak - büyük dosyalar için
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+}
+
 // GET: Tüm ürünleri getir
 export async function GET(request: NextRequest) {
   const authError = await requireAdmin(request)
   if (authError) return authError
 
-  const products = await prisma.product.findMany({
-    include: { 
-      category: true,
-      variants: true
+  try {
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const search = searchParams.get('search') || ''
+    const categoryId = searchParams.get('categoryId') || ''
+    const sortBy = searchParams.get('sortBy') || 'createdAt'
+    const sortOrder = searchParams.get('sortOrder') || 'desc'
+
+    const skip = (page - 1) * limit
+
+    let whereClause: any = {}
+
+    if (search) {
+      whereClause.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { slug: { contains: search, mode: 'insensitive' } }
+      ]
     }
-  })
-  return NextResponse.json(products)
+
+    if (categoryId) {
+      whereClause.categoryId = categoryId
+    }
+
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where: whereClause,
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+              slug: true
+            }
+          },
+          variants: true,
+          _count: {
+            select: {
+              reviews: true,
+              orderItems: true
+            }
+          }
+        },
+        orderBy: {
+          [sortBy]: sortOrder
+        },
+        skip,
+        take: limit
+      }),
+      prisma.product.count({ where: whereClause })
+    ])
+
+    return NextResponse.json({
+      products,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    })
+  } catch (error) {
+    console.error('Products API Error:', error)
+    return NextResponse.json(
+      { error: 'Ürünler getirilirken bir hata oluştu' },
+      { status: 500 }
+    )
+  }
 }
 
 // POST: Yeni ürün ekle
@@ -24,6 +93,7 @@ export async function POST(request: NextRequest) {
   if (authError) return authError
 
   try {
+    // Manuel body parsing - büyük dosyalar için
     const body = await request.json()
     const { 
       name, 
@@ -165,36 +235,38 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      // Varyantları kaydet
+      // Varyantları ekle
       if (variants && variants.length > 0) {
         await tx.productVariant.createMany({
           data: variants.map((variant: any) => ({
             productId: product.id,
-            size: variant.size || null,
-            color: variant.color || null,
-            colorCode: variant.colorCode || null,
+            size: variant.size,
+            color: variant.color,
+            colorCode: variant.colorCode,
             stock: parseInt(variant.stock) || 0,
             price: variant.price ? parseFloat(variant.price) : null,
-            sku: variant.sku || null,
+            sku: variant.sku,
             isActive: variant.isActive !== false
           }))
         })
       }
 
-      return await tx.product.findUnique({
-        where: { id: product.id },
-        include: { 
-          category: true,
-          variants: true
-        }
-      })
+      return product
     })
-    
+
     return NextResponse.json(result)
   } catch (error: any) {
-    console.error('Ürün oluşturma hatası:', error)
-    return NextResponse.json({ 
-      error: error.message || 'Ürün eklenemedi.' 
-    }, { status: 500 })
+    console.error('Product creation error:', error)
+    
+    // Unique constraint hatası
+    if (error.code === 'P2002') {
+      const field = error.meta?.target?.[0]
+      if (field === 'slug') {
+        return NextResponse.json({ error: 'Bu slug zaten kullanılıyor.' }, { status: 400 })
+      }
+      return NextResponse.json({ error: 'Bu ürün zaten mevcut.' }, { status: 400 })
+    }
+    
+    return NextResponse.json({ error: 'Ürün eklenemedi: ' + error.message }, { status: 400 })
   }
 }

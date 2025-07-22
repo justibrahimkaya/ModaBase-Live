@@ -4,6 +4,13 @@ import { requireAdmin } from '@/lib/adminAuth'
 
 export const dynamic = 'force-dynamic'
 
+// Body parser'ı devre dışı bırak - büyük dosyalar için
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+}
+
 // Ürün güncelle
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   const authError = await requireAdmin(request)
@@ -11,6 +18,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
   try {
     const { id } = params
+    // Manuel body parsing - büyük dosyalar için
     const body = await request.json()
     const { 
       name, 
@@ -162,33 +170,35 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       if (variants && variants.length > 0) {
         await tx.productVariant.createMany({
           data: variants.map((variant: any) => ({
-            productId: product.id,
-            size: variant.size || null,
-            color: variant.color || null,
-            colorCode: variant.colorCode || null,
+            productId: id,
+            size: variant.size,
+            color: variant.color,
+            colorCode: variant.colorCode,
             stock: parseInt(variant.stock) || 0,
             price: variant.price ? parseFloat(variant.price) : null,
-            sku: variant.sku || null,
+            sku: variant.sku,
             isActive: variant.isActive !== false
           }))
         })
       }
 
-      return await tx.product.findUnique({
-        where: { id: product.id },
-        include: { 
-          category: true,
-          variants: true
-        }
-      })
+      return product
     })
-    
+
     return NextResponse.json(result)
   } catch (error: any) {
-    console.error('Ürün güncelleme hatası:', error)
-    return NextResponse.json({ 
-      error: error.message || 'Ürün güncellenemedi.' 
-    }, { status: 500 })
+    console.error('Product update error:', error)
+    
+    // Unique constraint hatası
+    if (error.code === 'P2002') {
+      const field = error.meta?.target?.[0]
+      if (field === 'slug') {
+        return NextResponse.json({ error: 'Bu slug zaten kullanılıyor.' }, { status: 400 })
+      }
+      return NextResponse.json({ error: 'Bu ürün zaten mevcut.' }, { status: 400 })
+    }
+    
+    return NextResponse.json({ error: 'Ürün güncellenemedi: ' + error.message }, { status: 400 })
   }
 }
 
@@ -199,13 +209,15 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
   try {
     const { id } = params
-    // Cascade delete ile varyantları da siler
-    await prisma.product.delete({ where: { id } })
-    return NextResponse.json({ success: true })
+
+    // Ürünü sil (varyantlar cascade ile silinecek)
+    await prisma.product.delete({
+      where: { id }
+    })
+
+    return NextResponse.json({ message: 'Ürün başarıyla silindi' })
   } catch (error: any) {
-    console.error('Ürün silme hatası:', error)
-    return NextResponse.json({ 
-      error: error.message || 'Ürün silinemedi.' 
-    }, { status: 500 })
+    console.error('Product deletion error:', error)
+    return NextResponse.json({ error: 'Ürün silinemedi: ' + error.message }, { status: 400 })
   }
 }

@@ -3,6 +3,14 @@ const nextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
   
+  // API body size limit - büyük resim dosyaları için
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb', // 10MB limit
+    },
+    responseLimit: '10mb',
+  },
+  
   // Image optimization settings
   images: {
     remotePatterns: [
