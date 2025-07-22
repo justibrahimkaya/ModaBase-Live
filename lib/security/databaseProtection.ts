@@ -27,6 +27,17 @@ export class DatabaseProtection {
 
   // Tehlikeli işlem kontrolü
   static isDangerousOperation(operation: string, table?: string): boolean {
+    // Sadece yazma işlemlerini kontrol et
+    const writeOperations = ['CREATE', 'UPDATE', 'DELETE', 'UPSERT', 'UPDATE_MANY', 'DELETE_MANY']
+    const isWriteOperation = writeOperations.some(op => 
+      operation.toUpperCase().includes(op)
+    )
+    
+    // Eğer okuma işlemi ise (findMany, findFirst, findUnique, count vb.) engelleme
+    if (!isWriteOperation) {
+      return false
+    }
+    
     const isDangerous = this.DANGEROUS_OPERATIONS.some(op => 
       operation.toUpperCase().includes(op)
     )

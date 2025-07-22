@@ -6,10 +6,14 @@ export const dynamic = 'force-dynamic'
 
 // Kategori güncelle
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  const authError = await requireBusinessAdmin(request)
-  if (authError) return authError
+  const authResult = await requireBusinessAdmin(request)
+  if (authResult && 'error' in authResult) return authResult
 
-  const businessId = authError.businessId
+  if (!authResult || !('businessId' in authResult)) {
+    return NextResponse.json({ error: 'İşletme bilgisi bulunamadı.' }, { status: 401 })
+  }
+
+  const businessId = authResult.businessId
   const { id } = params
   const body = await request.json()
   const { name, slug, description, image, parentId } = body
@@ -63,10 +67,14 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 // Kategori sil
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  const authError = await requireBusinessAdmin(request)
-  if (authError) return authError
+  const authResult = await requireBusinessAdmin(request)
+  if (authResult && 'error' in authResult) return authResult
 
-  const businessId = authError.businessId
+  if (!authResult || !('businessId' in authResult)) {
+    return NextResponse.json({ error: 'İşletme bilgisi bulunamadı.' }, { status: 401 })
+  }
+
+  const businessId = authResult.businessId
   const { id } = params
 
   try {

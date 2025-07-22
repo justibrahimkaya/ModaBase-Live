@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { 
   Plus, Edit, Trash2, Loader2, X, CheckCircle, Search, 
   Grid, List, Image as ImageIcon, FolderOpen, Tag, 
-  TrendingUp, Package, ArrowUp, ArrowDown, RefreshCw, AlertCircle, Building2
+  TrendingUp, Package, ArrowUp, ArrowDown, RefreshCw, AlertCircle
 } from 'lucide-react'
 
 interface Category {

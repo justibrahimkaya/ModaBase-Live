@@ -294,24 +294,7 @@ export default function AdminCategoriesPage() {
     }
   }
 
-  const handleBulkDelete = async () => {
-    if (selectedCategories.length === 0) return
-    if (!confirm(`${selectedCategories.length} kategoriyi silmek istediğinizden emin misiniz?`)) return
 
-    setLoading(true)
-    try {
-      for (const id of selectedCategories) {
-        await fetch(`/api/admin/categories/${id}`, { method: 'DELETE' })
-      }
-      setSuccess(`${selectedCategories.length} kategori silindi!`)
-      setSelectedCategories([])
-      fetchCategories()
-    } catch (err: any) {
-      setError('Toplu silme işlemi başarısız')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const filteredCategories = categories
     .filter(category => {

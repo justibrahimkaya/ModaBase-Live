@@ -6,11 +6,15 @@ export const dynamic = 'force-dynamic'
 
 // GET: İşletme sahibinin kategorilerini getir
 export async function GET(request: NextRequest) {
-  const authError = await requireBusinessAdmin(request)
-  if (authError) return authError
+  const authResult = await requireBusinessAdmin(request)
+  if (authResult && 'error' in authResult) return authResult
+
+  if (!authResult || !('businessId' in authResult)) {
+    return NextResponse.json({ error: 'İşletme bilgisi bulunamadı.' }, { status: 401 })
+  }
 
   // İşletme sahibinin ID'sini al
-  const businessId = authError.businessId
+  const businessId = authResult.businessId
 
   const categories = await prisma.category.findMany({
     where: {
@@ -49,10 +53,14 @@ export async function GET(request: NextRequest) {
 
 // POST: İşletme sahibi için yeni kategori ekle
 export async function POST(request: NextRequest) {
-  const authError = await requireBusinessAdmin(request)
-  if (authError) return authError
+  const authResult = await requireBusinessAdmin(request)
+  if (authResult && 'error' in authResult) return authResult
 
-  const businessId = authError.businessId
+  if (!authResult || !('businessId' in authResult)) {
+    return NextResponse.json({ error: 'İşletme bilgisi bulunamadı.' }, { status: 401 })
+  }
+
+  const businessId = authResult.businessId
   const body = await request.json()
   const { name, slug, description, image, parentId } = body
   
