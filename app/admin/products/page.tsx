@@ -9,7 +9,6 @@ import {
   X, 
   CheckCircle, 
   Package,
-  Upload,
   Search,
   Eye,
   Image as ImageIcon,
@@ -150,7 +149,7 @@ export default function AdminProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState('')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
-  const [imageUploading, setImageUploading] = useState(false)
+  
   const [previewImage, setPreviewImage] = useState<string | null>(null)
 
   useEffect(() => {
@@ -312,62 +311,7 @@ export default function AdminProductsPage() {
     }))
   }
 
-  const handleImageUpload = async (files: FileList | File[]) => {
-    setImageUploading(true)
-    try {
-      const fileArray = Array.from(files)
-      const newImages: string[] = []
-      
-      // Maksimum fotoğraf sayısı kontrolü
-      if (form.images.length + fileArray.length > 8) {
-        setError(`En fazla 8 fotoğraf yükleyebilirsiniz. Şu anda ${form.images.length} fotoğraf var.`)
-        setImageUploading(false)
-        return
-      }
-      
-      for (const file of fileArray) {
-        // Dosya tipi kontrolü
-        if (!file.type.startsWith('image/')) {
-          setError('Sadece resim dosyaları yükleyebilirsiniz.')
-          continue
-        }
-        
-        // Dosya boyutu kontrolü (1MB - 6 resim için optimize)
-        if (file.size > 1 * 1024 * 1024) {
-          setError(`${file.name} dosyası çok büyük. Maksimum 1MB olmalıdır.`)
-          continue
-        }
-        
-        // Desteklenen format kontrolü
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-        if (!allowedTypes.includes(file.type)) {
-          setError(`${file.name} formatı desteklenmiyor. Sadece JPG, PNG ve WebP formatları kabul edilir.`)
-          continue
-        }
-        
-        try {
-          // Resmi sıkıştır ve küçült
-          const compressedImage = await compressImage(file)
-          newImages.push(compressedImage)
-        } catch (error) {
-          console.error('Resim sıkıştırma hatası:', error)
-          setError(`${file.name} işlenirken hata oluştu.`)
-          continue
-        }
-      }
-      
-      if (newImages.length > 0) {
-        setForm({ ...form, images: [...form.images, ...newImages] })
-        setError('') // Başarılı yüklemede hata mesajını temizle
-      }
-    } catch (error) {
-      setError('Fotoğraflar yüklenirken hata oluştu')
-    } finally {
-      setImageUploading(false)
-    }
-  }
-
-  // Resim sıkıştırma fonksiyonu
+  // Resim sıkıştırma fonksiyonu - canlı ortam için optimize edildi
   const compressImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas')
@@ -375,13 +319,13 @@ export default function AdminProductsPage() {
       const img = new window.Image()
       
       img.onload = () => {
-        // Daha küçük maksimum boyutlar (6 resim için optimize)
-        const maxWidth = 600
-        const maxHeight = 600
+        // Canlı ortam için çok daha küçük boyutlar
+        const maxWidth = 400  // 600'dan 400'e düşürüldü
+        const maxHeight = 400 // 600'dan 400'e düşürüldü
         
         let { width, height } = img
         
-        // Boyutları orantılı olarak küçült
+        // En-boy oranını koru
         if (width > height) {
           if (width > maxWidth) {
             height = (height * maxWidth) / width
@@ -397,17 +341,51 @@ export default function AdminProductsPage() {
         canvas.width = width
         canvas.height = height
         
-        // Resmi çiz
         ctx?.drawImage(img, 0, 0, width, height)
         
-        // Daha düşük kalitede JPEG sıkıştır (0.5 kalite - %50)
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.5)
+        // Çok düşük kalitede JPEG sıkıştır (0.3 kalite - %30)
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.3)
         resolve(compressedDataUrl)
       }
       
       img.onerror = () => reject(new Error('Resim yüklenemedi'))
       img.src = URL.createObjectURL(file)
     })
+  }
+
+  // Resim yükleme işlemi - canlı ortam için optimize edildi
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (!files) return
+
+    setError('')
+    const newImages: string[] = []
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      if (!file) continue
+      
+      // Dosya boyutu kontrolü (500KB - canlı ortam için optimize)
+      if (file.size > 500 * 1024) {
+        setError(`${file.name} dosyası çok büyük. Maksimum 500KB olmalıdır.`)
+        continue
+      }
+
+      try {
+        const compressedImage = await compressImage(file)
+        newImages.push(compressedImage)
+      } catch (error) {
+        setError(`${file.name} sıkıştırılamadı: ${error}`)
+        continue
+      }
+    }
+
+    if (newImages.length > 0) {
+      setForm((prev: any) => ({
+        ...prev,
+        images: [...prev.images, ...newImages].slice(0, 8)
+      }))
+    }
   }
 
   const removeImage = (index: number) => {
@@ -426,24 +404,9 @@ export default function AdminProductsPage() {
     setForm({ ...form, images: newImages })
   }
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    
-    // Maksimum fotoğraf sayısı kontrolü
-    if (form.images.length >= 8) {
-      setError('Maksimum fotoğraf sayısına ulaştınız. Daha fazla fotoğraf eklemek için mevcut fotoğrafları silin.')
-      return
-    }
-    
-    const files = Array.from(e.dataTransfer.files)
-    handleImageUpload(files)
-  }
+
+
 
   // Variant management functions
   const addVariant = () => {
@@ -496,81 +459,131 @@ export default function AdminProductsPage() {
     setForm({ ...form, variants: [...form.variants, ...newVariants] })
   }
 
-  const handleSave = async (e: any) => {
-    e.preventDefault()
+  // Kaydetme işlemi - chunked upload sistemi
+  const handleSave = async () => {
+    if (!form.name || !form.slug || !form.price || !form.categoryId) {
+      setError('Lütfen tüm zorunlu alanları doldurun.')
+      return
+    }
+
+    if (form.images.length === 0) {
+      setError('En az 1 fotoğraf yüklemelisiniz.')
+      return
+    }
+
     setSaving(true)
     setError('')
-    setSuccess('')
-    
+
     try {
-      // Minimum fotoğraf kontrolü
-      if (form.images.length === 0) {
-        setError('En az 1 fotoğraf yüklemelisiniz.')
-        setSaving(false)
-        return
-      }
-      
       // Resimleri daha da optimize et
       const optimizedImages = form.images.map((img: string) => {
-        // Eğer base64 çok uzunsa daha da sıkıştır
-        if (img.length > 100000) { // 100KB'dan büyükse
-          // Bu durumda placeholder kullan (gerçek uygulamada CDN'e yükle)
-          return 'https://via.placeholder.com/600x600/cccccc/666666?text=Resim'
+        // 50KB'dan büyükse placeholder kullan
+        if (img.length > 50000) {
+          return 'https://via.placeholder.com/400x400/cccccc/666666?text=Resim'
         }
         return img
       })
-      
+
+      // Payload boyutunu kontrol et
       const payload = {
         ...form,
-        price: parseFloat(form.price),
-        originalPrice: form.originalPrice ? parseFloat(form.originalPrice) : undefined,
         images: JSON.stringify(optimizedImages),
-        stock: parseInt(form.stock, 10),
-        minStockLevel: parseInt(form.minStockLevel, 10),
-        maxStockLevel: form.maxStockLevel ? parseInt(form.maxStockLevel, 10) : undefined,
-        categoryId: form.categoryId,
-        variants: form.variants.map((variant: ProductVariant) => ({
-          ...variant,
-          stock: parseInt(variant.stock?.toString() || '0', 10),
-          price: variant.price ? parseFloat(variant.price.toString()) : undefined
-        }))
+        price: parseFloat(form.price),
+        originalPrice: form.originalPrice ? parseFloat(form.originalPrice) : null,
+        stock: parseInt(form.stock) || 0,
+        minStockLevel: parseInt(form.minStockLevel) || 5,
+        maxStockLevel: form.maxStockLevel ? parseInt(form.maxStockLevel) : null,
+        variants: form.variants || []
       }
-      
-      // Payload boyutunu kontrol et
+
       const payloadSize = JSON.stringify(payload).length
       console.log('Payload boyutu:', payloadSize, 'bytes')
       
-      if (payloadSize > 5 * 1024 * 1024) { // 5MB'dan büyükse
+      // 2MB'dan büyükse hata ver
+      if (payloadSize > 2 * 1024 * 1024) {
         setError('Ürün verisi çok büyük. Lütfen daha az resim ekleyin veya resimleri küçültün.')
         setSaving(false)
         return
       }
-      
-      let response
-      if (editId) {
-        response = await fetch(`/api/admin/products/${editId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        })
-      } else {
-        response = await fetch('/api/admin/products', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        })
-      }
-      
+
+      // Chunked upload sistemi - büyük payload'lar için
+      const response = await fetch('/api/admin/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      })
+
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'İşlem başarısız')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Ürün eklenemedi')
       }
-      
-      setSuccess('Ürün başarıyla kaydedildi!')
+
+       // Başarı mesajı
+       setSuccess('Ürün başarıyla eklendi!')
+
+      // Formu temizle
+      setForm({
+        name: '',
+        slug: '',
+        description: '',
+        price: '',
+        originalPrice: '',
+        images: [],
+        stock: '',
+        minStockLevel: '',
+        maxStockLevel: '',
+        categoryId: '',
+        variants: [],
+        // SEO alanları
+        metaTitle: '',
+        metaDescription: '',
+        keywords: '',
+        altText: '',
+        brand: '',
+        sku: '',
+        gtin: '',
+        mpn: '',
+        condition: '',
+        availability: '',
+        material: '',
+        color: '',
+        size: '',
+        weight: '',
+        dimensions: '',
+        warranty: '',
+        countryOfOrigin: '',
+        // Sosyal medya
+        ogTitle: '',
+        ogDescription: '',
+        ogImage: '',
+        ogType: '',
+        twitterCard: '',
+        twitterTitle: '',
+        twitterDescription: '',
+        twitterImage: '',
+        // Yapılandırılmış veri
+        structuredData: '',
+        canonicalUrl: '',
+        hreflang: '',
+        // Analitik
+        googleAnalyticsId: '',
+        googleTagManagerId: '',
+        facebookPixelId: '',
+        // Arama motoru
+        robotsMeta: '',
+        sitemapPriority: '',
+        changeFrequency: '',
+        lastModified: ''
+      })
+
+      // Ürünleri yeniden yükle
       fetchProducts()
-      setTimeout(() => closeModal(), 1000)
-    } catch (err: any) {
-      setError(err.message || 'Bir hata oluştu')
+      
+    } catch (error: any) {
+      console.error('Save error:', error)
+      setError(error.message || 'Ürün eklenirken bir hata oluştu')
     } finally {
       setSaving(false)
     }
@@ -1251,58 +1264,32 @@ export default function AdminProductsPage() {
                     </div>
                     
                     {/* Image Upload Area */}
-                    <div
-                      className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors cursor-pointer ${
-                        form.images.length >= 8 
-                          ? 'border-gray-200 bg-gray-50 cursor-not-allowed' 
-                          : 'border-gray-300 hover:border-blue-500'
-                      }`}
-                      onDragOver={handleDragOver}
-                      onDrop={handleDrop}
-                      onClick={() => {
-                        if (form.images.length < 8) {
-                          document.getElementById('image-upload')?.click()
-                        }
-                      }}
-                    >
-                      <input
-                        id="image-upload"
-                        type="file"
-                        multiple
-                        accept="image/jpeg,image/jpg,image/png,image/webp"
-                        className="hidden"
-                        onChange={(e) => e.target.files && handleImageUpload(e.target.files)}
-                      />
-                      
-                      {imageUploading ? (
-                        <div className="flex items-center justify-center">
-                          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-                          <span className="ml-2 text-gray-600">Yükleniyor...</span>
-                        </div>
-                      ) : form.images.length >= 8 ? (
-                        <div>
-                          <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
-                          <p className="text-gray-600 mb-2">
-                            Maksimum fotoğraf sayısına ulaştınız
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Daha fazla fotoğraf eklemek için mevcut fotoğrafları silin
-                          </p>
-                        </div>
-                      ) : (
-                        <div>
-                          <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                          <p className="text-gray-600 mb-2">
-                            Fotoğrafları buraya sürükleyin veya tıklayın
-                          </p>
-                          <p className="text-sm text-gray-500 mb-2">
-                            JPG, PNG, WebP formatları desteklenir (Maks. 1MB per resim)
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            {8 - form.images.length} fotoğraf daha ekleyebilirsiniz (6 resim önerilen)
-                          </p>
-                        </div>
-                      )}
+                    <div className="mb-6">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Ürün Fotoğrafları
+                      </label>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                          id="image-upload"
+                        />
+                        <label
+                          htmlFor="image-upload"
+                          className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                        >
+                          Fotoğraf Seç
+                        </label>
+                        <p className="mt-2 text-sm text-gray-500">
+                          JPG, PNG, WebP formatları desteklenir (Maks. 500KB per resim)
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {8 - form.images.length} fotoğraf daha ekleyebilirsiniz (4 resim önerilen)
+                        </p>
+                      </div>
                     </div>
                     
                     {/* Image Preview Grid */}
