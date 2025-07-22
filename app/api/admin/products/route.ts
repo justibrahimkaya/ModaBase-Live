@@ -87,36 +87,66 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST: Yeni ürün ekle
+// POST: Yeni ürün ekle - Raw body handling
 export async function POST(request: NextRequest) {
   const authError = await requireAdmin(request)
   if (authError) return authError
 
   try {
-    // Manuel body parsing - büyük dosyalar için
-    const chunks = []
+    // Content-Type kontrolü
+    const contentType = request.headers.get('content-type')
+    if (!contentType || !contentType.includes('application/json')) {
+      return NextResponse.json({ 
+        error: 'Content-Type must be application/json' 
+      }, { status: 400 })
+    }
+
+    // Raw body okuma - chunked
+    const chunks: Uint8Array[] = []
     const reader = request.body?.getReader()
     
     if (!reader) {
       return NextResponse.json({ error: 'Request body okunamadı' }, { status: 400 })
     }
 
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-      chunks.push(value)
+    try {
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        if (value) chunks.push(value)
+      }
+    } catch (readError) {
+      console.error('Body reading error:', readError)
+      return NextResponse.json({ error: 'Body okuma hatası' }, { status: 400 })
     }
 
-    const bodyText = new TextDecoder().decode(Buffer.concat(chunks))
-    let body
+    // Buffer'ları birleştir
+    const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
+    const buffer = new Uint8Array(totalLength)
+    let offset = 0
     
+    for (const chunk of chunks) {
+      buffer.set(chunk, offset)
+      offset += chunk.length
+    }
+
+    // Text'e çevir
+    const bodyText = new TextDecoder().decode(buffer)
+    
+    // Debug için log
+    console.log('Body text length:', bodyText.length)
+    console.log('Body text preview:', bodyText.substring(0, 200))
+    
+    let body
     try {
       body = JSON.parse(bodyText)
     } catch (parseError) {
       console.error('JSON parse error:', parseError)
-      console.error('Body text length:', bodyText.length)
-      console.error('Body text preview:', bodyText.substring(0, 200))
-      return NextResponse.json({ error: 'JSON parse hatası: Geçersiz veri formatı' }, { status: 400 })
+      console.error('Body text start:', bodyText.substring(0, 500))
+      return NextResponse.json({ 
+        error: 'JSON parse hatası: Geçersiz veri formatı',
+        details: parseError instanceof Error ? parseError.message : 'Unknown error'
+      }, { status: 400 })
     }
 
     const { 

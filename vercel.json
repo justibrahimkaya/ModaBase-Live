@@ -1,0 +1,21 @@
+{
+  "functions": {
+    "app/api/admin/products/route.ts": {
+      "maxDuration": 30
+    },
+    "app/api/admin/products/[id]/route.ts": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/admin/products",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    }
+  ]
+} 
