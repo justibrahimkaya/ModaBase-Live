@@ -87,6 +87,14 @@ export default function CheckoutPage() {
   const [showPaytrIframe, setShowPaytrIframe] = useState(false)
   const [paytrUrl, setPaytrUrl] = useState<string | null>(null)
   const paytrIframeRef = useRef<HTMLIFrameElement>(null)
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'paytr' | 'bank-transfer'>('paytr')
+  const [bankTransferData, setBankTransferData] = useState({
+    customerName: '',
+    customerEmail: '',
+    customerPhone: '',
+    transferDate: '',
+    transferNote: ''
+  })
   const router = useRouter();
 
   useEffect(() => {
@@ -334,6 +342,94 @@ export default function CheckoutPage() {
     } catch (error) {
       console.error('PayTR payment error:', error)
       alert('PayTR ödeme başlatılırken hata oluştu: ' + (error instanceof Error ? error.message : 'Bilinmeyen hata'))
+    } finally {
+      setIsPlacingOrder(false)
+    }
+  }
+
+  // Havale ile ödeme başlat
+  const handleBankTransferPayment = async () => {
+    setIsPlacingOrder(true)
+    try {
+      // Önce siparişi oluştur
+      const orderData = {
+        items: items.map(item => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.product.price,
+          size: item.size,
+          color: item.color
+        })),
+        total: total,
+        discount: discount,
+        shippingCost: getShippingCost(),
+        shippingMethod: selectedShipping,
+        paymentMethod: 'BANK_TRANSFER',
+        // Teslimat bilgileri
+        guestName: delivery.name,
+        guestSurname: delivery.surname,
+        guestEmail: delivery.email,
+        guestPhone: delivery.phone,
+        // Adres bilgileri
+        address: {
+          title: delivery.addressTitle,
+          city: delivery.city,
+          district: delivery.district,
+          neighborhood: delivery.neighborhood,
+          address: delivery.address
+        },
+        // Fatura bilgileri (varsa)
+        invoiceType: showInvoiceAddress ? invoice.invoiceType : null,
+        tcKimlikNo: showInvoiceAddress ? invoice.tcKimlikNo : null,
+        vergiNo: showInvoiceAddress ? invoice.vergiNo : null,
+        vergiDairesi: showInvoiceAddress ? invoice.vergiDairesi : null,
+        unvan: showInvoiceAddress ? invoice.unvan : null
+      }
+
+      // Siparişi oluştur
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      })
+
+      const orderResult = await orderResponse.json()
+      
+      if (!orderResult.success) {
+        throw new Error(orderResult.error || 'Sipariş oluşturulamadı')
+      }
+
+      const orderId = orderResult.order.id
+
+      // Havale bildirimi gönder
+      const transferData = {
+        orderId: orderId,
+        customerName: `${delivery.name} ${delivery.surname}`,
+        customerEmail: delivery.email,
+        customerPhone: delivery.phone,
+        transferAmount: total,
+        transferDate: bankTransferData.transferDate || new Date().toISOString().split('T')[0],
+        transferNote: bankTransferData.transferNote || `Sipariş #${orderId}`
+      }
+
+      const transferResponse = await fetch('/api/payment/bank-transfer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(transferData)
+      })
+
+      const transferResult = await transferResponse.json()
+      
+      if (transferResult.success) {
+        // Başarılı havale bildirimi
+        alert('Havale bildiriminiz başarıyla alındı! Banka bilgileri e-posta adresinize gönderildi.')
+        router.push(`/order/${orderId}`)
+      } else {
+        throw new Error(transferResult.error || 'Havale bildirimi gönderilemedi')
+      }
+    } catch (error) {
+      console.error('Bank transfer error:', error)
+      alert('Havale bildirimi gönderilirken hata oluştu: ' + (error instanceof Error ? error.message : 'Bilinmeyen hata'))
     } finally {
       setIsPlacingOrder(false)
     }
@@ -679,6 +775,116 @@ export default function CheckoutPage() {
 
           {step === 3 && (
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Ödeme Yöntemi Seçimi</h2>
+              
+              {/* Ödeme Yöntemi Seçimi */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">Ödeme Yöntemi Seçin</h3>
+                
+                {/* PayTR Seçeneği */}
+                <label className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
+                  selectedPaymentMethod === 'paytr' 
+                    ? 'border-primary-500 bg-primary-50' 
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}>
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="paytr"
+                    checked={selectedPaymentMethod === 'paytr'}
+                    onChange={(e) => setSelectedPaymentMethod(e.target.value as 'paytr' | 'bank-transfer')}
+                    className="sr-only"
+                  />
+                  <div className="flex items-center justify-center w-5 h-5 border-2 rounded-full mr-3">
+                    {selectedPaymentMethod === 'paytr' && (
+                      <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Kredi Kartı / Taksitli Ödeme</h4>
+                        <p className="text-sm text-gray-600">PayTR ile güvenli ödeme</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-gray-500">Komisyon</div>
+                        <div className="text-sm font-medium text-gray-900">%2.5</div>
+                      </div>
+                    </div>
+                  </div>
+                </label>
+
+                {/* Havale Seçeneği */}
+                <label className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
+                  selectedPaymentMethod === 'bank-transfer' 
+                    ? 'border-primary-500 bg-primary-50' 
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}>
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="bank-transfer"
+                    checked={selectedPaymentMethod === 'bank-transfer'}
+                    onChange={(e) => setSelectedPaymentMethod(e.target.value as 'paytr' | 'bank-transfer')}
+                    className="sr-only"
+                  />
+                  <div className="flex items-center justify-center w-5 h-5 border-2 rounded-full mr-3">
+                    {selectedPaymentMethod === 'bank-transfer' && (
+                      <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Havale / EFT</h4>
+                        <p className="text-sm text-gray-600">Direkt işletme IBAN'ına havale</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-gray-500">Komisyon</div>
+                        <div className="text-sm font-medium text-green-600">ÜCRETSİZ</div>
+                      </div>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              {/* Havale Formu */}
+              {selectedPaymentMethod === 'bank-transfer' && (
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                  <h4 className="font-semibold text-blue-900 mb-3">Havale Bilgileri</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Havale Tarihi
+                      </label>
+                      <input
+                        type="date"
+                        value={bankTransferData.transferDate}
+                        onChange={(e) => setBankTransferData({...bankTransferData, transferDate: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Havale Açıklaması (Opsiyonel)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Sipariş numarası veya açıklama"
+                        value={bankTransferData.transferNote}
+                        onChange={(e) => setBankTransferData({...bankTransferData, transferNote: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-3 p-3 bg-blue-100 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                      <strong>Not:</strong> Havale yaptıktan sonra siparişiniz 1-2 iş günü içinde onaylanacaktır.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Sipariş Özeti</h2>
               {/* Ürünler */}
               <div className="space-y-4">
@@ -747,14 +953,14 @@ export default function CheckoutPage() {
                 <button type="button" onClick={() => setStep(2)} className="btn-secondary px-8 py-3 text-lg">Geri</button>
                 <button
                   type="button"
-                  onClick={handlePaytrPayment}
+                  onClick={selectedPaymentMethod === 'paytr' ? handlePaytrPayment : handleBankTransferPayment}
                   className="btn-primary px-8 py-3 text-lg flex items-center justify-center"
                   disabled={isPlacingOrder}
                 >
                   {isPlacingOrder ? (
                     <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></span>
                   ) : null}
-                  Ödemeyi Tamamla
+                  {selectedPaymentMethod === 'paytr' ? 'Ödemeyi Tamamla' : 'Havale Bildirimi Gönder'}
                 </button>
               </div>
             </div>

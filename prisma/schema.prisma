@@ -143,6 +143,54 @@ model Product {
   maxStockLevel Int?    // Maksimum stok seviyesi
   reservedStock Int     @default(0) // Rezerve edilmiş stok (sepetteki ürünler)
   categoryId   String
+  
+  // Gelişmiş SEO Alanları
+  metaTitle        String? // Meta title
+  metaDescription  String? // Meta description
+  keywords         String? // Anahtar kelimeler
+  altText          String? // Görsel alt text
+  
+  // Ürün Detayları
+  brand            String? // Marka
+  sku              String? // Stok kodu
+  gtin             String? // Global Trade Item Number
+  mpn              String? // Manufacturer Part Number
+  condition        String? // Ürün durumu (new, used, refurbished)
+  availability     String? // Stok durumu (in_stock, out_of_stock, preorder)
+  material         String? // Malzeme
+  color            String? // Renk
+  size             String? // Beden
+  weight           String? // Ağırlık
+  dimensions       String? // Boyutlar
+  warranty         String? // Garanti
+  countryOfOrigin  String? // Menşei ülke
+  
+  // Sosyal Medya
+  ogTitle          String? // Open Graph title
+  ogDescription    String? // Open Graph description
+  ogImage          String? // Open Graph image
+  ogType           String? // Open Graph type
+  twitterCard      String? // Twitter card type
+  twitterTitle     String? // Twitter title
+  twitterDescription String? // Twitter description
+  twitterImage     String? // Twitter image
+  
+  // Yapılandırılmış Veri
+  structuredData   String? // JSON-LD structured data
+  canonicalUrl     String? // Canonical URL
+  hreflang         String? // Hreflang
+  
+  // Analitik
+  googleAnalyticsId String? // Google Analytics ID
+  googleTagManagerId String? // Google Tag Manager ID
+  facebookPixelId   String? // Facebook Pixel ID
+  
+  // Arama Motoru
+  robotsMeta        String? // Robots meta
+  sitemapPriority   Float?  // Sitemap priority
+  changeFrequency   String? // Change frequency
+  lastModified      DateTime? // Last modified date
+  
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   category     Category @relation(fields: [categoryId], references: [id])
@@ -227,6 +275,7 @@ model Order {
   address     Address? @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   items       OrderItem[]
   stockMovements StockMovement[]
+  transferNotifications TransferNotification[]
 }
 
 model OrderItem {
@@ -391,6 +440,24 @@ model Business {
   termsAccepted         Boolean  @default(false)
   privacyAccepted       Boolean  @default(false)
   marketingAccepted     Boolean  @default(false)
+  
+  // Banka Bilgileri
+  bankName              String?  // Banka adı
+  bankBranch            String?  // Şube adı
+  accountHolderName     String?  // Hesap sahibi adı
+  ibanNumber            String?  // IBAN numarası
+  accountType           String?  // Hesap türü (TL, USD, EUR)
+  
+  // İşletme Detayları
+  taxOffice             String?  // Vergi dairesi
+  registrationDate      DateTime? // Kayıt tarihi
+  activityCode          String?  // Faaliyet kodu
+  activityDescription   String?  // Faaliyet açıklaması
+  
+  // Yetkili Kişi Detayları
+  contactTcKimlik       String?  // TC Kimlik numarası
+  contactBirthDate      DateTime? // Doğum tarihi
+  
   // Admin Approval System
   adminStatus           String @default("PENDING") // Approval status - "PENDING", "APPROVED", "REJECTED"
   appliedAt             DateTime @default(now()) // Başvuru tarihi
@@ -408,6 +475,9 @@ model Business {
   lastLoginAt           DateTime?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+  
+  // Relations
+  transferNotifications TransferNotification[]
 }
 
 // SEO Settings Model
@@ -494,6 +564,35 @@ model BlogPost {
   @@index([category])
   @@index([publishedAt])
   @@index([isPublished])
+}
+
+// Transfer Notification Model (Havale Bildirimleri)
+model TransferNotification {
+  id              String   @id @default(cuid())
+  orderId         String
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  transferAmount  Float
+  transferDate    DateTime
+  transferNote    String?  // Müşteri notu
+  status          String   @default("PENDING") // PENDING, CONFIRMED, REJECTED
+  adminNote       String?  // Admin notu
+  confirmedAt     DateTime?
+  businessId      String
+  iban            String
+  accountHolder   String
+  bankName        String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  business        Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  
+  @@index([orderId])
+  @@index([status])
+  @@index([businessId])
 }
 
 

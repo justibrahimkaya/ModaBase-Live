@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { pbkdf2Sync } from 'crypto'
 import bcrypt from 'bcryptjs'
 import { Logger } from '@/lib/utils/logger'
+import { rateLimit, createRateLimitResponse } from '@/lib/security/rateLimit'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,6 +38,17 @@ function verifyPassword(password: string, passwordHash: string) {
 }
 
 export async function POST(request: NextRequest) {
+  // Rate limiting kontrolü
+  const rateLimitResult = rateLimit(request, '/api/admin/login');
+  if (!rateLimitResult.allowed) {
+    return createRateLimitResponse(
+      rateLimitResult.allowed,
+      rateLimitResult.remainingAttempts,
+      rateLimitResult.resetTime,
+      rateLimitResult.blocked
+    );
+  }
+
   const { email, password } = await request.json()
   
   if (!email || !password) {

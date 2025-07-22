@@ -6,9 +6,13 @@ import { Loader2, ArrowLeft, CheckCircle, AlertTriangle } from 'lucide-react'
 
 const STATUS_OPTIONS = [
   { value: 'PENDING', label: 'Beklemede' },
+  { value: 'AWAITING_PAYMENT', label: 'Ödeme Bekleniyor' },
+  { value: 'PAID', label: 'Ödendi' },
   { value: 'CONFIRMED', label: 'Onaylandı' },
   { value: 'SHIPPED', label: 'Kargoda' },
-  { value: 'DELIVERED', label: 'Teslim Edildi' }
+  { value: 'DELIVERED', label: 'Teslim Edildi' },
+  { value: 'FAILED', label: 'Ödeme Başarısız' },
+  { value: 'CANCELLED', label: 'İptal Edildi' }
 ]
 
 export default function AdminOrderDetailPage() {
@@ -114,9 +118,13 @@ export default function AdminOrderDetailPage() {
             <div className="text-sm text-gray-500">Durum</div>
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
               order.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+              order.status === 'AWAITING_PAYMENT' ? 'bg-orange-100 text-orange-800' :
+              order.status === 'PAID' ? 'bg-green-100 text-green-800' :
               order.status === 'CONFIRMED' ? 'bg-blue-100 text-blue-800' :
               order.status === 'SHIPPED' ? 'bg-purple-100 text-purple-800' :
               order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
+              order.status === 'FAILED' ? 'bg-red-100 text-red-800' :
+              order.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
               'bg-gray-100 text-gray-800'
             }`}>
               {STATUS_OPTIONS.find(opt => opt.value === order.status)?.label || order.status}
@@ -164,7 +172,7 @@ export default function AdminOrderDetailPage() {
           <p className="text-sm text-blue-700 mb-4">
             Sipariş onayından teslimat sürecine kadar tüm aşamaları burada yönetebilirsiniz.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             {STATUS_OPTIONS.map((statusOption, index) => (
               <div key={statusOption.value} className="flex items-center">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold mr-2 ${
@@ -202,9 +210,13 @@ export default function AdminOrderDetailPage() {
               </select>
               <p className="mt-2 text-xs text-gray-500">
                 {status === 'PENDING' && '⏳ Sipariş onay bekliyor - müşteri ödeme yaptı'}
+                {status === 'AWAITING_PAYMENT' && '💰 Havale ödemesi bekleniyor - müşteri havale yapacak'}
+                {status === 'PAID' && '✅ Ödeme alındı - sipariş onaylanabilir'}
                 {status === 'CONFIRMED' && '✅ Sipariş onaylandı - kargo için hazırlanıyor'}
                 {status === 'SHIPPED' && '🚚 Sipariş kargoya verildi - müşteri bilgilendirildi'}
                 {status === 'DELIVERED' && '🎉 Sipariş başarıyla teslim edildi'}
+                {status === 'FAILED' && '❌ Ödeme başarısız - müşteri ile iletişime geçin'}
+                {status === 'CANCELLED' && '🚫 Sipariş iptal edildi'}
               </p>
             </div>
           </div>

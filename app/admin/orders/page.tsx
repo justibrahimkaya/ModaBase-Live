@@ -165,6 +165,26 @@ export default function AdminOrdersPage() {
           nextStatus: 'CONFIRMED',
           nextLabel: 'Onayla'
         }
+      case 'AWAITING_PAYMENT':
+        return { 
+          label: 'Ödeme Bekleniyor', 
+          color: 'from-orange-500 to-red-500',
+          bg: 'bg-orange-50 border-orange-200',
+          text: 'text-orange-700',
+          icon: Clock,
+          nextStatus: 'PAID',
+          nextLabel: 'Ödeme Onayla'
+        }
+      case 'PAID':
+        return { 
+          label: 'Ödendi', 
+          color: 'from-green-500 to-emerald-500',
+          bg: 'bg-green-50 border-green-200',
+          text: 'text-green-700',
+          icon: CheckCircle,
+          nextStatus: 'CONFIRMED',
+          nextLabel: 'Siparişi Onayla'
+        }
       case 'CONFIRMED':
         return { 
           label: 'Onaylandı', 
@@ -194,6 +214,16 @@ export default function AdminOrdersPage() {
           icon: CheckCircle,
           nextStatus: null,
           nextLabel: 'Tamamlandı'
+        }
+      case 'FAILED':
+        return { 
+          label: 'Ödeme Başarısız', 
+          color: 'from-red-500 to-rose-500',
+          bg: 'bg-red-50 border-red-200',
+          text: 'text-red-700',
+          icon: XCircle,
+          nextStatus: null,
+          nextLabel: 'Başarısız'
         }
       case 'CANCELLED':
         return { 
@@ -429,9 +459,12 @@ export default function AdminOrdersPage() {
                 >
                   <option value="">Tüm Durumlar</option>
                   <option value="PENDING">Beklemede</option>
+                  <option value="AWAITING_PAYMENT">Ödeme Bekleniyor</option>
+                  <option value="PAID">Ödendi</option>
                   <option value="CONFIRMED">Onaylandı</option>
                   <option value="SHIPPED">Kargoda</option>
                   <option value="DELIVERED">Teslim Edildi</option>
+                  <option value="FAILED">Ödeme Başarısız</option>
                   <option value="CANCELLED">İptal Edildi</option>
                 </select>
               </div>

@@ -23,7 +23,47 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       minStockLevel, 
       maxStockLevel, 
       categoryId,
-      variants = []
+      variants = [],
+      // Gelişmiş SEO alanları
+      metaTitle,
+      metaDescription,
+      keywords,
+      altText,
+      brand,
+      sku,
+      gtin,
+      mpn,
+      condition,
+      availability,
+      material,
+      color,
+      size,
+      weight,
+      dimensions,
+      warranty,
+      countryOfOrigin,
+      // Sosyal medya
+      ogTitle,
+      ogDescription,
+      ogImage,
+      ogType,
+      twitterCard,
+      twitterTitle,
+      twitterDescription,
+      twitterImage,
+      // Yapılandırılmış veri
+      structuredData,
+      canonicalUrl,
+      hreflang,
+      // Analitik
+      googleAnalyticsId,
+      googleTagManagerId,
+      facebookPixelId,
+      // Arama motoru
+      robotsMeta,
+      sitemapPriority,
+      changeFrequency,
+      lastModified
     } = body
 
     if (!name || !slug || !price || !categoryId) {
@@ -69,7 +109,47 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
           stock: parseInt(stock) || 0,
           minStockLevel: parseInt(minStockLevel) || 5,
           maxStockLevel: maxStockLevel ? parseInt(maxStockLevel) : null,
-          categoryId
+          categoryId,
+          // Gelişmiş SEO alanları
+          metaTitle,
+          metaDescription,
+          keywords,
+          altText,
+          brand,
+          sku,
+          gtin,
+          mpn,
+          condition,
+          availability,
+          material,
+          color,
+          size,
+          weight,
+          dimensions,
+          warranty,
+          countryOfOrigin,
+          // Sosyal medya
+          ogTitle,
+          ogDescription,
+          ogImage,
+          ogType,
+          twitterCard,
+          twitterTitle,
+          twitterDescription,
+          twitterImage,
+          // Yapılandırılmış veri
+          structuredData,
+          canonicalUrl,
+          hreflang,
+          // Analitik
+          googleAnalyticsId,
+          googleTagManagerId,
+          facebookPixelId,
+          // Arama motoru
+          robotsMeta,
+          sitemapPriority,
+          changeFrequency,
+          lastModified: lastModified ? new Date(lastModified) : new Date()
         }
       })
 

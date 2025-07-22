@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { pbkdf2Sync } from 'crypto'
 import { Logger } from '@/lib/utils/logger'
 import { AuthSecurity } from '@/lib/security/auth'
+import { rateLimit, createRateLimitResponse } from '@/lib/security/rateLimit'
 
 // Şifre doğrulama
 function verifyPassword(password: string, passwordHash: string) {
@@ -15,6 +16,17 @@ function verifyPassword(password: string, passwordHash: string) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting kontrolü
+    const rateLimitResult = rateLimit(request, '/api/auth/login');
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(
+        rateLimitResult.allowed,
+        rateLimitResult.remainingAttempts,
+        rateLimitResult.resetTime,
+        rateLimitResult.blocked
+      );
+    }
+
     const { email, password } = await request.json()
     const normalizedEmail = email?.toLowerCase().trim()
     

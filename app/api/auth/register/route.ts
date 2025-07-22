@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { pbkdf2Sync, randomBytes } from 'crypto'
+import { rateLimit, createRateLimitResponse } from '@/lib/security/rateLimit'
 import { Logger } from '@/lib/utils/logger'
 import { AuthSecurity } from '@/lib/security/auth'
 
@@ -13,6 +14,17 @@ function hashPassword(password: string) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting kontrolü
+    const rateLimitResult = rateLimit(request, '/api/auth/register');
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(
+        rateLimitResult.allowed,
+        rateLimitResult.remainingAttempts,
+        rateLimitResult.resetTime,
+        rateLimitResult.blocked
+      );
+    }
+
     const { email, password, name, surname, phone } = await request.json()
     
     Logger.debug('Registration attempt', { 

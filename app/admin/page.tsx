@@ -487,15 +487,23 @@ export default function AdminDashboard() {
                       
                       <div className={`px-3 py-1 rounded-full text-xs font-medium ${
                         order.status === 'PENDING' ? 'bg-yellow-500/20 text-yellow-300' :
+                        order.status === 'AWAITING_PAYMENT' ? 'bg-orange-500/20 text-orange-300' :
+                        order.status === 'PAID' ? 'bg-green-500/20 text-green-300' :
                         order.status === 'CONFIRMED' ? 'bg-blue-500/20 text-blue-300' :
                         order.status === 'SHIPPED' ? 'bg-purple-500/20 text-purple-300' :
                         order.status === 'DELIVERED' ? 'bg-green-500/20 text-green-300' :
+                        order.status === 'FAILED' ? 'bg-red-500/20 text-red-300' :
+                        order.status === 'CANCELLED' ? 'bg-red-500/20 text-red-300' :
                         'bg-gray-500/20 text-gray-300'
                       }`}>
                         {order.status === 'PENDING' ? 'Beklemede' :
+                         order.status === 'AWAITING_PAYMENT' ? 'Ödeme Bekleniyor' :
+                         order.status === 'PAID' ? 'Ödendi' :
                          order.status === 'CONFIRMED' ? 'Onaylandı' :
                          order.status === 'SHIPPED' ? 'Kargoda' :
-                         order.status === 'DELIVERED' ? 'Teslim Edildi' : order.status}
+                         order.status === 'DELIVERED' ? 'Teslim Edildi' :
+                         order.status === 'FAILED' ? 'Başarısız' :
+                         order.status === 'CANCELLED' ? 'İptal Edildi' : order.status}
                       </div>
                       
                       <a

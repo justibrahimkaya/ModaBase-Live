@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { 
-  Package, 
   Truck, 
   CheckCircle, 
   Clock, 
@@ -79,16 +78,20 @@ export default function OrderDetailPage() {
     switch (status) {
       case 'PENDING':
         return { label: 'Beklemede', icon: Clock, color: 'text-yellow-600', bg: 'bg-yellow-100' };
+      case 'AWAITING_PAYMENT':
+        return { label: 'Ödeme Bekleniyor', icon: Clock, color: 'text-orange-600', bg: 'bg-orange-100' };
       case 'PAID':
         return { label: 'Ödendi', icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100' };
-      case 'PROCESSING':
-        return { label: 'Hazırlanıyor', icon: Package, color: 'text-blue-600', bg: 'bg-blue-100' };
+      case 'CONFIRMED':
+        return { label: 'Onaylandı', icon: CheckCircle, color: 'text-blue-600', bg: 'bg-blue-100' };
       case 'SHIPPED':
         return { label: 'Kargoda', icon: Truck, color: 'text-purple-600', bg: 'bg-purple-100' };
       case 'DELIVERED':
         return { label: 'Teslim Edildi', icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100' };
       case 'FAILED':
         return { label: 'Başarısız', icon: XCircle, color: 'text-red-600', bg: 'bg-red-100' };
+      case 'CANCELLED':
+        return { label: 'İptal Edildi', icon: XCircle, color: 'text-red-600', bg: 'bg-red-100' };
       default:
         return { label: 'Bilinmiyor', icon: AlertCircle, color: 'text-gray-600', bg: 'bg-gray-100' };
     }
@@ -173,6 +176,20 @@ export default function OrderDetailPage() {
                 {statusConfig.label}
               </span>
             </div>
+          </div>
+
+          {/* Durum Açıklaması */}
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              {order.status === 'PENDING' && '⏳ Siparişiniz onay bekliyor. Ödeme onaylandıktan sonra hazırlanmaya başlanacak.'}
+              {order.status === 'AWAITING_PAYMENT' && '💰 Havale ödemesi bekleniyor. Lütfen belirtilen hesaba ödeme yapın ve dekont gönderin.'}
+              {order.status === 'PAID' && '✅ Ödemeniz alındı. Siparişiniz hazırlanmaya başlanacak.'}
+              {order.status === 'CONFIRMED' && '✅ Siparişiniz onaylandı. Hazırlanmaya başlanacak.'}
+              {order.status === 'SHIPPED' && '🚚 Siparişiniz kargoya verildi. Takip numarası ile takip edebilirsiniz.'}
+              {order.status === 'DELIVERED' && '🎉 Siparişiniz başarıyla teslim edildi. İyi alışverişler!'}
+              {order.status === 'FAILED' && '❌ Ödeme işlemi başarısız oldu. Lütfen tekrar deneyin veya farklı bir ödeme yöntemi kullanın.'}
+              {order.status === 'CANCELLED' && '🚫 Siparişiniz iptal edildi. Detaylar için müşteri hizmetleri ile iletişime geçin.'}
+            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -330,6 +330,60 @@ export class EmailService {
     }
   }
 
+  // Transfer bildirimi e-postası gönderme
+  static async sendTransferNotification(data: {
+    to: string;
+    businessName: string;
+    orderId: string;
+    amount: number;
+    iban: string;
+    accountHolder: string;
+    bankName: string;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `💰 Transfer Bildirimi - Sipariş #${data.orderId}`,
+        html: this.generateTransferNotificationHTML(data)
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('Transfer bildirimi e-postası gönderme hatası:', error);
+      return false;
+    }
+  }
+
+  // Havale talimatları e-postası gönderme
+  static async sendBankTransferInstructions(data: {
+    to: string;
+    customerName: string;
+    orderId: string;
+    amount: number;
+    iban: string;
+    accountHolder: string;
+    bankName: string;
+    bankBranch: string;
+    transferNote: string;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `🏦 Havale Talimatları - Sipariş #${data.orderId}`,
+        html: this.generateBankTransferInstructionsHTML(data)
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('Havale talimatları e-postası gönderme hatası:', error);
+      return false;
+    }
+  }
+
   private static generateNewApplicationHTML(businessData: any): string {
     return `
       <!DOCTYPE html>
@@ -506,6 +560,162 @@ export class EmailService {
           
           <div class="footer">
             <p>E-posta: info@modabase.com | Web: www.modabase.com</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  private static generateTransferNotificationHTML(data: {
+    businessName: string;
+    orderId: string;
+    amount: number;
+    iban: string;
+    accountHolder: string;
+    bankName: string;
+  }): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Transfer Bildirimi - ModaBase</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { padding: 30px 20px; background: white; }
+          .transfer-box { background: #f8fff9; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #27ae60; }
+          .amount { font-size: 24px; font-weight: bold; color: #27ae60; text-align: center; margin: 20px 0; }
+          .bank-info { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0;">💰 Transfer Bildirimi</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Yeni bir ödeme transferi gerçekleşti</p>
+          </div>
+          
+          <div class="content">
+            <h2>Merhaba ${data.businessName},</h2>
+            
+            <p>Yeni bir sipariş ödemesi hesabınıza transfer edildi.</p>
+            
+            <div class="transfer-box">
+              <h3 style="margin: 0 0 15px 0; color: #27ae60;">Transfer Detayları:</h3>
+              
+              <div class="amount">
+                ${data.amount.toLocaleString('tr-TR')} ₺
+              </div>
+              
+              <div class="bank-info">
+                <p><strong>Sipariş No:</strong> #${data.orderId}</p>
+                <p><strong>Banka:</strong> ${data.bankName}</p>
+                <p><strong>Hesap Sahibi:</strong> ${data.accountHolder}</p>
+                <p><strong>IBAN:</strong> ${data.iban}</p>
+                <p><strong>Transfer Tarihi:</strong> ${new Date().toLocaleDateString('tr-TR')}</p>
+              </div>
+            </div>
+            
+            <p><strong>Not:</strong> Transfer işlemi 1-3 iş günü içinde hesabınıza yansıyacaktır.</p>
+            
+            <p>Transfer durumunu kontrol etmek için bankanızla iletişime geçebilirsiniz.</p>
+            
+            <p>Saygılarımızla,<br>
+            <strong>ModaBase Finans Ekibi</strong></p>
+          </div>
+          
+          <div class="footer">
+            <p>Bu e-posta otomatik olarak ModaBase sistemi tarafından gönderilmiştir.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  private static generateBankTransferInstructionsHTML(data: {
+    customerName: string;
+    orderId: string;
+    amount: number;
+    iban: string;
+    accountHolder: string;
+    bankName: string;
+    bankBranch: string;
+    transferNote: string;
+  }): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Havale Talimatları - ModaBase</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { padding: 30px 20px; background: white; }
+          .bank-box { background: #f0f9ff; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #1e40af; }
+          .amount { font-size: 24px; font-weight: bold; color: #1e40af; text-align: center; margin: 20px 0; }
+          .bank-info { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; }
+          .steps { background: #fef3c7; padding: 15px; border-radius: 8px; margin: 15px 0; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0;">🏦 Havale Talimatları</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Siparişiniz için havale bilgileri</p>
+          </div>
+          
+          <div class="content">
+            <h2>Merhaba ${data.customerName},</h2>
+            
+            <p>Siparişiniz için havale yapmanız gereken banka bilgileri aşağıdadır.</p>
+            
+            <div class="bank-box">
+              <h3 style="margin: 0 0 15px 0; color: #1e40af;">Havale Bilgileri:</h3>
+              
+              <div class="amount">
+                ${data.amount.toLocaleString('tr-TR')} ₺
+              </div>
+              
+              <div class="bank-info">
+                <p><strong>Sipariş No:</strong> #${data.orderId}</p>
+                <p><strong>Banka:</strong> ${data.bankName}</p>
+                <p><strong>Şube:</strong> ${data.bankBranch}</p>
+                <p><strong>Hesap Sahibi:</strong> ${data.accountHolder}</p>
+                <p><strong>IBAN:</strong> ${data.iban}</p>
+                <p><strong>Açıklama:</strong> ${data.transferNote || 'Sipariş #' + data.orderId}</p>
+              </div>
+            </div>
+            
+            <div class="steps">
+              <h4 style="margin: 0 0 10px 0; color: #92400e;">Havale Adımları:</h4>
+              <ol style="margin: 0; padding-left: 20px;">
+                <li>Banka uygulamanızı açın</li>
+                <li>Havale/EFT menüsüne gidin</li>
+                <li>IBAN numarasını girin: <strong>${data.iban}</strong></li>
+                <li>Tutarı girin: <strong>${data.amount.toLocaleString('tr-TR')} ₺</strong></li>
+                <li>Açıklama kısmına: <strong>${data.transferNote || 'Sipariş #' + data.orderId}</strong> yazın</li>
+                <li>Havaleyi gerçekleştirin</li>
+              </ol>
+            </div>
+            
+            <p><strong>Önemli:</strong> Havale yaptıktan sonra siparişiniz 1-2 iş günü içinde onaylanacaktır.</p>
+            
+            <p>Herhangi bir sorunuz varsa bizimle iletişime geçebilirsiniz.</p>
+            
+            <p>Saygılarımızla,<br>
+            <strong>ModaBase Finans Ekibi</strong></p>
+          </div>
+          
+          <div class="footer">
+            <p>Bu e-posta otomatik olarak ModaBase sistemi tarafından gönderilmiştir.</p>
           </div>
         </div>
       </body>

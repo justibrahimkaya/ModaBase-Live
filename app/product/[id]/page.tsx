@@ -1,4 +1,5 @@
 import ProductDetail from '@/components/ProductDetail'
+import ProductSEOHead from '@/components/ProductSEOHead'
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 
@@ -80,20 +81,29 @@ export default async function ProductPage({ params }: ProductPageProps) {
     })
 
     return (
-      <main className="min-h-screen bg-gray-50">
-        <ProductDetail 
+      <>
+        <ProductSEOHead 
           product={{
             ...product,
             originalPrice: product.originalPrice || 0
           }}
-          variants={product.variants}
-          averageRating={averageRating}
-          similarProducts={similarProducts.map((p: any) => ({
-            ...p,
-            originalPrice: p.originalPrice || 0
-          }))}
+          category={product.category}
         />
-      </main>
+        <main className="min-h-screen bg-gray-50">
+          <ProductDetail 
+            product={{
+              ...product,
+              originalPrice: product.originalPrice || 0
+            }}
+            variants={product.variants}
+            averageRating={averageRating}
+            similarProducts={similarProducts.map((p: any) => ({
+              ...p,
+              originalPrice: p.originalPrice || 0
+            }))}
+          />
+        </main>
+      </>
     )
   } catch (error) {
     console.error('Product page error:', error)

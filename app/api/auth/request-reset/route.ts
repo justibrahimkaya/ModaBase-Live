@@ -2,8 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { EmailService } from '@/lib/emailService'
 import { randomBytes } from 'crypto'
+import { rateLimit, createRateLimitResponse } from '@/lib/security/rateLimit'
 
 export async function POST(request: NextRequest) {
+  // Rate limiting kontrolü
+  const rateLimitResult = rateLimit(request, '/api/auth/request-reset');
+  if (!rateLimitResult.allowed) {
+    return createRateLimitResponse(
+      rateLimitResult.allowed,
+      rateLimitResult.remainingAttempts,
+      rateLimitResult.resetTime,
+      rateLimitResult.blocked
+    );
+  }
+
   const { email } = await request.json()
   if (!email) {
     return NextResponse.json({ error: 'E-posta zorunlu.' }, { status: 400 })

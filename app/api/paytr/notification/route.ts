@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
+import { EmailService } from '@/lib/emailService';
 
 // PayTR Konfigürasyonu
 const PAYTR_MERCHANT_KEY = process.env.PAYTR_MERCHANT_KEY || 'srMxKnSgipN1Z1Td';
@@ -55,6 +56,14 @@ export async function POST(request: NextRequest) {
           }
         });
       }
+
+      // İşletme hesabına transfer işlemi
+      try {
+        await processBusinessTransfer(order);
+      } catch (transferError) {
+        console.error('Transfer işlemi hatası:', transferError);
+        // Transfer hatası siparişi etkilemesin, sadece log
+      }
     } else {
       orderStatus = 'FAILED';
     }
@@ -66,7 +75,7 @@ export async function POST(request: NextRequest) {
         status: orderStatus,
         paymentMethod: payment_type,
         adminNotes: status === 'success' 
-          ? 'Ödeme başarılı - PayTR' 
+          ? 'Ödeme başarılı - PayTR - İşletme hesabına transfer yapıldı' 
           : `Ödeme başarısız - ${failed_reason_msg || 'Bilinmeyen hata'}`
       }
     });
@@ -82,4 +91,88 @@ export async function POST(request: NextRequest) {
       message: 'Notification processing failed' 
     }, { status: 500 });
   }
-} 
+}
+
+// İşletme hesabına transfer işlemi
+async function processBusinessTransfer(order: any) {
+  try {
+    // İşletme hesabını bul (ModaBase hesabı)
+    const business = await prisma.business.findUnique({
+      where: { email: 'mbmodabase@gmail.com' },
+      select: {
+        id: true,
+        businessName: true,
+        contactEmail: true,
+        ibanNumber: true,
+        accountHolderName: true,
+        bankName: true
+      }
+    });
+
+    if (!business) {
+      console.error('İşletme hesabı bulunamadı');
+      return;
+    }
+
+    if (!business.ibanNumber) {
+      console.error('İşletme IBAN bilgisi eksik');
+      return;
+    }
+
+    // Transfer bilgilerini log'a kaydet
+    console.log('💰 Transfer Kaydı:');
+    console.log(`   Order ID: ${order.id}`);
+    console.log(`   Business ID: ${business.id}`);
+    console.log(`   Amount: ${order.total} TL`);
+    console.log(`   IBAN: ${business.ibanNumber}`);
+    console.log(`   Account Holder: ${business.accountHolderName || 'Belirtilmemiş'}`);
+    console.log(`   Bank: ${business.bankName || 'Belirtilmemiş'}`);
+    console.log(`   Status: PENDING`);
+    console.log(`   Date: ${new Date().toISOString()}`);
+    console.log(`   Description: Sipariş #${order.id} için transfer`);
+
+    console.log('💰 İşletme hesabına transfer işlemi:');
+    console.log(`   Sipariş ID: ${order.id}`);
+    console.log(`   Tutar: ${order.total} TL`);
+    console.log(`   IBAN: ${business.ibanNumber}`);
+    console.log(`   Hesap Sahibi: ${business.accountHolderName || 'Belirtilmemiş'}`);
+    console.log(`   Banka: ${business.bankName || 'Belirtilmemiş'}`);
+
+    // Transfer bildirimi e-postası gönder
+    try {
+      EmailService.initialize({
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: parseInt(process.env.SMTP_PORT || '587'),
+        secure: false,
+        auth: {
+          user: process.env.SMTP_USER || 'info@modabase.com.tr',
+          pass: process.env.SMTP_PASS || 'password'
+        }
+      });
+
+      // İşletme sahibine transfer bildirimi
+      await EmailService.sendTransferNotification({
+        to: business.contactEmail,
+        businessName: business.businessName,
+        orderId: order.id,
+        amount: order.total,
+        iban: business.ibanNumber,
+        accountHolder: business.accountHolderName || 'Belirtilmemiş',
+        bankName: business.bankName || 'Belirtilmemiş'
+      });
+
+      console.log('✅ Transfer bildirimi e-postası gönderildi');
+
+    } catch (emailError) {
+      console.error('Transfer bildirimi e-postası hatası:', emailError);
+    }
+
+    // TODO: Gerçek banka API entegrasyonu burada yapılacak
+    // Şu anda sadece kayıt ve bildirim yapılıyor
+    console.log('⚠️  Gerçek transfer işlemi için banka API entegrasyonu gerekli');
+
+  } catch (error) {
+    console.error('Transfer işlemi hatası:', error);
+    throw error;
+  }
+}

@@ -27,7 +27,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import Image from 'next/image'
-import SEOGenerator from '@/components/SEOGenerator'
+import AdvancedSEOGenerator from '@/components/AdvancedSEOGenerator'
 
 interface Product {
   id: string
@@ -75,11 +75,47 @@ const initialForm = {
   maxStockLevel: '',
   categoryId: '',
   variants: [] as ProductVariant[],
-  // SEO alanları
+  // Temel SEO alanları
   metaTitle: '',
   metaDescription: '',
   keywords: '',
-  altText: ''
+  altText: '',
+  // Gelişmiş SEO alanları
+  brand: 'ModaBase',
+  sku: '',
+  gtin: '',
+  mpn: '',
+  condition: 'new',
+  availability: 'in_stock',
+  material: '',
+  color: '',
+  size: '',
+  weight: '',
+  dimensions: '',
+  warranty: '',
+  countryOfOrigin: 'Türkiye',
+  // Sosyal medya
+  ogTitle: '',
+  ogDescription: '',
+  ogImage: '',
+  ogType: 'product',
+  twitterCard: 'summary_large_image',
+  twitterTitle: '',
+  twitterDescription: '',
+  twitterImage: '',
+  // Yapılandırılmış veri
+  structuredData: '',
+  canonicalUrl: '',
+  hreflang: 'tr-TR',
+  // Analitik
+  googleAnalyticsId: '',
+  googleTagManagerId: '',
+  facebookPixelId: '',
+  // Arama motoru
+  robotsMeta: 'index,follow',
+  sitemapPriority: 0.8,
+  changeFrequency: 'weekly',
+  lastModified: new Date().toISOString()
 }
 
 const commonSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45']
@@ -220,7 +256,43 @@ export default function AdminProductsPage() {
       metaDescription: seoData.metaDescription,
       keywords: seoData.keywords.join(', '),
       altText: seoData.altText,
-      slug: seoData.urlSlug
+      slug: seoData.urlSlug,
+      // Gelişmiş SEO alanları
+      brand: seoData.brand,
+      sku: seoData.sku,
+      gtin: seoData.gtin,
+      mpn: seoData.mpn,
+      condition: seoData.condition,
+      availability: seoData.availability,
+      material: seoData.material,
+      color: seoData.color,
+      size: seoData.size,
+      weight: seoData.weight,
+      dimensions: seoData.dimensions,
+      warranty: seoData.warranty,
+      countryOfOrigin: seoData.countryOfOrigin,
+      // Sosyal medya
+      ogTitle: seoData.ogTitle,
+      ogDescription: seoData.ogDescription,
+      ogImage: seoData.ogImage,
+      ogType: seoData.ogType,
+      twitterCard: seoData.twitterCard,
+      twitterTitle: seoData.twitterTitle,
+      twitterDescription: seoData.twitterDescription,
+      twitterImage: seoData.twitterImage,
+      // Yapılandırılmış veri
+      structuredData: seoData.structuredData,
+      canonicalUrl: seoData.canonicalUrl,
+      hreflang: seoData.hreflang,
+      // Analitik
+      googleAnalyticsId: seoData.googleAnalyticsId,
+      googleTagManagerId: seoData.googleTagManagerId,
+      facebookPixelId: seoData.facebookPixelId,
+      // Arama motoru
+      robotsMeta: seoData.robotsMeta,
+      sitemapPriority: seoData.sitemapPriority,
+      changeFrequency: seoData.changeFrequency,
+      lastModified: seoData.lastModified
     }))
   }
 
@@ -1004,15 +1076,83 @@ export default function AdminProductsPage() {
                 
                 {/* Right Column - Images */}
                 <div className="space-y-6">
-                  {/* SEO Section */}
-                  <SEOGenerator
+                  {/* Advanced SEO Section */}
+                  <AdvancedSEOGenerator
                     productName={form.name}
                     category={categories.find(cat => cat.id === form.categoryId)?.name || ''}
                     brand="ModaBase"
                     {...(parseFloat(form.price) > 0 && { price: parseFloat(form.price) })}
                     {...(form.description && { description: form.description })}
+                    images={form.images}
                     onSEOGenerated={handleSEOGenerated}
                   />
+
+                  {/* SEO Önizleme */}
+                  {form.metaTitle && (
+                    <div className="bg-gray-50 rounded-xl p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">SEO Önizleme</h3>
+                      <div className="space-y-4">
+                        {/* Google Arama Sonucu Önizleme */}
+                        <div className="bg-white border border-gray-200 rounded-lg p-4">
+                          <h4 className="text-sm font-medium text-gray-700 mb-2">Google Arama Sonucu</h4>
+                          <div className="space-y-1">
+                            <div className="text-blue-600 text-sm truncate">
+                              {form.canonicalUrl || `https://modabase.com/product/${form.slug}`}
+                            </div>
+                            <div className="text-lg text-blue-600 font-medium">
+                              {form.metaTitle || 'Ürün başlığı'}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {form.metaDescription || 'Ürün açıklaması'}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Facebook Paylaşım Önizleme */}
+                        <div className="bg-white border border-gray-200 rounded-lg p-4">
+                          <h4 className="text-sm font-medium text-gray-700 mb-2">Facebook Paylaşım</h4>
+                          <div className="space-y-2">
+                            <div className="text-sm font-medium text-gray-900">
+                              {form.ogTitle || form.metaTitle || 'Ürün başlığı'}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {form.ogDescription || form.metaDescription || 'Ürün açıklaması'}
+                            </div>
+                            {form.ogImage && (
+                              <img 
+                                src={form.ogImage} 
+                                alt="OG Image" 
+                                className="w-full h-32 object-cover rounded"
+                              />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* SEO Bilgileri */}
+                        <div className="bg-white border border-gray-200 rounded-lg p-4">
+                          <h4 className="text-sm font-medium text-gray-700 mb-2">SEO Bilgileri</h4>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="text-gray-600">Marka:</span>
+                              <span className="ml-2 font-medium">{form.brand || 'Belirtilmemiş'}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">SKU:</span>
+                              <span className="ml-2 font-medium">{form.sku || 'Belirtilmemiş'}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Durum:</span>
+                              <span className="ml-2 font-medium">{form.condition || 'Belirtilmemiş'}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Stok:</span>
+                              <span className="ml-2 font-medium">{form.availability || 'Belirtilmemiş'}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   
                   <div className="bg-gray-50 rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">

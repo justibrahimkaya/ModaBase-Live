@@ -61,6 +61,22 @@ const getStatusInfo = (status: string) => {
         icon: Clock,
         gradient: 'from-yellow-500 to-orange-600'
       }
+    case 'AWAITING_PAYMENT':
+      return { 
+        text: 'Ödeme Bekleniyor', 
+        color: 'text-orange-800', 
+        bg: 'bg-orange-100 border border-orange-200', 
+        icon: Clock,
+        gradient: 'from-orange-500 to-red-600'
+      }
+    case 'PAID':
+      return { 
+        text: 'Ödendi', 
+        color: 'text-green-800', 
+        bg: 'bg-green-100 border border-green-200', 
+        icon: CheckCircle,
+        gradient: 'from-green-500 to-emerald-600'
+      }
     case 'CONFIRMED':
       return { 
         text: 'Onaylandı', 
@@ -84,6 +100,14 @@ const getStatusInfo = (status: string) => {
         bg: 'bg-green-100 border border-green-200', 
         icon: CheckCircle,
         gradient: 'from-green-500 to-emerald-600'
+      }
+    case 'FAILED':
+      return { 
+        text: 'Ödeme Başarısız', 
+        color: 'text-red-800', 
+        bg: 'bg-red-100 border border-red-200', 
+        icon: XCircle,
+        gradient: 'from-red-500 to-pink-600'
       }
     case 'CANCELLED':
       return { 
@@ -391,6 +415,20 @@ export default function OrdersPage() {
                           <span className={`text-sm font-semibold ${statusInfo.color}`}>
                             {statusInfo.text}
                           </span>
+                        </div>
+                        
+                        {/* Durum Açıklaması */}
+                        <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <p className="text-xs text-blue-800">
+                            {order.status === 'PENDING' && '⏳ Siparişiniz onay bekliyor. Ödeme onaylandıktan sonra hazırlanmaya başlanacak.'}
+                            {order.status === 'AWAITING_PAYMENT' && '💰 Havale ödemesi bekleniyor. Lütfen belirtilen hesaba ödeme yapın ve dekont gönderin.'}
+                            {order.status === 'PAID' && '✅ Ödemeniz alındı. Siparişiniz hazırlanmaya başlanacak.'}
+                            {order.status === 'CONFIRMED' && '✅ Siparişiniz onaylandı. Hazırlanmaya başlanacak.'}
+                            {order.status === 'SHIPPED' && '🚚 Siparişiniz kargoya verildi. Takip numarası ile takip edebilirsiniz.'}
+                            {order.status === 'DELIVERED' && '🎉 Siparişiniz başarıyla teslim edildi. İyi alışverişler!'}
+                            {order.status === 'FAILED' && '❌ Ödeme işlemi başarısız oldu. Lütfen tekrar deneyin veya farklı bir ödeme yöntemi kullanın.'}
+                            {order.status === 'CANCELLED' && '🚫 Siparişiniz iptal edildi. Detaylar için müşteri hizmetleri ile iletişime geçin.'}
+                          </p>
                         </div>
                       </div>
                     </div>

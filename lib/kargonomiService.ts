@@ -156,8 +156,9 @@ class KargonomiAPI {
   }
 
   // Gönderi listesi
-  async getShipments(): Promise<any[]> {
-    return this.request('/shipments');
+  async getShipments(queryParams?: string): Promise<any[]> {
+    const endpoint = queryParams ? `/shipments?${queryParams}` : '/shipments';
+    return this.request(endpoint);
   }
 
   // Gönderi detayı
@@ -166,10 +167,48 @@ class KargonomiAPI {
   }
 
   // Gönderi güncelleme
-  async updateShipment(shipmentId: number, shipment: Partial<KargonomiShipment>): Promise<any> {
+  async updateShipment(shipmentId: number, shipment: any): Promise<any> {
+    // URLEncoded formatında gönder (Postman collection'a göre)
+    const formData = new URLSearchParams();
+    
+    // Sender bilgileri
+    formData.append('shipment[sender_name]', shipment.sender_name);
+    formData.append('shipment[sender_email]', shipment.sender_email);
+    formData.append('shipment[sender_tax_number]', shipment.sender_tax_number);
+    formData.append('shipment[sender_tax_place]', shipment.sender_tax_place);
+    formData.append('shipment[sender_phone]', shipment.sender_phone);
+    formData.append('shipment[sender_address]', shipment.sender_address);
+    formData.append('shipment[sender_city_id]', shipment.sender_city_id.toString());
+    formData.append('shipment[sender_district_id]', shipment.sender_district_id.toString());
+    
+    // Buyer bilgileri
+    formData.append('shipment[buyer_name]', shipment.buyer_name);
+    formData.append('shipment[buyer_email]', shipment.buyer_email);
+    if (shipment.buyer_tax_number) {
+      formData.append('shipment[buyer_tax_number]', shipment.buyer_tax_number);
+    }
+    if (shipment.buyer_tax_place) {
+      formData.append('shipment[buyer_tax_place]', shipment.buyer_tax_place);
+    }
+    formData.append('shipment[buyer_phone]', shipment.buyer_phone);
+    formData.append('shipment[buyer_address]', shipment.buyer_address);
+    formData.append('shipment[buyer_city_id]', shipment.buyer_city_id.toString());
+    formData.append('shipment[buyer_district_id]', shipment.buyer_district_id.toString());
+    
+    // Package bilgileri
+    shipment.packages.forEach((pkg: any, index: number) => {
+      formData.append(`shipment[packages][${index}][desi]`, pkg.desi.toString());
+      if (pkg.barcode) {
+        formData.append(`shipment[packages][${index}][barcode]`, pkg.barcode);
+      }
+      if (pkg.content) {
+        formData.append(`shipment[packages][${index}][content]`, pkg.content);
+      }
+    });
+
     return this.request(`/shipments/${shipmentId}`, {
       method: 'PUT',
-      body: JSON.stringify({ shipment }),
+      body: formData,
     });
   }
 
