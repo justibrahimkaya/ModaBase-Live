@@ -521,70 +521,75 @@ export default function AdminProductsPage() {
         throw new Error(errorData.error || 'Ürün eklenemedi')
       }
 
-       // Başarı mesajı
-       setSuccess('Ürün başarıyla eklendi!')
+             // Başarı mesajı
+      setSuccess('Ürün başarıyla eklendi!')
+      
+      // 3 saniye sonra success mesajını temizle
+      setTimeout(() => setSuccess(''), 3000)
 
-      // Formu temizle
-      setForm({
-        name: '',
-        slug: '',
-        description: '',
-        price: '',
-        originalPrice: '',
-        images: [],
-        stock: '',
-        minStockLevel: '',
-        maxStockLevel: '',
-        categoryId: '',
-        variants: [],
-        // SEO alanları
-        metaTitle: '',
-        metaDescription: '',
-        keywords: '',
-        altText: '',
-        brand: '',
-        sku: '',
-        gtin: '',
-        mpn: '',
-        condition: '',
-        availability: '',
-        material: '',
-        color: '',
-        size: '',
-        weight: '',
-        dimensions: '',
-        warranty: '',
-        countryOfOrigin: '',
-        // Sosyal medya
-        ogTitle: '',
-        ogDescription: '',
-        ogImage: '',
-        ogType: '',
-        twitterCard: '',
-        twitterTitle: '',
-        twitterDescription: '',
-        twitterImage: '',
-        // Yapılandırılmış veri
-        structuredData: '',
-        canonicalUrl: '',
-        hreflang: '',
-        // Analitik
-        googleAnalyticsId: '',
-        googleTagManagerId: '',
-        facebookPixelId: '',
-        // Arama motoru
-        robotsMeta: '',
-        sitemapPriority: '',
-        changeFrequency: '',
-        lastModified: ''
-      })
-
-      // Ürünleri yeniden yükle
-      fetchProducts()
+      // Formu güvenli şekilde temizle
+      setTimeout(() => {
+        setForm({
+          name: '',
+          slug: '',
+          description: '',
+          price: '',
+          originalPrice: '',
+          images: [],
+          stock: '',
+          minStockLevel: '5',
+          maxStockLevel: '',
+          categoryId: '',
+          variants: [],
+          // SEO alanları
+          metaTitle: '',
+          metaDescription: '',
+          keywords: '',
+          altText: '',
+          brand: 'ModaBase',
+          sku: '',
+          gtin: '',
+          mpn: '',
+          condition: 'new',
+          availability: 'in_stock',
+          material: '',
+          color: '',
+          size: '',
+          weight: '',
+          dimensions: '',
+          warranty: '',
+          countryOfOrigin: 'Türkiye',
+          // Sosyal medya
+          ogTitle: '',
+          ogDescription: '',
+          ogImage: '',
+          ogType: '',
+          twitterCard: '',
+          twitterTitle: '',
+          twitterDescription: '',
+          twitterImage: '',
+          // Yapılandırılmış veri
+          structuredData: '',
+          canonicalUrl: '',
+          hreflang: '',
+          // Analitik
+          googleAnalyticsId: '',
+          googleTagManagerId: '',
+          facebookPixelId: '',
+          // Arama motoru
+          robotsMeta: '',
+          sitemapPriority: '',
+          changeFrequency: '',
+          lastModified: ''
+        })
+        
+        // Ürünleri yeniden yükle
+        fetchProducts()
+      }, 100)
       
     } catch (error: any) {
       console.error('Save error:', error)
-      setError(error.message || 'Ürün eklenirken bir hata oluştu')
+      setError(error?.message || 'Ürün eklenirken bir hata oluştu')
     } finally {
       setSaving(false)
     }
