@@ -607,10 +607,29 @@ export default function AdminProductsPage() {
       return
     }
 
+    // DEBUG: Tüm slot'ları kontrol et
+    console.log('🔍 DEBUG: Tüm imageSlots durumu:')
+    imageSlots.forEach((slot, index) => {
+      console.log(`Slot ${index + 1}:`, {
+        id: slot.id,
+        hasImage: !!slot.image,
+        imageLength: slot.image ? slot.image.length : 0,
+        hasError: !!slot.error,
+        error: slot.error,
+        loading: slot.loading
+      })
+    })
+
     // Slot'lardan geçerli resimleri al
     const validImages = imageSlots
       .filter(slot => slot.image && !slot.error)
       .map(slot => slot.image as string)
+
+    console.log('🖼️ DEBUG: Geçerli resimler:')
+    console.log('Geçerli resim sayısı:', validImages.length)
+    validImages.forEach((img, index) => {
+      console.log(`Geçerli resim ${index + 1}:`, img.length, 'bytes')
+    })
 
     if (validImages.length === 0) {
       setError('En az 1 fotoğraf yüklemelisiniz.')
@@ -634,6 +653,11 @@ export default function AdminProductsPage() {
           return 'https://via.placeholder.com/400x400/cccccc/666666?text=Resim'
         }
         return img
+      })
+
+      console.log('🖼️ DEBUG: Optimize edilmiş resimler:')
+      optimizedImages.forEach((img, index) => {
+        console.log(`Optimize resim ${index + 1}:`, img.length, 'bytes')
       })
 
       // Payload boyutunu kontrol et

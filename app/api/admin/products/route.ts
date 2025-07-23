@@ -243,19 +243,28 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ Validasyon başarılı')
 
-    // Fotoğraf validasyonu
+    // Fotoğraf validasyonu - DEBUG eklendi
     let imageArray: string[] = []
     try {
       imageArray = typeof images === 'string' ? JSON.parse(images) : images || []
+      console.log('🖼️ DEBUG: API de alinan resimler:')
+      console.log('Resim sayisi:', imageArray.length)
+      imageArray.forEach((img, index) => {
+        console.log(`API Resim ${index + 1}:`, img.length, 'bytes')
+        console.log(`API Resim ${index + 1} preview:`, img.substring(0, 100))
+      })
     } catch (error) {
+      console.error('❌ API Resim parse hatası:', error)
       return NextResponse.json({ error: 'Fotoğraf verisi geçersiz.' }, { status: 400 })
     }
 
     if (imageArray.length === 0) {
+      console.log('❌ API: Hiç resim yok')
       return NextResponse.json({ error: 'En az 1 fotoğraf yüklemelisiniz.' }, { status: 400 })
     }
 
     if (imageArray.length > 20) {
+      console.log('❌ API: Çok fazla resim:', imageArray.length)
       return NextResponse.json({ error: 'En fazla 20 fotoğraf yükleyebilirsiniz.' }, { status: 400 })
     }
 
