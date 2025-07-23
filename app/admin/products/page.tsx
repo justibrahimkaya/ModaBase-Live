@@ -734,8 +734,23 @@ export default function AdminProductsPage() {
           lastModified: ''
         })
         
-        // Sayfayı yenile (fetchProducts yerine)
-        window.location.reload()
+        // Ürünleri yeniden yükle
+        fetchProducts()
+        
+        // Modal'ı kapat
+        closeModal()
+        
+        // Slot'ları sıfırla
+        setImageSlots([
+          { id: 1, image: '', loading: false, error: '' },
+          { id: 2, image: '', loading: false, error: '' },
+          { id: 3, image: '', loading: false, error: '' },
+          { id: 4, image: '', loading: false, error: '' },
+          { id: 5, image: '', loading: false, error: '' },
+          { id: 6, image: '', loading: false, error: '' },
+          { id: 7, image: '', loading: false, error: '' },
+          { id: 8, image: '', loading: false, error: '' }
+        ])
       }, 100)
       
     } catch (error: any) {
