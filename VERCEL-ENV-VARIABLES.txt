@@ -18,12 +18,12 @@ NEXT_PUBLIC_BASE_URL=https://www.modabase.com.tr
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=info@modabase.com.tr
-SMTP_PASS=xxxx xxxx xxxx xxxx
+SMTP_PASS=yqarfkyevahfnenq
 EMAIL_FROM=ModaBase <info@modabase.com.tr>
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=info@modabase.com.tr
-EMAIL_PASS=xxxx xxxx xxxx xxxx
+EMAIL_PASS=yqarfkyevahfnenq
 
 # Security
 ENCRYPTION_KEY=a1b2c3d4e5f678901234567890123456
@@ -45,7 +45,7 @@ WHATSAPP_ADMIN_NUMBER=905362971255
 # Site Configuration
 SITE_NAME=ModaBase
 SITE_DESCRIPTION=Modern E-Ticaret Platformu
-MAX_FILE_SIZE=10
+MAX_FILE_SIZE=800
 ALLOWED_FILE_TYPES=jpg,jpeg,png,gif,webp
 CURRENCY=TRY
 TIMEZONE=Europe/Istanbul

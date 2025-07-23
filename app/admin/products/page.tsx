@@ -387,9 +387,9 @@ export default function AdminProductsPage() {
       const file = files[i]
       if (!file) continue
       
-      // Dosya boyutu kontrolü (100KB - çok agresif)
-      if (file.size > 100 * 1024) {
-        setError(`${file.name} dosyası çok büyük. Maksimum 100KB olmalıdır.`)
+      // Dosya boyutu kontrolü (800KB - güncellenmiş)
+      if (file.size > 800 * 1024) {
+        setError(`${file.name} dosyası çok büyük. Maksimum 800KB olmalıdır.`)
         continue
       }
 
@@ -1312,7 +1312,7 @@ export default function AdminProductsPage() {
                           Fotoğraf Seç
                         </label>
                                                  <p className="mt-2 text-sm text-gray-500">
-                           JPG, PNG, WebP formatları desteklenir (Maks. 100KB per resim)
+                           JPG, PNG, WebP formatları desteklenir (Maks. 800KB per resim)
                          </p>
                          <p className="text-xs text-gray-400">
                            {20 - form.images.length} fotoğraf daha ekleyebilirsiniz (minimum 1, maksimum 20)
