@@ -402,33 +402,51 @@ export default function AdminProductsPage() {
       const img = new window.Image()
       
       img.onload = () => {
-        // Daha büyük boyutlar - daha iyi kalite
-        const maxWidth = 800  // 200'den 800'e çıkarıldı
-        const maxHeight = 800 // 200'den 800'e çıkarıldı
-        
-        let { width, height } = img
-        
-        // En-boy oranını koru
-        if (width > height) {
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width
-            width = maxWidth
+        try {
+          // Daha büyük boyutlar - daha iyi kalite
+          const maxWidth = 800
+          const maxHeight = 800
+          
+          let { width, height } = img
+          
+          // En-boy oranını koru
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width
+              width = maxWidth
+            }
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height
+              height = maxHeight
+            }
           }
-        } else {
-          if (height > maxHeight) {
-            width = (width * maxHeight) / height
-            height = maxHeight
+          
+          canvas.width = width
+          canvas.height = height
+          
+          if (!ctx) {
+            reject(new Error('Canvas context oluşturulamadı'))
+            return
           }
+          
+          ctx.drawImage(img, 0, 0, width, height)
+          
+          // Daha yüksek kalitede JPEG sıkıştır (0.8 kalite - %80)
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8)
+          
+          // Boyut kontrolü
+          if (compressedDataUrl.length > 500000) { // 500KB limit
+            console.warn(`Resim çok büyük: ${compressedDataUrl.length} bytes`)
+            // Daha düşük kalitede tekrar dene
+            const lowQualityDataUrl = canvas.toDataURL('image/jpeg', 0.6)
+            resolve(lowQualityDataUrl)
+          } else {
+            resolve(compressedDataUrl)
+          }
+        } catch (error) {
+          reject(new Error(`Resim işleme hatası: ${error}`))
         }
-        
-        canvas.width = width
-        canvas.height = height
-        
-        ctx?.drawImage(img, 0, 0, width, height)
-        
-        // Daha yüksek kalitede JPEG sıkıştır (0.8 kalite - %80)
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8)
-        resolve(compressedDataUrl)
       }
       
       img.onerror = () => reject(new Error('Resim yüklenemedi'))
@@ -443,31 +461,51 @@ export default function AdminProductsPage() {
 
     setError('')
     const newImages: string[] = []
+    const errors: string[] = []
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-      if (!file) continue
-      
-      // Dosya boyutu kontrolü (5MB - optimize edilmiş)
-      if (file.size > 5 * 1024 * 1024) {
-        setError(`${file.name} dosyası çok büyük. Maksimum 5MB olmalıdır.`)
-        continue
+    // Loading state ekle
+    setSaving(true)
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        if (!file) continue
+        
+        // Dosya boyutu kontrolü (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          errors.push(`${file.name} dosyası çok büyük. Maksimum 5MB olmalıdır.`)
+          continue
+        }
+
+        try {
+          console.log(`Resim sıkıştırılıyor: ${file.name} (${file.size} bytes)`)
+          const compressedImage = await compressImage(file)
+          console.log(`Resim sıkıştırıldı: ${file.name} (${compressedImage.length} bytes)`)
+          newImages.push(compressedImage)
+        } catch (error) {
+          console.error(`Resim sıkıştırma hatası: ${file.name}`, error)
+          errors.push(`${file.name} sıkıştırılamadı: ${error}`)
+          continue
+        }
       }
 
-      try {
-        const compressedImage = await compressImage(file)
-        newImages.push(compressedImage)
-      } catch (error) {
-        setError(`${file.name} sıkıştırılamadı: ${error}`)
-        continue
+      if (newImages.length > 0) {
+        setForm((prev: any) => ({
+          ...prev,
+          images: [...prev.images, ...newImages].slice(0, 20)
+        }))
+        console.log(`${newImages.length} resim başarıyla yüklendi`)
       }
-    }
 
-    if (newImages.length > 0) {
-      setForm((prev: any) => ({
-        ...prev,
-        images: [...prev.images, ...newImages].slice(0, 20) // 8'den 20'ye çıkarıldı
-      }))
+      if (errors.length > 0) {
+        setError(`Bazı resimler yüklenemedi:\n${errors.join('\n')}`)
+      }
+
+    } catch (error) {
+      console.error('Genel resim yükleme hatası:', error)
+      setError(`Resim yükleme hatası: ${error}`)
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -591,10 +629,14 @@ export default function AdminProductsPage() {
     setError('')
 
     try {
+      console.log('Ürün kaydediliyor...')
+      console.log('Resim sayısı:', form.images.length)
+      
       // Resimleri optimize et - daha esnek limit
-      const optimizedImages = form.images.map((img: string) => {
-        // 100KB'dan büyükse placeholder kullan (10KB'dan 100KB'a çıkarıldı)
-        if (img.length > 100000) {
+      const optimizedImages = form.images.map((img: string, index: number) => {
+        console.log(`Resim ${index + 1} boyutu:`, img.length, 'bytes')
+        // 200KB'dan büyükse placeholder kullan (100KB'dan 200KB'a çıkarıldı)
+        if (img.length > 200000) {
           console.log('Resim çok büyük, placeholder kullanılıyor:', img.length, 'bytes')
           return 'https://via.placeholder.com/400x400/cccccc/666666?text=Resim'
         }
@@ -616,8 +658,8 @@ export default function AdminProductsPage() {
       const payloadSize = JSON.stringify(payload).length
       console.log('Payload boyutu:', payloadSize, 'bytes')
       
-      // 5MB'dan büyükse hata ver (1MB'dan 5MB'a çıkarıldı)
-      if (payloadSize > 5 * 1024 * 1024) {
+      // 10MB'dan büyükse hata ver (5MB'dan 10MB'a çıkarıldı)
+      if (payloadSize > 10 * 1024 * 1024) {
         setError('Ürün verisi çok büyük. Lütfen daha az resim ekleyin veya resimleri küçültün.')
         setSaving(false)
         return
