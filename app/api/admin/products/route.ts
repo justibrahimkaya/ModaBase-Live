@@ -89,8 +89,13 @@ export async function GET(request: NextRequest) {
 
 // POST: Yeni ürün ekle - Raw body handling
 export async function POST(request: NextRequest) {
+  console.log('🚀 POST /api/admin/products çağrıldı')
+  
   const authError = await requireAdmin(request)
-  if (authError) return authError
+  if (authError) {
+    console.log('❌ Auth hatası:', authError)
+    return authError
+  }
 
   try {
     // Content-Type kontrolü
@@ -134,15 +139,17 @@ export async function POST(request: NextRequest) {
     const bodyText = new TextDecoder().decode(buffer)
     
     // Debug için log
-    console.log('Body text length:', bodyText.length)
-    console.log('Body text preview:', bodyText.substring(0, 200))
+    console.log('📄 Body text length:', bodyText.length)
+    console.log('📄 Body text preview:', bodyText.substring(0, 500))
     
     let body
     try {
       body = JSON.parse(bodyText)
+      console.log('✅ JSON parse başarılı')
+      console.log('📦 Parsed body:', JSON.stringify(body, null, 2))
     } catch (parseError) {
-      console.error('JSON parse error:', parseError)
-      console.error('Body text start:', bodyText.substring(0, 500))
+      console.error('❌ JSON parse error:', parseError)
+      console.error('❌ Body text start:', bodyText.substring(0, 500))
       return NextResponse.json({ 
         error: 'JSON parse hatası: Geçersiz veri formatı',
         details: parseError instanceof Error ? parseError.message : 'Unknown error'
@@ -203,9 +210,18 @@ export async function POST(request: NextRequest) {
       lastModified
     } = body
 
+    console.log('🔍 Validasyon kontrolü...')
+    console.log('Name:', name)
+    console.log('Slug:', slug)
+    console.log('Price:', price)
+    console.log('CategoryId:', categoryId)
+    
     if (!name || !slug || !price || !categoryId) {
+      console.log('❌ Zorunlu alanlar eksik')
       return NextResponse.json({ error: 'Zorunlu alanlar eksik.' }, { status: 400 })
     }
+    
+    console.log('✅ Validasyon başarılı')
 
     // Fotoğraf validasyonu
     let imageArray: string[] = []
@@ -232,6 +248,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Bu slug zaten kullanılıyor.' }, { status: 400 })
     }
 
+    console.log('💾 Veritabanına kaydediliyor...')
+    
     // Transaction kullanarak ürün ve varyantları birlikte kaydet
     const result = await prisma.$transaction(async (tx) => {
       const product = await tx.product.create({
@@ -305,9 +323,11 @@ export async function POST(request: NextRequest) {
         })
       }
 
+      console.log('✅ Ürün başarıyla oluşturuldu:', product.id)
       return product
     })
 
+    console.log('🎉 Transaction başarılı, ürün döndürülüyor')
     return NextResponse.json(result)
   } catch (error: any) {
     console.error('Product creation error:', error)

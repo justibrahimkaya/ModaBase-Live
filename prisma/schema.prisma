@@ -7,50 +7,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Admin Status Values: "PENDING", "APPROVED", "REJECTED"
-// SQLite doesn't support enums, so using String with constraints
-
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  passwordHash String? // Şifre hash'i - OAuth kullanıcıları için opsiyonel
-  resetToken String?  // Şifre sıfırlama tokeni
-  resetTokenExpiry DateTime? // Token geçerlilik süresi
-  name      String?
-  surname   String?
-  phone     String?
-  image     String? // Profile image URL for social login
-  emailVerified DateTime? // Email verification for NextAuth
-  provider  String? // OAuth provider (google, facebook, etc.)
-  role      String   @default("USER") // USER, ADMIN, MODERATOR
-  
-  // Admin Approval System
-  adminStatus String? // Admin başvuru durumu (sadece ADMIN rolü için) - "PENDING", "APPROVED", "REJECTED"
-  appliedAt   DateTime?    // Admin başvuru tarihi
-  approvedAt  DateTime?    // Admin onay tarihi
-  rejectedAt  DateTime?    // Admin red tarihi
-  rejectionReason String?  // Red nedeni
-  businessInfo String?     // İşletme bilgileri (JSON format)
-  
-  isActive  Boolean  @default(true)
-  lastLoginAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Relations
-  addresses Address[]
-  orders    Order[]
-  reviews   Review[]
+  id                 String                  @id @default(cuid())
+  email              String                  @unique
+  passwordHash       String?
+  resetToken         String?
+  resetTokenExpiry   DateTime?
+  name               String?
+  surname            String?
+  phone              String?
+  image              String?
+  emailVerified      DateTime?
+  provider           String?
+  role               String                  @default("USER")
+  adminStatus        String?
+  appliedAt          DateTime?
+  approvedAt         DateTime?
+  rejectedAt         DateTime?
+  rejectionReason    String?
+  businessInfo       String?
+  isActive           Boolean                 @default(true)
+  lastLoginAt        DateTime?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  accounts           Account[]
+  addresses          Address[]
+  cartHistories      CartHistory[]
+  favorites          Favorite[]
+  orders             Order[]
+  reviews            Review[]
   reviewHelpfulVotes ReviewHelpful[]
-  cartHistories CartHistory[]
-  favorites Favorite[]
-  wishlists Wishlist[]
-  accounts  Account[]
-  sessions  Session[]
+  sessions           Session[]
   stockNotifications UserStockNotification[]
+  wishlists          Wishlist[]
 }
 
-// NextAuth.js Required Models
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -64,8 +55,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -87,196 +77,176 @@ model VerificationToken {
 }
 
 model Address {
-  id          String   @id @default(cuid())
-  userId      String
-  title       String
-  name        String
-  surname     String
-  email       String
-  phone       String
-  city        String
-  district    String
+  id           String   @id @default(cuid())
+  userId       String
+  title        String
+  name         String
+  surname      String
+  email        String
+  phone        String
+  city         String
+  district     String
   neighborhood String
-  address     String
-  type        String   // DELIVERY veya INVOICE
-  isDefault   Boolean  @default(false)
-  // E-fatura alanları
-  invoiceType String?  // BIREYSEL veya KURUMSAL
-  tcKimlikNo  String?  // Bireysel için
-  vergiNo     String?  // Kurumsal için
-  vergiDairesi String? // Kurumsal için
-  companyName String?  // Kurumsal için şirket adı
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id])
-  orders      Order[]
+  address      String
+  type         String
+  isDefault    Boolean  @default(false)
+  invoiceType  String?
+  tcKimlikNo   String?
+  vergiNo      String?
+  vergiDairesi String?
+  companyName  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
+  orders       Order[]
 }
 
 model Category {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  slug        String   @unique
+  id          String       @id @default(cuid())
+  name        String       @unique
+  slug        String       @unique
   description String?
-  image       String? // Büyük resim verileri için
-  isActive    Boolean  @default(true)
-  parentId    String?  // Ana kategori ID'si (null ise ana kategori)
-  businessId  String?  // İşletme ID'si (null ise sistem kategorisi)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relations
+  image       String?
+  isActive    Boolean      @default(true)
+  parentId    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  businessId  String?
+  business    Business?    @relation("BusinessCategories", fields: [businessId], references: [id])
+  parent      Category?    @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[]   @relation("CategoryHierarchy")
   products    Product[]
-  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children    Category[] @relation("CategoryHierarchy")
-  business    Business?  @relation("BusinessCategories", fields: [businessId], references: [id])
   seoSettings SEOSettings? @relation("CategorySEO")
 }
 
 model Product {
-  id           String   @id @default(cuid())
-  name         String
-  slug         String   @unique
-  description  String
-  price        Float
-  originalPrice Float?
-  images       String // JSON string - büyük veri için
-  stock        Int      @default(0)
-  minStockLevel Int     @default(5) // Minimum stok seviyesi
-  maxStockLevel Int?    // Maksimum stok seviyesi
-  reservedStock Int     @default(0) // Rezerve edilmiş stok (sepetteki ürünler)
-  categoryId   String
-  
-  // Gelişmiş SEO Alanları
-  metaTitle        String? // Meta title
-  metaDescription  String? // Meta description
-  keywords         String? // Anahtar kelimeler
-  altText          String? // Görsel alt text
-  
-  // Ürün Detayları
-  brand            String? // Marka
-  sku              String? // Stok kodu
-  gtin             String? // Global Trade Item Number
-  mpn              String? // Manufacturer Part Number
-  condition        String? // Ürün durumu (new, used, refurbished)
-  availability     String? // Stok durumu (in_stock, out_of_stock, preorder)
-  material         String? // Malzeme
-  color            String? // Renk
-  size             String? // Beden
-  weight           String? // Ağırlık
-  dimensions       String? // Boyutlar
-  warranty         String? // Garanti
-  countryOfOrigin  String? // Menşei ülke
-  
-  // Sosyal Medya
-  ogTitle          String? // Open Graph title
-  ogDescription    String? // Open Graph description
-  ogImage          String? // Open Graph image
-  ogType           String? // Open Graph type
-  twitterCard      String? // Twitter card type
-  twitterTitle     String? // Twitter title
-  twitterDescription String? // Twitter description
-  twitterImage     String? // Twitter image
-  
-  // Yapılandırılmış Veri
-  structuredData   String? // JSON-LD structured data
-  canonicalUrl     String? // Canonical URL
-  hreflang         String? // Hreflang
-  
-  // Analitik
-  googleAnalyticsId String? // Google Analytics ID
-  googleTagManagerId String? // Google Tag Manager ID
-  facebookPixelId   String? // Facebook Pixel ID
-  
-  // Arama Motoru
-  robotsMeta        String? // Robots meta
-  sitemapPriority   Float?  // Sitemap priority
-  changeFrequency   String? // Change frequency
-  lastModified      DateTime? // Last modified date
-  
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  category     Category @relation(fields: [categoryId], references: [id])
-  reviews      Review[] @relation("ProductReviews")
-  orderItems   OrderItem[] @relation("ProductOrderItems")
-  cartItems    CartItem[] @relation("ProductCartItems")
-  favorites    Favorite[] @relation("ProductFavorites")
-  wishlists    Wishlist[] @relation("ProductWishlists")
-  stockMovements StockMovement[] @relation("ProductStockMovements")
-  variants     ProductVariant[]
+  id                 String                  @id @default(cuid())
+  name               String
+  slug               String                  @unique
+  description        String
+  price              Float
+  originalPrice      Float?
+  images             String
+  stock              Int                     @default(0)
+  minStockLevel      Int                     @default(5)
+  maxStockLevel      Int?
+  reservedStock      Int                     @default(0)
+  categoryId         String
+  metaTitle          String?
+  metaDescription    String?
+  keywords           String?
+  altText            String?
+  brand              String?
+  sku                String?
+  gtin               String?
+  mpn                String?
+  condition          String?
+  availability       String?
+  material           String?
+  color              String?
+  size               String?
+  weight             String?
+  dimensions         String?
+  warranty           String?
+  countryOfOrigin    String?
+  ogTitle            String?
+  ogDescription      String?
+  ogImage            String?
+  ogType             String?
+  twitterCard        String?
+  twitterTitle       String?
+  twitterDescription String?
+  twitterImage       String?
+  structuredData     String?
+  canonicalUrl       String?
+  hreflang           String?
+  googleAnalyticsId  String?
+  googleTagManagerId String?
+  facebookPixelId    String?
+  robotsMeta         String?
+  sitemapPriority    Float?
+  changeFrequency    String?
+  lastModified       DateTime?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  cartItems          CartItem[]              @relation("ProductCartItems")
+  favorites          Favorite[]              @relation("ProductFavorites")
+  orderItems         OrderItem[]             @relation("ProductOrderItems")
+  category           Category                @relation(fields: [categoryId], references: [id])
+  variants           ProductVariant[]
+  reviews            Review[]                @relation("ProductReviews")
+  seoSettings        SEOSettings?            @relation("ProductSEO")
+  stockMovements     StockMovement[]         @relation("ProductStockMovements")
   stockNotifications UserStockNotification[] @relation("ProductStockNotifications")
-  seoSettings  SEOSettings? @relation("ProductSEO")
+  wishlists          Wishlist[]              @relation("ProductWishlists")
 }
 
 model ProductVariant {
   id        String   @id @default(cuid())
   productId String
-  size      String?  // Beden (S, M, L, XL, 36, 37, 38, vs.)
-  color     String?  // Renk (Kırmızı, Mavi, vs.)
-  colorCode String?  // Renk kodu (#FF0000, #0000FF, vs.)
+  size      String?
+  color     String?
+  colorCode String?
   stock     Int      @default(0)
-  price     Float?   // Farklı fiyat varsa
-  sku       String?  // Stok kodu
+  price     Float?
+  sku       String?
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
+
   @@unique([productId, size, color])
 }
 
 model Order {
-  id          String   @id @default(cuid())
-  userId      String?
-  addressId   String?
-  invoiceAddressId String?
-  status      String   @default("PENDING")
-  total       Float
-  discount    Float?   // Uygulanan indirim
-  shippingCost Float?  // Kargo ücreti
-  shippingMethod String? // Kargo tipi
-  paymentMethod  String? // Ödeme tipi
-  note        String?  // Müşteri notu
-  trackingNumber String? // Kargo takip numarası
-  shippingCompany String? // Kargo firması
-  shippingTrackingUrl String? // Kargo takip URL'i
-  shippedAt   DateTime? // Kargo tarihi
-  deliveredAt DateTime? // Teslimat tarihi
-  adminNotes  String?  // Admin notları
-  // Guest checkout için alanlar
-  guestName   String?
-  guestSurname String?
-  guestEmail  String?
-  guestPhone  String?
-  // E-fatura snapshot alanları
-  invoiceType String?  // BIREYSEL veya KURUMSAL
-  tcKimlikNo  String?
-  vergiNo     String?
-  vergiDairesi String?
-  unvan       String?
-  // E-fatura entegrasyon alanları
-  einvoiceStatus String? // PENDING, SUCCESS, ERROR
-  einvoiceUuid   String?
-  einvoicePdfUrl String?
-  einvoiceError  String?
-  // İade ve değişim süreçleri için yeni alanlar
-  canCancel   Boolean  @default(true) // İptal edilebilir mi?
-  canReturn   Boolean  @default(true) // İade edilebilir mi?
-  canExchange Boolean  @default(true) // Değişim yapılabilir mi?
-  cancelReason String? // İptal nedeni
-  returnReason String? // İade nedeni
-  exchangeReason String? // Değişim nedeni
-  cancelRequestedAt DateTime? // İptal talep tarihi
-  returnRequestedAt DateTime? // İade talep tarihi
-  exchangeRequestedAt DateTime? // Değişim talep tarihi
-  cancelApprovedAt DateTime? // İptal onay tarihi
-  returnApprovedAt DateTime? // İade onay tarihi
-  exchangeApprovedAt DateTime? // Değişim onay tarihi
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User?    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  address     Address? @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  items       OrderItem[]
-  stockMovements StockMovement[]
+  id                    String                 @id @default(cuid())
+  userId                String?
+  addressId             String?
+  invoiceAddressId      String?
+  status                String                 @default("PENDING")
+  total                 Float
+  discount              Float?
+  shippingCost          Float?
+  shippingMethod        String?
+  paymentMethod         String?
+  note                  String?
+  trackingNumber        String?
+  shippingCompany       String?
+  shippingTrackingUrl   String?
+  shippedAt             DateTime?
+  deliveredAt           DateTime?
+  adminNotes            String?
+  guestName             String?
+  guestSurname          String?
+  guestEmail            String?
+  guestPhone            String?
+  invoiceType           String?
+  tcKimlikNo            String?
+  vergiNo               String?
+  vergiDairesi          String?
+  unvan                 String?
+  einvoiceStatus        String?
+  einvoiceUuid          String?
+  einvoicePdfUrl        String?
+  einvoiceError         String?
+  canCancel             Boolean                @default(true)
+  canReturn             Boolean                @default(true)
+  canExchange           Boolean                @default(true)
+  cancelReason          String?
+  returnReason          String?
+  exchangeReason        String?
+  cancelRequestedAt     DateTime?
+  returnRequestedAt     DateTime?
+  exchangeRequestedAt   DateTime?
+  cancelApprovedAt      DateTime?
+  returnApprovedAt      DateTime?
+  exchangeApprovedAt    DateTime?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  address               Address?               @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user                  User?                  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  items                 OrderItem[]
+  stockMovements        StockMovement[]
   transferNotifications TransferNotification[]
 }
 
@@ -288,77 +258,77 @@ model OrderItem {
   price     Float
   size      String?
   color     String?
-  order     Order   @relation(fields: [orderId], references: [id])
-  product   Product @relation("ProductOrderItems", fields: [productId], references: [id], onDelete: Cascade)
-  reviews   Review[] // Sipariş kalemi yorumları
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation("ProductOrderItems", fields: [productId], references: [id], onDelete: Cascade)
+  reviews   Review[]
 }
 
 model Review {
-  id        String   @id @default(cuid())
-  userId    String
-  productId String
-  orderItemId String? // Sadece satın alanlar yorum yazabilsin
-  rating    Int      // 1-5 arası rating
-  title     String?  // Yorum başlığı
-  comment   String?  // Yorum içeriği
-  images    String?  // Yorum fotoğrafları (JSON array)
-  isApproved Boolean @default(false) // Admin moderasyonu
-  isVerifiedPurchase Boolean @default(false) // Doğrulanmış alışveriş
-  helpfulCount Int @default(0) // Yararlı oylama sayısı
-  unhelpfulCount Int @default(0) // Yararsız oylama sayısı
-  adminReply String? // Admin yanıtı
-  adminReplyDate DateTime? // Admin yanıt tarihi
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  product   Product  @relation("ProductReviews", fields: [productId], references: [id], onDelete: Cascade)
-  orderItem OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  helpfulVotes ReviewHelpful[]
-  
-  @@unique([userId, productId]) // Bir kullanıcı bir ürüne sadece bir kez yorum yapabilir
+  id                 String          @id @default(cuid())
+  userId             String
+  productId          String
+  orderItemId        String?
+  rating             Int
+  title              String?
+  comment            String?
+  images             String?
+  isApproved         Boolean         @default(false)
+  isVerifiedPurchase Boolean         @default(false)
+  helpfulCount       Int             @default(0)
+  unhelpfulCount     Int             @default(0)
+  adminReply         String?
+  adminReplyDate     DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  orderItem          OrderItem?      @relation(fields: [orderItemId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  product            Product         @relation("ProductReviews", fields: [productId], references: [id], onDelete: Cascade)
+  user               User            @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  helpfulVotes       ReviewHelpful[]
+
+  @@unique([userId, productId])
 }
 
 model ReviewHelpful {
   id        String   @id @default(cuid())
   reviewId  String
   userId    String
-  isHelpful Boolean  // true = yararlı, false = yararsız
+  isHelpful Boolean
   createdAt DateTime @default(now())
   review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  
-  @@unique([reviewId, userId]) // Bir kullanıcı bir yoruma sadece bir kez oy verebilir
+
+  @@unique([reviewId, userId])
 }
 
 model Cart {
-  id        String      @id @default(cuid())
-  userId    String?     // İleride authentication eklenirse
-  isArchived Boolean    @default(false) // Sepet geçmişi için
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  items     CartItem[]
+  id          String       @id @default(cuid())
+  userId      String?
+  isArchived  Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   cartHistory CartHistory?
+  items       CartItem[]
 }
 
 model CartItem {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   cartId    String
   productId String
-  quantity  Int      @default(1)
+  quantity  Int     @default(1)
   size      String?
   color     String?
-  product   Product  @relation("ProductCartItems", fields: [productId], references: [id], onDelete: Cascade)
-  cart      Cart     @relation(fields: [cartId], references: [id])
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  product   Product @relation("ProductCartItems", fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model CartHistory {
   id        String   @id @default(cuid())
   userId    String
   cartId    String   @unique
-  name      String   // Kullanıcının verdiği isim (örn: "Alışveriş Listesi 1")
+  name      String
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
   cart      Cart     @relation(fields: [cartId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Favorite {
@@ -366,8 +336,9 @@ model Favorite {
   userId    String
   productId String
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
   product   Product  @relation("ProductFavorites", fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
   @@unique([userId, productId])
 }
 
@@ -376,8 +347,9 @@ model Wishlist {
   userId    String
   productId String
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
   product   Product  @relation("ProductWishlists", fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
   @@unique([userId, productId])
 }
 
@@ -385,217 +357,176 @@ model StockMovement {
   id          String   @id @default(cuid())
   productId   String
   orderId     String?
-  type        String   // IN, OUT, RESERVED, RELEASED
+  type        String
   quantity    Int
   description String?
   createdAt   DateTime @default(now())
-  product     Product  @relation("ProductStockMovements", fields: [productId], references: [id], onDelete: Cascade)
   order       Order?   @relation(fields: [orderId], references: [id])
+  product     Product  @relation("ProductStockMovements", fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model ShippingCompany {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  code        String   @unique // API kodu
-  apiUrl      String?  // API endpoint
-  apiKey      String?  // API anahtarı
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  name      String   @unique
+  code      String   @unique
+  apiUrl    String?
+  apiKey    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model UserStockNotification {
-  id        String   @id @default(cuid())
-  userId    String?  // Kayıtlı kullanıcı için
-  guestEmail String? // Misafir kullanıcı için
-  productId String
-  isActive  Boolean  @default(true)
-  notifiedAt DateTime? // Bildirim gönderildiğinde işaretlenir
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product   Product  @relation("ProductStockNotifications", fields: [productId], references: [id], onDelete: Cascade)
-  
+  id         String    @id @default(cuid())
+  userId     String?
+  guestEmail String?
+  productId  String
+  isActive   Boolean   @default(true)
+  notifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  product    Product   @relation("ProductStockNotifications", fields: [productId], references: [id], onDelete: Cascade)
+  user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, productId])
   @@unique([guestEmail, productId])
 }
 
 model Business {
-  id                    String   @id @default(cuid())
-  businessName          String
-  businessType          String   // limited, anonim, sahis, etc.
-  taxNumber             String   @unique
-  tradeRegistryNumber   String?
-  email                 String   @unique
-  phone                 String
-  website               String?
-  address               String
-  city                  String
-  district              String?
-  postalCode            String?
-  contactName           String
-  contactSurname        String
-  contactTitle          String?
-  contactPhone          String?
-  contactEmail          String
-  password              String
-  termsAccepted         Boolean  @default(false)
-  privacyAccepted       Boolean  @default(false)
-  marketingAccepted     Boolean  @default(false)
-  
-  // Banka Bilgileri
-  bankName              String?  // Banka adı
-  bankBranch            String?  // Şube adı
-  accountHolderName     String?  // Hesap sahibi adı
-  ibanNumber            String?  // IBAN numarası
-  accountType           String?  // Hesap türü (TL, USD, EUR)
-  
-  // İşletme Detayları
-  taxOffice             String?  // Vergi dairesi
-  registrationDate      DateTime? // Kayıt tarihi
-  activityCode          String?  // Faaliyet kodu
-  activityDescription   String?  // Faaliyet açıklaması
-  
-  // Yetkili Kişi Detayları
-  contactTcKimlik       String?  // TC Kimlik numarası
-  contactBirthDate      DateTime? // Doğum tarihi
-  
-  // Admin Approval System
-  adminStatus           String @default("PENDING") // Approval status - "PENDING", "APPROVED", "REJECTED"
-  appliedAt             DateTime @default(now()) // Başvuru tarihi
-  approvedAt            DateTime? // Onay tarihi
-  rejectedAt            DateTime? // Red tarihi
-  rejectionReason       String? // Red nedeni
-  approvedBy            String? // Onaylayan admin ID
-  
-  isActive              Boolean  @default(false)
-  emailVerified         Boolean  @default(false)
-  emailVerificationToken String?
+  id                      String                 @id @default(cuid())
+  businessName            String
+  businessType            String
+  taxNumber               String                 @unique
+  tradeRegistryNumber     String?
+  email                   String                 @unique
+  phone                   String
+  website                 String?
+  address                 String
+  city                    String
+  district                String?
+  postalCode              String?
+  contactName             String
+  contactSurname          String
+  contactTitle            String?
+  contactPhone            String?
+  contactEmail            String
+  password                String
+  termsAccepted           Boolean                @default(false)
+  privacyAccepted         Boolean                @default(false)
+  marketingAccepted       Boolean                @default(false)
+  bankName                String?
+  bankBranch              String?
+  accountHolderName       String?
+  ibanNumber              String?
+  accountType             String?
+  taxOffice               String?
+  registrationDate        DateTime?
+  activityCode            String?
+  activityDescription     String?
+  contactTcKimlik         String?
+  contactBirthDate        DateTime?
+  adminStatus             String                 @default("PENDING")
+  appliedAt               DateTime               @default(now())
+  approvedAt              DateTime?
+  rejectedAt              DateTime?
+  rejectionReason         String?
+  approvedBy              String?
+  isActive                Boolean                @default(false)
+  emailVerified           Boolean                @default(false)
+  emailVerificationToken  String?
   emailVerificationExpiry DateTime?
-  resetToken            String?
-  resetTokenExpiry      DateTime?
-  lastLoginAt           DateTime?
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  
-  // Relations
-  transferNotifications TransferNotification[]
-  categories            Category[] @relation("BusinessCategories")
+  resetToken              String?
+  resetTokenExpiry        DateTime?
+  lastLoginAt             DateTime?
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  categories              Category[]             @relation("BusinessCategories")
+  transferNotifications   TransferNotification[]
 }
 
-// SEO Settings Model
 model SEOSettings {
-  id              String   @id @default(cuid())
-  pageType        String   // 'homepage', 'category', 'product', 'general'
-  pageId          String?  // Genel page ID (homepage için null)
-  productId       String?  // Ürün ID'si (sadece product type için)
-  categoryId      String?  // Kategori ID'si (sadece category type için)
-  pageSlug        String?  // URL slug (homepage için '/')
-  
-  // Basic SEO
-  metaTitle       String
-  metaDescription String
-  keywords        String
-  
-  // Open Graph
-  ogTitle         String?
-  ogDescription   String?
-  ogImage         String?
-  ogType          String?  // 'website', 'product', 'article'
-  
-  // Twitter Card
-  twitterCard     String?  // 'summary', 'summary_large_image'
-  twitterTitle    String?
+  id                 String    @id @default(cuid())
+  pageType           String
+  pageId             String?
+  productId          String?   @unique
+  categoryId         String?   @unique
+  pageSlug           String?
+  metaTitle          String
+  metaDescription    String
+  keywords           String
+  ogTitle            String?
+  ogDescription      String?
+  ogImage            String?
+  ogType             String?
+  twitterCard        String?
+  twitterTitle       String?
   twitterDescription String?
-  twitterImage    String?
-  
-  // Structured Data
-  structuredData  String?  // JSON formatında schema.org data
-  
-  // Advanced SEO
-  canonicalUrl    String?
-  robotsMeta      String?  // 'index,follow', 'noindex,nofollow'
-  hreflang        String?  // Çoklu dil desteği için
-  
-  // Analytics & Tracking
-  googleAnalyticsId String?
+  twitterImage       String?
+  structuredData     String?
+  canonicalUrl       String?
+  robotsMeta         String?
+  hreflang           String?
+  googleAnalyticsId  String?
   googleTagManagerId String?
-  facebookPixelId  String?
-  
-  // Performance
-  isActive        Boolean  @default(true)
-  priority        Int      @default(0) // Öncelik sırası
-  
-  // Audit & Monitoring
-  lastAuditDate   DateTime?
-  seoScore        Int?     // 0-100 arası SEO skoru
-  auditNotes      String?  // SEO denetim notları
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relations
-  product         Product? @relation("ProductSEO", fields: [productId], references: [id], onDelete: Cascade)
-  category        Category? @relation("CategorySEO", fields: [categoryId], references: [id], onDelete: Cascade)
-  
+  facebookPixelId    String?
+  isActive           Boolean   @default(true)
+  priority           Int       @default(0)
+  lastAuditDate      DateTime?
+  seoScore           Int?
+  auditNotes         String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  category           Category? @relation("CategorySEO", fields: [categoryId], references: [id], onDelete: Cascade)
+  product            Product?  @relation("ProductSEO", fields: [productId], references: [id], onDelete: Cascade)
+
   @@unique([pageType, pageId])
   @@unique([pageType, pageSlug])
-  @@unique([productId])
-  @@unique([categoryId])
 }
 
-// Blog Post Model
 model BlogPost {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
-  slug        String   @unique
+  slug        String    @unique
   excerpt     String
-  content     String   // HTML content
+  content     String
   author      String
   publishedAt DateTime?
-  tags        String[] // Array of tags
-  image       String   // Featured image URL
-  readTime    Int      // Reading time in minutes
+  tags        String[]
+  image       String
+  readTime    Int
   category    String
-  viewCount   Int      @default(0)
-  isPublished Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // SEO - will be handled via pageId in SEOSettings
-  
+  viewCount   Int       @default(0)
+  isPublished Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
   @@index([category])
   @@index([publishedAt])
   @@index([isPublished])
 }
 
-// Transfer Notification Model (Havale Bildirimleri)
 model TransferNotification {
-  id              String   @id @default(cuid())
-  orderId         String
-  customerName    String
-  customerEmail   String
-  customerPhone   String
-  transferAmount  Float
-  transferDate    DateTime
-  transferNote    String?  // Müşteri notu
-  status          String   @default("PENDING") // PENDING, CONFIRMED, REJECTED
-  adminNote       String?  // Admin notu
-  confirmedAt     DateTime?
-  businessId      String
-  iban            String
-  accountHolder   String
-  bankName        String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relations
-  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  business        Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  
+  id             String    @id @default(cuid())
+  orderId        String
+  customerName   String
+  customerEmail  String
+  customerPhone  String
+  transferAmount Float
+  transferDate   DateTime
+  transferNote   String?
+  status         String    @default("PENDING")
+  adminNote      String?
+  confirmedAt    DateTime?
+  businessId     String
+  iban           String
+  accountHolder  String
+  bankName       String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  business       Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  order          Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
   @@index([orderId])
   @@index([status])
   @@index([businessId])
 }
-
-

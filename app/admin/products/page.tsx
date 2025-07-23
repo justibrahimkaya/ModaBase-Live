@@ -621,8 +621,10 @@ export default function AdminProductsPage() {
     setError('')
 
     try {
-      console.log('Ürün kaydediliyor...')
-      console.log('Resim sayısı:', validImages.length)
+      console.log('🚀 Ürün kaydediliyor...')
+      console.log('📊 Form verisi:', form)
+      console.log('🖼️ Resim sayısı:', validImages.length)
+      console.log('🖼️ Resimler:', validImages)
       
       // Resimleri optimize et - daha esnek limit
       const optimizedImages = validImages.map((img: string, index: number) => {
@@ -648,7 +650,8 @@ export default function AdminProductsPage() {
       }
 
       const payloadSize = JSON.stringify(payload).length
-      console.log('Payload boyutu:', payloadSize, 'bytes')
+      console.log('📦 Payload boyutu:', payloadSize, 'bytes')
+      console.log('📦 Payload:', JSON.stringify(payload, null, 2))
       
       // 10MB'dan büyükse hata ver (5MB'dan 10MB'a çıkarıldı)
       if (payloadSize > 10 * 1024 * 1024) {
@@ -658,6 +661,7 @@ export default function AdminProductsPage() {
       }
 
       // Chunked upload sistemi - büyük payload'lar için
+      console.log('🌐 API isteği gönderiliyor...')
       const response = await fetch('/api/admin/products', {
         method: 'POST',
         headers: {
@@ -667,10 +671,16 @@ export default function AdminProductsPage() {
         body: JSON.stringify(payload)
       })
 
+      console.log('📥 API yanıtı:', response.status, response.statusText)
+
       if (!response.ok) {
         const errorData = await response.json()
+        console.error('❌ API Hatası:', errorData)
         throw new Error(errorData.error || 'Ürün eklenemedi')
       }
+
+      const responseData = await response.json()
+      console.log('✅ API Başarılı:', responseData)
 
              // Başarı mesajı
       setSuccess('Ürün başarıyla eklendi!')
