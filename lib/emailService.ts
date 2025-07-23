@@ -1398,4 +1398,1122 @@ export class EmailService {
       </html>
     `;
   }
+
+  // İade onay bildirimi e-postası
+  static async sendReturnApprovalNotification(data: {
+    to: string;
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    refundAmount: number;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `✅ İade Onaylandı - Sipariş #${data.orderNumber}`,
+        html: this.generateReturnApprovalHTML(data)
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('İade onay e-postası gönderme hatası:', error);
+      return false;
+    }
+  }
+
+  // İade red bildirimi e-postası
+  static async sendReturnRejectionNotification(data: {
+    to: string;
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    reason: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `❌ İade Reddedildi - Sipariş #${data.orderNumber}`,
+        html: this.generateReturnRejectionHTML(data)
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('İade red e-postası gönderme hatası:', error);
+      return false;
+    }
+  }
+
+  // Değişim onay bildirimi e-postası
+  static async sendExchangeApprovalNotification(data: {
+    to: string;
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    newProductId?: string;
+    newSize?: string;
+    newColor?: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `✅ Değişim Onaylandı - Sipariş #${data.orderNumber}`,
+        html: this.generateExchangeApprovalHTML(data)
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('Değişim onay e-postası gönderme hatası:', error);
+      return false;
+    }
+  }
+
+  // Değişim red bildirimi e-postası
+  static async sendExchangeRejectionNotification(data: {
+    to: string;
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    reason: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `❌ Değişim Reddedildi - Sipariş #${data.orderNumber}`,
+        html: this.generateExchangeRejectionHTML(data)
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('Değişim red e-postası gönderme hatası:', error);
+      return false;
+    }
+  }
+
+  // İade onay HTML template
+  private static generateReturnApprovalHTML(data: {
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    refundAmount: number;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): string {
+    const itemsHTML = data.items.map(item => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${item.price.toFixed(2)} ₺</td>
+      </tr>
+    `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>İade Onaylandı - ModaBase</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { padding: 30px 20px; background: white; }
+          .success-card { background: #d4edda; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #28a745; }
+          .refund-info { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; }
+          .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .items-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }
+          .check-icon { font-size: 48px; margin-bottom: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="check-icon">✅</div>
+            <h1 style="margin: 0;">İade Onaylandı!</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Sipariş #${data.orderNumber}</p>
+          </div>
+          
+          <div class="content">
+            <h2>Merhaba ${data.customerName},</h2>
+            
+            <div class="success-card">
+              <h3 style="margin: 0 0 15px 0; color: #155724;">İade Talebiniz Onaylandı</h3>
+              <p style="margin: 0; color: #155724;">
+                İade talebiniz başarıyla onaylandı. Ürünleriniz kontrol edildikten sonra iade işlemi tamamlanacak.
+              </p>
+            </div>
+            
+            <div class="refund-info">
+              <h3 style="margin: 0 0 15px 0; color: #333;">İade Bilgileri</h3>
+              <p><strong>Sipariş No:</strong> ${data.orderNumber}</p>
+              <p><strong>İade Tutarı:</strong> <span style="color: #28a745; font-weight: bold;">${data.refundAmount.toFixed(2)} ₺</span></p>
+              <p><strong>İade Süreci:</strong> 3-5 iş günü içinde tamamlanacak</p>
+            </div>
+            
+            <h3>İade Edilen Ürünler:</h3>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Ürün</th>
+                  <th>Adet</th>
+                  <th>Fiyat</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHTML}
+              </tbody>
+            </table>
+            
+            <div style="background: #e7f3ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              <h4 style="margin: 0 0 10px 0; color: #004085;">📋 İade Süreci</h4>
+              <ol style="margin: 0; padding-left: 20px; color: #004085;">
+                <li>Ürünleriniz kontrol edilecek</li>
+                <li>İade tutarı hesabınıza iade edilecek</li>
+                <li>İşlem tamamlandığında size bilgi verilecek</li>
+              </ol>
+            </div>
+            
+            <p style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/profile/orders" 
+                 style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
+                Siparişlerimi Görüntüle
+              </a>
+            </p>
+          </div>
+          
+          <div class="footer">
+            <p>Bu e-posta ModaBase tarafından gönderilmiştir.</p>
+            <p>Herhangi bir sorunuz için <a href="mailto:info@modabase.com.tr">info@modabase.com.tr</a> adresinden bize ulaşabilirsiniz.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  // İade red HTML template
+  private static generateReturnRejectionHTML(data: {
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    reason: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): string {
+    const itemsHTML = data.items.map(item => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${item.price.toFixed(2)} ₺</td>
+      </tr>
+    `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>İade Reddedildi - ModaBase</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { padding: 30px 20px; background: white; }
+          .rejection-card { background: #f8d7da; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #dc3545; }
+          .reason-box { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; }
+          .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .items-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }
+          .x-icon { font-size: 48px; margin-bottom: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="x-icon">❌</div>
+            <h1 style="margin: 0;">İade Reddedildi</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Sipariş #${data.orderNumber}</p>
+          </div>
+          
+          <div class="content">
+            <h2>Merhaba ${data.customerName},</h2>
+            
+            <div class="rejection-card">
+              <h3 style="margin: 0 0 15px 0; color: #721c24;">İade Talebiniz Reddedildi</h3>
+              <p style="margin: 0; color: #721c24;">
+                Maalesef iade talebiniz onaylanamadı. Detaylar aşağıda belirtilmiştir.
+              </p>
+            </div>
+            
+            <div class="reason-box">
+              <h3 style="margin: 0 0 15px 0; color: #333;">Red Nedeni</h3>
+              <p style="margin: 0; color: #721c24; font-style: italic;">"${data.reason}"</p>
+            </div>
+            
+            <h3>Sipariş Detayları:</h3>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Ürün</th>
+                  <th>Adet</th>
+                  <th>Fiyat</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHTML}
+              </tbody>
+            </table>
+            
+            <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              <h4 style="margin: 0 0 10px 0; color: #856404;">💡 Öneriler</h4>
+              <ul style="margin: 0; padding-left: 20px; color: #856404;">
+                <li>İade koşullarını tekrar gözden geçirin</li>
+                <li>Ürünün orijinal ambalajında olduğundan emin olun</li>
+                <li>Kullanım izi olmadığından emin olun</li>
+                <li>Farklı bir sorunuz varsa müşteri hizmetleri ile iletişime geçin</li>
+              </ul>
+            </div>
+            
+            <p style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/contact" 
+                 style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
+                Müşteri Hizmetleri
+              </a>
+            </p>
+          </div>
+          
+          <div class="footer">
+            <p>Bu e-posta ModaBase tarafından gönderilmiştir.</p>
+            <p>Herhangi bir sorunuz için <a href="mailto:info@modabase.com.tr">info@modabase.com.tr</a> adresinden bize ulaşabilirsiniz.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  // Değişim onay HTML template
+  private static generateExchangeApprovalHTML(data: {
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    newProductId?: string;
+    newSize?: string;
+    newColor?: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): string {
+    const itemsHTML = data.items.map(item => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${item.price.toFixed(2)} ₺</td>
+      </tr>
+    `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Değişim Onaylandı - ModaBase</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { padding: 30px 20px; background: white; }
+          .success-card { background: #d1ecf1; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #6f42c1; }
+          .exchange-info { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; }
+          .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .items-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }
+          .exchange-icon { font-size: 48px; margin-bottom: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="exchange-icon">🔄</div>
+            <h1 style="margin: 0;">Değişim Onaylandı!</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Sipariş #${data.orderNumber}</p>
+          </div>
+          
+          <div class="content">
+            <h2>Merhaba ${data.customerName},</h2>
+            
+            <div class="success-card">
+              <h3 style="margin: 0 0 15px 0; color: #0c5460;">Değişim Talebiniz Onaylandı</h3>
+              <p style="margin: 0; color: #0c5460;">
+                Değişim talebiniz başarıyla onaylandı. Yeni ürününüz hazırlanıp kargoya verilecek.
+              </p>
+            </div>
+            
+            <div class="exchange-info">
+              <h3 style="margin: 0 0 15px 0; color: #333;">Değişim Bilgileri</h3>
+              <p><strong>Sipariş No:</strong> ${data.orderNumber}</p>
+              ${data.newSize ? `<p><strong>Yeni Beden:</strong> ${data.newSize}</p>` : ''}
+              ${data.newColor ? `<p><strong>Yeni Renk:</strong> ${data.newColor}</p>` : ''}
+              <p><strong>Değişim Süreci:</strong> 2-3 iş günü içinde tamamlanacak</p>
+            </div>
+            
+            <h3>Değiştirilen Ürünler:</h3>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Ürün</th>
+                  <th>Adet</th>
+                  <th>Fiyat</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHTML}
+              </tbody>
+            </table>
+            
+            <div style="background: #e7f3ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              <h4 style="margin: 0 0 10px 0; color: #004085;">📋 Değişim Süreci</h4>
+              <ol style="margin: 0; padding-left: 20px; color: #004085;">
+                <li>Eski ürününüz kargoya verilecek</li>
+                <li>Yeni ürününüz hazırlanacak</li>
+                <li>Yeni ürün kargoya verilecek</li>
+                <li>Kargo takip bilgileri size iletilecek</li>
+              </ol>
+            </div>
+            
+            <p style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/profile/orders" 
+                 style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
+                Siparişlerimi Görüntüle
+              </a>
+            </p>
+          </div>
+          
+          <div class="footer">
+            <p>Bu e-posta ModaBase tarafından gönderilmiştir.</p>
+            <p>Herhangi bir sorunuz için <a href="mailto:info@modabase.com.tr">info@modabase.com.tr</a> adresinden bize ulaşabilirsiniz.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  // Değişim red HTML template
+  private static generateExchangeRejectionHTML(data: {
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    reason: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): string {
+    const itemsHTML = data.items.map(item => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${item.price.toFixed(2)} ₺</td>
+      </tr>
+    `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Değişim Reddedildi - ModaBase</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { padding: 30px 20px; background: white; }
+          .rejection-card { background: #f8d7da; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #dc3545; }
+          .reason-box { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; }
+          .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .items-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }
+          .x-icon { font-size: 48px; margin-bottom: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="x-icon">❌</div>
+            <h1 style="margin: 0;">Değişim Reddedildi</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Sipariş #${data.orderNumber}</p>
+          </div>
+          
+          <div class="content">
+            <h2>Merhaba ${data.customerName},</h2>
+            
+            <div class="rejection-card">
+              <h3 style="margin: 0 0 15px 0; color: #721c24;">Değişim Talebiniz Reddedildi</h3>
+              <p style="margin: 0; color: #721c24;">
+                Maalesef değişim talebiniz onaylanamadı. Detaylar aşağıda belirtilmiştir.
+              </p>
+            </div>
+            
+            <div class="reason-box">
+              <h3 style="margin: 0 0 15px 0; color: #333;">Red Nedeni</h3>
+              <p style="margin: 0; color: #721c24; font-style: italic;">"${data.reason}"</p>
+            </div>
+            
+            <h3>Sipariş Detayları:</h3>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Ürün</th>
+                  <th>Adet</th>
+                  <th>Fiyat</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHTML}
+              </tbody>
+            </table>
+            
+            <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              <h4 style="margin: 0 0 10px 0; color: #856404;">💡 Alternatif Seçenekler</h4>
+              <ul style="margin: 0; padding-left: 20px; color: #856404;">
+                <li>İade talebinde bulunabilirsiniz</li>
+                <li>Farklı bir ürün seçebilirsiniz</li>
+                <li>Müşteri hizmetleri ile iletişime geçebilirsiniz</li>
+                <li>Ürünü kullanmaya devam edebilirsiniz</li>
+              </ul>
+            </div>
+            
+            <p style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/contact" 
+                 style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
+                Müşteri Hizmetleri
+              </a>
+            </p>
+          </div>
+          
+          <div class="footer">
+            <p>Bu e-posta ModaBase tarafından gönderilmiştir.</p>
+            <p>Herhangi bir sorunuz için <a href="mailto:info@modabase.com.tr">info@modabase.com.tr</a> adresinden bize ulaşabilirsiniz.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  // Admin düşük stok uyarısı
+  static async sendLowStockAlertToAdmin(data: {
+    to: string;
+    lowStockProducts: Array<{ name: string; stock: number; minStockLevel: number; category: string; price: number }>;
+    outOfStockProducts: Array<{ name: string; category: string; price: number }>;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `🚨 Stok Uyarısı - ${data.lowStockProducts.length + data.outOfStockProducts.length} Ürün`,
+        html: this.generateLowStockAlertHTML(data)
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('Admin düşük stok uyarısı gönderme hatası:', error);
+      return false;
+    }
+  }
+
+  // Günlük stok raporu
+  static async sendDailyStockReport(data: {
+    to: string;
+    date: string;
+    movements: Array<{ type: string; quantity: number; productName: string; category: string; orderId?: string; description: string; createdAt: Date }>;
+    lowStockProducts: Array<{ name: string; stock: number; minStockLevel: number; category: string }>;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `📊 Günlük Stok Raporu - ${data.date}`,
+        html: this.generateDailyStockReportHTML(data)
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('Günlük stok raporu gönderme hatası:', error);
+      return false;
+    }
+  }
+
+  // Düşük stok uyarısı HTML template
+  private static generateLowStockAlertHTML(data: {
+    lowStockProducts: Array<{ name: string; stock: number; minStockLevel: number; category: string; price: number }>;
+    outOfStockProducts: Array<{ name: string; category: string; price: number }>;
+  }): string {
+    const lowStockHTML = data.lowStockProducts.map(product => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${product.name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${product.category}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center; color: #ff6b35;">${product.stock}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${product.minStockLevel}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${product.price.toFixed(2)} ₺</td>
+      </tr>
+    `).join('');
+
+    const outOfStockHTML = data.outOfStockProducts.map(product => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${product.name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${product.category}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center; color: #dc3545; font-weight: bold;">0</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">-</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${product.price.toFixed(2)} ₺</td>
+      </tr>
+    `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Stok Uyarısı - ModaBase</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { padding: 30px 20px; background: white; }
+          .alert-card { background: #f8d7da; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #dc3545; }
+          .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+          .stat-card { background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center; }
+          .stat-number { font-size: 2em; font-weight: bold; margin-bottom: 10px; }
+          .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .items-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }
+          .alert-icon { font-size: 48px; margin-bottom: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="alert-icon">🚨</div>
+            <h1 style="margin: 0;">Stok Uyarısı!</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Acil müdahale gerekiyor</p>
+          </div>
+          
+          <div class="content">
+            <div class="alert-card">
+              <h3 style="margin: 0 0 15px 0; color: #721c24;">Stok Durumu Kritik</h3>
+              <p style="margin: 0; color: #721c24;">
+                Bazı ürünlerin stok seviyeleri kritik seviyede. Lütfen en kısa sürede stok güncellemesi yapın.
+              </p>
+            </div>
+            
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-number" style="color: #ff6b35;">${data.lowStockProducts.length}</div>
+                <div>Düşük Stok</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" style="color: #dc3545;">${data.outOfStockProducts.length}</div>
+                <div>Stoksuz</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" style="color: #007bff;">${data.lowStockProducts.length + data.outOfStockProducts.length}</div>
+                <div>Toplam Uyarı</div>
+              </div>
+            </div>
+            
+            ${data.lowStockProducts.length > 0 ? `
+              <h3>🟠 Düşük Stok Ürünleri:</h3>
+              <table class="items-table">
+                <thead>
+                  <tr>
+                    <th>Ürün</th>
+                    <th>Kategori</th>
+                    <th>Mevcut Stok</th>
+                    <th>Min. Stok</th>
+                    <th>Fiyat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${lowStockHTML}
+                </tbody>
+              </table>
+            ` : ''}
+            
+            ${data.outOfStockProducts.length > 0 ? `
+              <h3>🔴 Stoksuz Ürünler:</h3>
+              <table class="items-table">
+                <thead>
+                  <tr>
+                    <th>Ürün</th>
+                    <th>Kategori</th>
+                    <th>Mevcut Stok</th>
+                    <th>Min. Stok</th>
+                    <th>Fiyat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${outOfStockHTML}
+                </tbody>
+              </table>
+            ` : ''}
+            
+            <div style="background: #e7f3ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              <h4 style="margin: 0 0 10px 0; color: #004085;">📋 Önerilen Aksiyonlar</h4>
+              <ul style="margin: 0; padding-left: 20px; color: #004085;">
+                <li>Düşük stok ürünleri için sipariş verin</li>
+                <li>Stoksuz ürünleri geçici olarak devre dışı bırakın</li>
+                <li>Müşteri taleplerini kontrol edin</li>
+                <li>Stok seviyelerini güncelleyin</li>
+              </ul>
+            </div>
+            
+            <p style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/admin/stock-alerts" 
+                 style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
+                Stok Yönetimi
+              </a>
+            </p>
+          </div>
+          
+          <div class="footer">
+            <p>Bu e-posta ModaBase stok yönetim sistemi tarafından gönderilmiştir.</p>
+            <p>Otomatik bildirimler için ayarları değiştirmek istiyorsanız admin panelinden yapabilirsiniz.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  // Günlük stok raporu HTML template
+  private static generateDailyStockReportHTML(data: {
+    date: string;
+    movements: Array<{ type: string; quantity: number; productName: string; category: string; orderId?: string; description: string; createdAt: Date }>;
+    lowStockProducts: Array<{ name: string; stock: number; minStockLevel: number; category: string }>;
+  }): string {
+    const movementsHTML = data.movements.map(movement => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${movement.productName}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${movement.category}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">
+          <span style="color: ${movement.type === 'IN' ? '#28a745' : '#dc3545'}; font-weight: bold;">
+            ${movement.type === 'IN' ? '+' : '-'}${movement.quantity}
+          </span>
+        </td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${movement.description}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${new Date(movement.createdAt).toLocaleTimeString('tr-TR')}</td>
+      </tr>
+    `).join('');
+
+    const lowStockHTML = data.lowStockProducts.map(product => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${product.name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${product.category}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center; color: #ff6b35;">${product.stock}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${product.minStockLevel}</td>
+      </tr>
+    `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Günlük Stok Raporu - ModaBase</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { padding: 30px 20px; background: white; }
+          .summary-card { background: #e7f3ff; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #007bff; }
+          .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+          .stat-card { background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center; }
+          .stat-number { font-size: 2em; font-weight: bold; margin-bottom: 10px; }
+          .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .items-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }
+          .report-icon { font-size: 48px; margin-bottom: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="report-icon">📊</div>
+            <h1 style="margin: 0;">Günlük Stok Raporu</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">${data.date}</p>
+          </div>
+          
+          <div class="content">
+            <div class="summary-card">
+              <h3 style="margin: 0 0 15px 0; color: #004085;">Günlük Özet</h3>
+              <p style="margin: 0; color: #004085;">
+                Bu rapor ${data.date} tarihindeki stok hareketlerini ve düşük stok durumlarını göstermektedir.
+              </p>
+            </div>
+            
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-number" style="color: #007bff;">${data.movements.length}</div>
+                <div>Toplam Hareket</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" style="color: #28a745;">${data.movements.filter(m => m.type === 'IN').length}</div>
+                <div>Stok Girişi</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" style="color: #dc3545;">${data.movements.filter(m => m.type === 'OUT').length}</div>
+                <div>Stok Çıkışı</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" style="color: #ff6b35;">${data.lowStockProducts.length}</div>
+                <div>Düşük Stok</div>
+              </div>
+            </div>
+            
+            ${data.movements.length > 0 ? `
+              <h3>📈 Stok Hareketleri:</h3>
+              <table class="items-table">
+                <thead>
+                  <tr>
+                    <th>Ürün</th>
+                    <th>Kategori</th>
+                    <th>Miktar</th>
+                    <th>Açıklama</th>
+                    <th>Saat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${movementsHTML}
+                </tbody>
+              </table>
+            ` : '<p style="text-align: center; color: #6c757d; font-style: italic;">Bu gün stok hareketi bulunmuyor.</p>'}
+            
+            ${data.lowStockProducts.length > 0 ? `
+              <h3>⚠️ Düşük Stok Ürünleri:</h3>
+              <table class="items-table">
+                <thead>
+                  <tr>
+                    <th>Ürün</th>
+                    <th>Kategori</th>
+                    <th>Mevcut Stok</th>
+                    <th>Min. Stok</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${lowStockHTML}
+                </tbody>
+              </table>
+            ` : ''}
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              <h4 style="margin: 0 0 10px 0; color: #495057;">📋 Rapor Bilgileri</h4>
+              <ul style="margin: 0; padding-left: 20px; color: #495057;">
+                <li>Bu rapor otomatik olarak oluşturulmuştur</li>
+                <li>Stok hareketleri gerçek zamanlı olarak kaydedilir</li>
+                <li>Düşük stok uyarıları anında gönderilir</li>
+                <li>Detaylı analiz için admin panelini kullanın</li>
+              </ul>
+            </div>
+            
+            <p style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/admin/stock-alerts" 
+                 style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
+                Detaylı Rapor
+              </a>
+            </p>
+          </div>
+          
+          <div class="footer">
+            <p>Bu e-posta ModaBase stok yönetim sistemi tarafından gönderilmiştir.</p>
+            <p>Rapor sıklığını değiştirmek için admin panelinden ayarları güncelleyebilirsiniz.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  // Kargo bildirimi e-postası
+  static async sendShippingNotification(data: {
+    to: string;
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    trackingNumber: string;
+    shippingCompany: string;
+    shippingTrackingUrl?: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `🚚 Siparişiniz Kargoya Verildi - #${data.orderNumber}`,
+        html: this.generateShippingNotificationHTML(data)
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('Kargo bildirimi e-postası gönderme hatası:', error);
+      return false;
+    }
+  }
+
+  // Teslim bildirimi e-postası
+  static async sendDeliveryNotification(data: {
+    to: string;
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    trackingNumber: string;
+    shippingCompany: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `✅ Siparişiniz Teslim Edildi - #${data.orderNumber}`,
+        html: this.generateDeliveryNotificationHTML(data)
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('Teslim bildirimi e-postası gönderme hatası:', error);
+      return false;
+    }
+  }
+
+  // Kargo bildirimi HTML template
+  private static generateShippingNotificationHTML(data: {
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    trackingNumber: string;
+    shippingCompany: string;
+    shippingTrackingUrl?: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): string {
+    const itemsHTML = data.items.map(item => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${item.price.toFixed(2)} ₺</td>
+      </tr>
+    `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Sipariş Kargoya Verildi - ModaBase</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { padding: 30px 20px; background: white; }
+          .shipping-card { background: #d1ecf1; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #17a2b8; }
+          .tracking-info { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; }
+          .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .items-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }
+          .truck-icon { font-size: 48px; margin-bottom: 10px; }
+          .tracking-button { display: inline-block; background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 10px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="truck-icon">🚚</div>
+            <h1 style="margin: 0;">Siparişiniz Kargoya Verildi!</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Sipariş #${data.orderNumber}</p>
+          </div>
+          
+          <div class="content">
+            <h2>Merhaba ${data.customerName},</h2>
+            
+            <div class="shipping-card">
+              <h3 style="margin: 0 0 15px 0; color: #0c5460;">Siparişiniz Yola Çıktı</h3>
+              <p style="margin: 0; color: #0c5460;">
+                Siparişiniz başarıyla kargoya verildi ve yola çıktı. Aşağıdaki bilgilerle takip edebilirsiniz.
+              </p>
+            </div>
+            
+            <div class="tracking-info">
+              <h3 style="margin: 0 0 15px 0; color: #333;">Kargo Bilgileri</h3>
+              <p><strong>Kargo Firması:</strong> ${data.shippingCompany}</p>
+              <p><strong>Takip Numarası:</strong> <span style="font-family: monospace; background: #f8f9fa; padding: 4px 8px; border-radius: 4px;">${data.trackingNumber}</span></p>
+              <p><strong>Tahmini Teslimat:</strong> 1-3 iş günü</p>
+              
+              ${data.shippingTrackingUrl ? `
+                <div style="text-align: center; margin: 20px 0;">
+                  <a href="${data.shippingTrackingUrl}" class="tracking-button" target="_blank">
+                    📦 Kargo Takip Et
+                  </a>
+                </div>
+              ` : ''}
+            </div>
+            
+            <h3>Sipariş Detayları:</h3>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Ürün</th>
+                  <th>Adet</th>
+                  <th>Fiyat</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHTML}
+              </tbody>
+            </table>
+            
+            <div style="background: #e7f3ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              <h4 style="margin: 0 0 10px 0; color: #004085;">📋 Teslimat Süreci</h4>
+              <ol style="margin: 0; padding-left: 20px; color: #004085;">
+                <li>Siparişiniz kargoya verildi ✅</li>
+                <li>Kargo firması tarafından işleniyor</li>
+                <li>Dağıtım merkezine ulaşacak</li>
+                <li>Adresinize teslim edilecek</li>
+              </ol>
+            </div>
+            
+            <p style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/profile/orders" 
+                 style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
+                Siparişlerimi Görüntüle
+              </a>
+            </p>
+          </div>
+          
+          <div class="footer">
+            <p>Bu e-posta ModaBase tarafından gönderilmiştir.</p>
+            <p>Herhangi bir sorunuz için <a href="mailto:info@modabase.com.tr">info@modabase.com.tr</a> adresinden bize ulaşabilirsiniz.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  // Teslim bildirimi HTML template
+  private static generateDeliveryNotificationHTML(data: {
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    trackingNumber: string;
+    shippingCompany: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): string {
+    const itemsHTML = data.items.map(item => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${item.price.toFixed(2)} ₺</td>
+      </tr>
+    `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Sipariş Teslim Edildi - ModaBase</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { padding: 30px 20px; background: white; }
+          .delivery-card { background: #d4edda; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #28a745; }
+          .delivery-info { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; }
+          .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .items-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }
+          .check-icon { font-size: 48px; margin-bottom: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="check-icon">✅</div>
+            <h1 style="margin: 0;">Siparişiniz Teslim Edildi!</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Sipariş #${data.orderNumber}</p>
+          </div>
+          
+          <div class="content">
+            <h2>Merhaba ${data.customerName},</h2>
+            
+            <div class="delivery-card">
+              <h3 style="margin: 0 0 15px 0; color: #155724;">Siparişiniz Başarıyla Teslim Edildi</h3>
+              <p style="margin: 0; color: #155724;">
+                Siparişiniz adresinize başarıyla teslim edildi. Keyifli alışverişler dileriz!
+              </p>
+            </div>
+            
+            <div class="delivery-info">
+              <h3 style="margin: 0 0 15px 0; color: #333;">Teslimat Bilgileri</h3>
+              <p><strong>Kargo Firması:</strong> ${data.shippingCompany}</p>
+              <p><strong>Takip Numarası:</strong> <span style="font-family: monospace; background: #f8f9fa; padding: 4px 8px; border-radius: 4px;">${data.trackingNumber}</span></p>
+              <p><strong>Teslim Tarihi:</strong> ${new Date().toLocaleDateString('tr-TR')}</p>
+            </div>
+            
+            <h3>Teslim Edilen Ürünler:</h3>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Ürün</th>
+                  <th>Adet</th>
+                  <th>Fiyat</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHTML}
+              </tbody>
+            </table>
+            
+            <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              <h4 style="margin: 0 0 10px 0; color: #856404;">💡 Önemli Bilgiler</h4>
+              <ul style="margin: 0; padding-left: 20px; color: #856404;">
+                <li>Ürünlerinizi kontrol edin</li>
+                <li>Herhangi bir sorun varsa 14 gün içinde iade edebilirsiniz</li>
+                <li>Deneyiminizi değerlendirmek için yorum yapabilirsiniz</li>
+                <li>Yeni ürünler için bizi takip edin</li>
+              </ul>
+            </div>
+            
+            <div style="background: #e7f3ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              <h4 style="margin: 0 0 10px 0; color: #004085;">🎉 Teşekkürler!</h4>
+              <p style="margin: 0; color: #004085;">
+                ModaBase'i tercih ettiğiniz için teşekkür ederiz. Umarız ürünlerimizden memnun kalırsınız!
+              </p>
+            </div>
+            
+            <p style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/products" 
+                 style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
+                Yeni Ürünleri Keşfet
+              </a>
+            </p>
+          </div>
+          
+          <div class="footer">
+            <p>Bu e-posta ModaBase tarafından gönderilmiştir.</p>
+            <p>Herhangi bir sorunuz için <a href="mailto:info@modabase.com.tr">info@modabase.com.tr</a> adresinden bize ulaşabilirsiniz.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
 }

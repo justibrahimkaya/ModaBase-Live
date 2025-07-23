@@ -92,7 +92,14 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     shippingCompany,
     shippingTrackingUrl,
     reason,
-    action
+    action,
+    // İade/Değişim işlemleri için yeni alanlar
+    returnAction,
+    exchangeAction,
+    refundAmount,
+    newProductId,
+    newSize,
+    newColor
   } = body
 
   try {
@@ -127,6 +134,96 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     if (status === 'DELIVERED') updateData.deliveredAt = new Date()
     if (status === 'REJECTED') updateData.adminNotes = `Reddedildi - Sebep: ${reason || 'Belirtilmemiş'}`
 
+    // İade işlemleri
+    if (returnAction) {
+      if (returnAction === 'APPROVE') {
+        updateData.status = 'RETURN_APPROVED'
+        updateData.returnApprovedAt = new Date()
+        updateData.adminNotes = `İade onaylandı - ${adminNotes || 'Admin onayı'}`
+        
+        // Stok geri ekle
+        for (const item of order.items) {
+          await prisma.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: {
+                increment: item.quantity
+              }
+            }
+          })
+
+          await prisma.stockMovement.create({
+            data: {
+              productId: item.productId,
+              orderId: order.id,
+              type: 'IN',
+              quantity: item.quantity,
+              description: `İade onaylandı - Sipariş #${order.id} için stok geri eklendi`
+            }
+          })
+        }
+      } else if (returnAction === 'REJECT') {
+        updateData.status = 'RETURN_REJECTED'
+        updateData.adminNotes = `İade reddedildi - ${adminNotes || 'Admin reddi'}`
+      }
+    }
+
+    // Değişim işlemleri
+    if (exchangeAction) {
+      if (exchangeAction === 'APPROVE') {
+        updateData.status = 'EXCHANGE_APPROVED'
+        updateData.exchangeApprovedAt = new Date()
+        updateData.adminNotes = `Değişim onaylandı - ${adminNotes || 'Admin onayı'}`
+        
+        // Eski ürün stokunu geri ekle
+        for (const item of order.items) {
+          await prisma.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: {
+                increment: item.quantity
+              }
+            }
+          })
+
+          await prisma.stockMovement.create({
+            data: {
+              productId: item.productId,
+              orderId: order.id,
+              type: 'IN',
+              quantity: item.quantity,
+              description: `Değişim onaylandı - Eski ürün stok geri eklendi`
+            }
+          })
+        }
+
+        // Yeni ürün stokunu düş
+        if (newProductId) {
+          await prisma.product.update({
+            where: { id: newProductId },
+            data: {
+              stock: {
+                decrement: 1
+              }
+            }
+          })
+
+          await prisma.stockMovement.create({
+            data: {
+              productId: newProductId,
+              orderId: order.id,
+              type: 'OUT',
+              quantity: 1,
+              description: `Değişim onaylandı - Yeni ürün stok düşüldü`
+            }
+          })
+        }
+      } else if (exchangeAction === 'REJECT') {
+        updateData.status = 'EXCHANGE_REJECTED'
+        updateData.adminNotes = `Değişim reddedildi - ${adminNotes || 'Admin reddi'}`
+      }
+    }
+
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: updateData,
@@ -142,89 +239,113 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     })
 
     // E-posta bildirimleri gönder
-    try {
-      EmailService.initialize({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: false,
-        auth: {
-          user: process.env.SMTP_USER || 'info@modabase.com.tr',
-          pass: process.env.SMTP_PASS || 'password'
-        }
-      })
+    const customerEmail = order.user?.email || order.guestEmail
+    const customerName = order.user ? `${order.user.name} ${order.user.surname}` : 
+                        order.guestName && order.guestSurname ? `${order.guestName} ${order.guestSurname}` : 
+                        'Müşteri'
 
-      const customerEmail = order.user?.email || order.guestEmail
-      const customerName = order.user ? `${order.user.name} ${order.user.surname}` : 
-                          order.guestName && order.guestSurname ? `${order.guestName} ${order.guestSurname}` : 
-                          'Müşteri'
-
-      if (customerEmail) {
-        if (action === 'reject' && status === 'REJECTED') {
-          // Sipariş reddedildi e-postası
-          await EmailService.sendOrderRejection({
+    if (customerEmail) {
+      try {
+        // İade onaylandığında
+        if (returnAction === 'APPROVE') {
+          await EmailService.sendReturnApprovalNotification({
             to: customerEmail,
             customerName,
             orderId: order.id,
             orderNumber: order.id.slice(-8),
-            reason: reason || 'Belirtilmemiş',
-            totalAmount: order.total,
+            refundAmount: refundAmount || order.total,
             items: order.items.map(item => ({
               name: item.product.name,
               quantity: item.quantity,
               price: item.price
             }))
           })
-        } else if (action === 'approve' && (status === 'CONFIRMED' || status === 'PAID')) {
-          // Sipariş onaylandı e-postası
-          await EmailService.sendOrderApproval({
+        }
+
+        // İade reddedildiğinde
+        if (returnAction === 'REJECT') {
+          await EmailService.sendReturnRejectionNotification({
             to: customerEmail,
             customerName,
             orderId: order.id,
             orderNumber: order.id.slice(-8),
-            totalAmount: order.total,
+            reason: adminNotes || 'Belirtilmemiş',
             items: order.items.map(item => ({
               name: item.product.name,
               quantity: item.quantity,
               price: item.price
             }))
           })
-
-          // Eğer ödeme henüz yapılmamışsa, ödeme talimatları e-postası gönder
-          if (order.paymentMethod === 'BANK_TRANSFER' && (order.status === 'PENDING' || order.status === 'AWAITING_PAYMENT')) {
-            await EmailService.sendPaymentInstructions({
-              to: customerEmail,
-              customerName,
-              orderId: order.id,
-              orderNumber: order.id.slice(-8),
-              totalAmount: order.total,
-              paymentMethod: order.paymentMethod || 'Belirtilmemiş',
-              items: order.items.map(item => ({
-                name: item.product.name,
-                quantity: item.quantity,
-                price: item.price
-              }))
-            })
-          }
         }
+
+        // Değişim onaylandığında
+        if (exchangeAction === 'APPROVE') {
+          await EmailService.sendExchangeApprovalNotification({
+            to: customerEmail,
+            customerName,
+            orderId: order.id,
+            orderNumber: order.id.slice(-8),
+            newProductId,
+            newSize,
+            newColor,
+            items: order.items.map(item => ({
+              name: item.product.name,
+              quantity: item.quantity,
+              price: item.price
+            }))
+          })
+        }
+
+        // Değişim reddedildiğinde
+        if (exchangeAction === 'REJECT') {
+          await EmailService.sendExchangeRejectionNotification({
+            to: customerEmail,
+            customerName,
+            orderId: order.id,
+            orderNumber: order.id.slice(-8),
+            reason: adminNotes || 'Belirtilmemiş',
+            items: order.items.map(item => ({
+              name: item.product.name,
+              quantity: item.quantity,
+              price: item.price
+            }))
+          })
+        }
+
+        // Eğer ödeme henüz yapılmamışsa, ödeme talimatları e-postası gönder
+        if (order.paymentMethod === 'BANK_TRANSFER' && (order.status === 'PENDING' || order.status === 'AWAITING_PAYMENT')) {
+          await EmailService.sendPaymentInstructions({
+            to: customerEmail,
+            customerName,
+            orderId: order.id,
+            orderNumber: order.id.slice(-8),
+            totalAmount: order.total,
+            paymentMethod: order.paymentMethod || 'Belirtilmemiş',
+            items: order.items.map(item => ({
+              name: item.product.name,
+              quantity: item.quantity,
+              price: item.price
+            }))
+          })
+        }
+
+      } catch (emailError) {
+        console.error('E-posta gönderme hatası:', emailError)
+        // E-posta hatası sipariş güncellemesini etkilemesin
       }
-    } catch (emailError) {
-      console.error('E-posta gönderme hatası:', emailError)
-      // E-posta hatası sipariş güncellemesini etkilemesin
     }
 
     return NextResponse.json({
       success: true,
-      order: updatedOrder,
-      message: action === 'reject' ? 'Sipariş reddedildi ve müşteriye bilgilendirme e-postası gönderildi.' :
-              action === 'approve' ? 'Sipariş onaylandı ve müşteriye bilgilendirme e-postası gönderildi.' :
-              'Sipariş başarıyla güncellendi.'
+      message: 'Sipariş başarıyla güncellendi',
+      order: updatedOrder
     })
 
   } catch (error) {
     console.error('Order update error:', error)
-    return NextResponse.json({ 
-      success: false,
-      error: 'Sipariş güncellenemedi.' 
-    }, { status: 400 })
+    return NextResponse.json(
+      { error: 'Sipariş güncellenirken hata oluştu' },
+      { status: 500 }
+    )
   }
 }

@@ -1,35 +1,26 @@
-import { prisma } from './prisma'
-import { EmailService } from './emailService'
+import { prisma } from './prisma';
+import { EmailService } from './emailService';
 
 export class StockNotificationService {
   
-  // Stok güncellendiğinde bildirimleri kontrol et ve gönder
+  // Stok kontrolü ve bildirim gönderme
   static async checkAndSendNotifications(productId: string): Promise<void> {
     try {
       // Ürün bilgilerini al
       const product = await prisma.product.findUnique({
         where: { id: productId },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          stock: true,
-          minStockLevel: true
+        include: {
+          category: true
         }
-      })
+      });
 
       if (!product) {
-        console.error('Product not found:', productId)
-        return
+        console.log(`Ürün bulunamadı: ${productId}`);
+        return;
       }
 
-      // Stok yoksa bildirim gönderme
-      if (product.stock <= 0) {
-        return
-      }
-
-      // Bu ürün için aktif stok bildirimlerini al
-      const activeNotifications = await prisma.userStockNotification.findMany({
+      // Stok bildirimlerini al
+      const notifications = await prisma.userStockNotification.findMany({
         where: {
           productId: productId,
           isActive: true,
@@ -39,141 +30,276 @@ export class StockNotificationService {
           user: {
             select: {
               email: true,
-              name: true
+              name: true,
+              surname: true
             }
           }
         }
-      })
+      });
 
-      if (activeNotifications.length === 0) {
-        return
+      if (notifications.length === 0) {
+        console.log(`Ürün ${product.name} için aktif bildirim yok`);
+        return;
       }
 
-      console.log(`Found ${activeNotifications.length} active notifications for product: ${product.name}`)
+      console.log(`${notifications.length} kullanıcıya stok bildirimi gönderiliyor...`);
 
-      // Email servisini başlat
-      EmailService.initialize({
-        host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.EMAIL_PORT || '587'),
-        secure: false,
-        auth: {
-          user: process.env.EMAIL_USER || 'info@modabase.com.tr',
-          pass: process.env.EMAIL_PASS || 'password'
-        }
-      })
-
-      // Her bir bildirim için email gönder
-      for (const notification of activeNotifications) {
+      // Her kullanıcıya bildirim gönder
+      for (const notification of notifications) {
         try {
-          const recipientEmail = notification.user?.email || notification.guestEmail
+          const email = notification.user?.email || notification.guestEmail;
+          const customerName = notification.user 
+            ? `${notification.user.name} ${notification.user.surname}`
+            : 'Değerli Müşterimiz';
 
-          if (!recipientEmail) {
-            console.error('No email found for notification:', notification.id)
-            continue
-          }
+          if (email) {
+            const success = await EmailService.sendStockNotificationEmail(
+              email,
+              product.name,
+              product.id
+            );
 
-          // Email gönder
-          const emailSent = await EmailService.sendStockNotificationEmail(
-            recipientEmail,
-            product.name,
-            product.id
-          )
+            if (success) {
+              // Bildirim gönderildi olarak işaretle
+              await prisma.userStockNotification.update({
+                where: { id: notification.id },
+                data: {
+                  notifiedAt: new Date(),
+                  isActive: false // Bildirim gönderildi, artık aktif değil
+                }
+              });
 
-          if (emailSent) {
-            // Bildirim gönderildi olarak işaretle
-            await prisma.userStockNotification.update({
-              where: { id: notification.id },
-              data: {
-                notifiedAt: new Date(),
-                isActive: false // Bildirim gönderildikten sonra devre dışı bırak
-              }
-            })
-
-            console.log(`Stock notification sent to: ${recipientEmail} for product: ${product.name}`)
-          } else {
-            console.error(`Failed to send email to: ${recipientEmail}`)
+              console.log(`Stok bildirimi gönderildi: ${email} - ${product.name}`);
+            } else {
+              console.error(`Stok bildirimi gönderilemedi: ${email} - ${product.name}`);
+            }
           }
         } catch (error) {
-          console.error(`Error sending notification to ${notification.id}:`, error)
+          console.error(`Bildirim gönderme hatası:`, error);
         }
       }
 
-      console.log(`Stock notifications processing completed for product: ${product.name}`)
     } catch (error) {
-      console.error('Error in checkAndSendNotifications:', error)
+      console.error('Stok bildirimi kontrol hatası:', error);
     }
   }
 
-  // Toplu stok güncellemelerinde kullanılabilir
-  static async processMultipleProducts(productIds: string[]): Promise<void> {
-    for (const productId of productIds) {
-      await this.checkAndSendNotifications(productId)
-      // Rate limiting için kısa bekleme
-      await new Promise(resolve => setTimeout(resolve, 100))
-    }
-  }
-
-  // Aktif bildirimleri getir (admin paneli için)
-  static async getActiveNotifications() {
-    return await prisma.userStockNotification.findMany({
-      where: {
-        isActive: true,
-        notifiedAt: null
-      },
-      include: {
-        user: {
-          select: {
-            email: true,
-            name: true,
-            surname: true
+  // Düşük stok uyarıları için admin bildirimi
+  static async sendLowStockAlertToAdmin(): Promise<void> {
+    try {
+      // Düşük stok ürünlerini bul
+      const lowStockProducts = await prisma.product.findMany({
+        where: {
+          stock: {
+            lte: prisma.product.fields.minStockLevel
+          },
+          stock: {
+            gt: 0 // Stoksuz olmayan
           }
         },
-        product: {
-          select: {
-            name: true,
-            slug: true,
-            stock: true,
-            minStockLevel: true
-          }
+        include: {
+          category: true
+        },
+        orderBy: {
+          stock: 'asc'
         }
-      },
-      orderBy: {
-        createdAt: 'desc'
+      });
+
+      // Stoksuz ürünleri bul
+      const outOfStockProducts = await prisma.product.findMany({
+        where: {
+          stock: 0
+        },
+        include: {
+          category: true
+        },
+        orderBy: {
+          name: 'asc'
+        }
+      });
+
+      if (lowStockProducts.length === 0 && outOfStockProducts.length === 0) {
+        console.log('Düşük stok uyarısı yok');
+        return;
       }
-    })
+
+      // Admin e-postasına bildirim gönder
+      const adminEmail = process.env.ADMIN_EMAIL || 'admin@modabase.com.tr';
+      
+      if (adminEmail) {
+        const success = await EmailService.sendLowStockAlertToAdmin({
+          to: adminEmail,
+          lowStockProducts: lowStockProducts.map(p => ({
+            name: p.name,
+            stock: p.stock,
+            minStockLevel: p.minStockLevel,
+            category: p.category.name,
+            price: p.price
+          })),
+          outOfStockProducts: outOfStockProducts.map(p => ({
+            name: p.name,
+            category: p.category.name,
+            price: p.price
+          }))
+        });
+
+        if (success) {
+          console.log('Admin düşük stok uyarısı gönderildi');
+        } else {
+          console.error('Admin düşük stok uyarısı gönderilemedi');
+        }
+      }
+
+    } catch (error) {
+      console.error('Düşük stok uyarısı hatası:', error);
+    }
   }
 
-  // Bildirim istatistikleri
-  static async getNotificationStats() {
-    const [total, active, sent, thisMonth] = await Promise.all([
-      prisma.userStockNotification.count(),
-      prisma.userStockNotification.count({
-        where: {
-          isActive: true,
-          notifiedAt: null
-        }
-      }),
-      prisma.userStockNotification.count({
-        where: {
-          notifiedAt: {
-            not: null
-          }
-        }
-      }),
-      prisma.userStockNotification.count({
+  // Stok hareketi sonrası kontrol
+  static async checkStockAfterMovement(productId: string): Promise<void> {
+    try {
+      const product = await prisma.product.findUnique({
+        where: { id: productId }
+      });
+
+      if (!product) return;
+
+      // Stok seviyesi kontrol et
+      if (product.stock <= product.minStockLevel) {
+        // Düşük stok uyarısı gönder
+        await this.sendLowStockAlertToAdmin();
+      }
+
+      // Eğer stok 0'dan büyükse ve önceden 0'daysa, stok bildirimlerini kontrol et
+      if (product.stock > 0) {
+        await this.checkAndSendNotifications(productId);
+      }
+
+    } catch (error) {
+      console.error('Stok hareketi sonrası kontrol hatası:', error);
+    }
+  }
+
+  // Günlük stok raporu
+  static async generateDailyStockReport(): Promise<void> {
+    try {
+      const today = new Date();
+      const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+
+      // Dünkü stok hareketlerini al
+      const movements = await prisma.stockMovement.findMany({
         where: {
           createdAt: {
-            gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+            gte: yesterday,
+            lt: today
           }
+        },
+        include: {
+          product: {
+            include: {
+              category: true
+            }
+          },
+          order: {
+            select: {
+              id: true,
+              status: true
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
-      })
-    ])
+      });
 
-    return {
-      total,
-      active,
-      sent,
-      thisMonth
+      // Düşük stok ürünleri
+      const lowStockProducts = await prisma.product.findMany({
+        where: {
+          stock: {
+            lte: prisma.product.fields.minStockLevel
+          }
+        },
+        include: {
+          category: true
+        }
+      });
+
+      // Admin e-postasına günlük rapor gönder
+      const adminEmail = process.env.ADMIN_EMAIL || 'admin@modabase.com.tr';
+      
+      if (adminEmail && (movements.length > 0 || lowStockProducts.length > 0)) {
+        const success = await EmailService.sendDailyStockReport({
+          to: adminEmail,
+          date: yesterday.toLocaleDateString('tr-TR'),
+          movements: movements.map(m => ({
+            type: m.type,
+            quantity: m.quantity,
+            productName: m.product.name,
+            category: m.product.category.name,
+            orderId: m.orderId,
+            description: m.description,
+            createdAt: m.createdAt
+          })),
+          lowStockProducts: lowStockProducts.map(p => ({
+            name: p.name,
+            stock: p.stock,
+            minStockLevel: p.minStockLevel,
+            category: p.category.name
+          }))
+        });
+
+        if (success) {
+          console.log('Günlük stok raporu gönderildi');
+        } else {
+          console.error('Günlük stok raporu gönderilemedi');
+        }
+      }
+
+    } catch (error) {
+      console.error('Günlük stok raporu hatası:', error);
+    }
+  }
+
+  // Stok bildirimi istatistikleri
+  static async getNotificationStats(): Promise<{
+    totalNotifications: number;
+    activeNotifications: number;
+    sentNotifications: number;
+    pendingNotifications: number;
+  }> {
+    try {
+      const [
+        totalNotifications,
+        activeNotifications,
+        sentNotifications
+      ] = await Promise.all([
+        prisma.userStockNotification.count(),
+        prisma.userStockNotification.count({
+          where: { isActive: true }
+        }),
+        prisma.userStockNotification.count({
+          where: { 
+            isActive: false,
+            notifiedAt: { not: null }
+          }
+        })
+      ]);
+
+      return {
+        totalNotifications,
+        activeNotifications,
+        sentNotifications,
+        pendingNotifications: activeNotifications
+      };
+
+    } catch (error) {
+      console.error('Bildirim istatistikleri hatası:', error);
+      return {
+        totalNotifications: 0,
+        activeNotifications: 0,
+        sentNotifications: 0,
+        pendingNotifications: 0
+      };
     }
   }
 }
