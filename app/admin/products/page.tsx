@@ -25,7 +25,7 @@ import {
   BarChart3,
   Sparkles
 } from 'lucide-react'
-import Image from 'next/image'
+
 import AdvancedSEOGenerator from '@/components/AdvancedSEOGenerator'
 
 interface Product {
