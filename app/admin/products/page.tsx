@@ -684,12 +684,10 @@ export default function AdminProductsPage() {
         <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100">
           {images.length > 0 ? (
             <div className="relative h-full">
-              <Image
+              <img
                 src={images[0]}
                 alt={product.name}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
               {images.length > 1 && (
                 <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
@@ -1326,11 +1324,9 @@ export default function AdminProductsPage() {
                         {form.images.map((image: string, index: number) => (
                           <div key={index} className="relative group">
                             <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                              <Image
+                              <img
                                 src={image}
                                 alt={`Product ${index + 1}`}
-                                width={200}
-                                height={200}
                                 className="w-full h-full object-cover"
                               />
                             </div>
@@ -1581,11 +1577,9 @@ export default function AdminProductsPage() {
             >
               <X className="w-8 h-8" />
             </button>
-            <Image
+            <img
               src={previewImage}
               alt="Preview"
-              width={800}
-              height={600}
               className="max-w-full max-h-full object-contain rounded-lg"
             />
           </div>
