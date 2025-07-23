@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     // İşletme hesabını al
+    console.log('🏢 İşletme hesabı aranıyor: mbmodabase@gmail.com')
     const business = await prisma.business.findUnique({
       where: { email: 'mbmodabase@gmail.com' },
       select: {
@@ -56,7 +57,18 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    if (!business || !business.ibanNumber) {
+    console.log('🏢 Bulunan işletme:', business)
+
+    if (!business) {
+      console.error('❌ İşletme bulunamadı: mbmodabase@gmail.com')
+      return NextResponse.json({ 
+        success: false, 
+        error: 'İşletme hesabı bulunamadı' 
+      }, { status: 500 });
+    }
+
+    if (!business.ibanNumber) {
+      console.error('❌ İşletme IBAN bilgisi eksik:', business)
       return NextResponse.json({ 
         success: false, 
         error: 'İşletme banka bilgileri eksik' 
@@ -64,22 +76,47 @@ export async function POST(request: NextRequest) {
     }
 
     // Havale bildirimi kaydı oluştur
-    const transferNotification = await prisma.transferNotification.create({
-      data: {
-        orderId: orderId,
-        customerName: customerName,
-        customerEmail: customerEmail,
-        customerPhone: customerPhone,
-        transferAmount: transferAmount,
-        transferDate: new Date(transferDate),
-        transferNote: transferNote,
-        status: 'PENDING', // Onay bekliyor
-        businessId: business.id,
-        iban: business.ibanNumber,
-        accountHolder: business.accountHolderName || 'Belirtilmemiş',
-        bankName: business.bankName || 'Belirtilmemiş'
-      }
-    });
+    console.log('💾 Havale bildirimi kaydı oluşturuluyor...')
+    console.log('📋 Kayıt verileri:', {
+      orderId,
+      customerName,
+      customerEmail,
+      customerPhone,
+      transferAmount,
+      transferDate,
+      transferNote,
+      businessId: business.id,
+      iban: business.ibanNumber,
+      accountHolder: business.accountHolderName || 'Belirtilmemiş',
+      bankName: business.bankName || 'Belirtilmemiş'
+    })
+
+    let transferNotification;
+    try {
+      transferNotification = await prisma.transferNotification.create({
+        data: {
+          orderId: orderId,
+          customerName: customerName,
+          customerEmail: customerEmail,
+          customerPhone: customerPhone,
+          transferAmount: transferAmount,
+          transferDate: new Date(transferDate),
+          transferNote: transferNote,
+          status: 'PENDING', // Onay bekliyor
+          businessId: business.id,
+          iban: business.ibanNumber,
+          accountHolder: business.accountHolderName || 'Belirtilmemiş',
+          bankName: business.bankName || 'Belirtilmemiş'
+        }
+      });
+      console.log('✅ Havale bildirimi kaydı oluşturuldu:', transferNotification.id)
+    } catch (dbError) {
+      console.error('❌ Havale bildirimi kaydı oluşturulamadı:', dbError)
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Havale bildirimi kaydedilemedi: ' + (dbError instanceof Error ? dbError.message : 'Veritabanı hatası') 
+      }, { status: 500 });
+    }
 
     // Müşteriye havale bilgilerini e-posta ile gönder
     try {

@@ -28,8 +28,23 @@ export async function GET(request: NextRequest) {
 
 // POST: Yeni sipariş oluştur (userId session'dan alınacak)
 export async function POST(request: NextRequest) {
-  const userId = getUserIdFromRequest(request)
-  const body = await request.json()
+  try {
+    console.log('📦 Sipariş oluşturma başlıyor...')
+    
+    const userId = getUserIdFromRequest(request)
+    console.log('👤 User ID:', userId)
+    
+    let body;
+    try {
+      body = await request.json()
+      console.log('📋 Request body:', body)
+    } catch (parseError) {
+      console.error('❌ JSON parse hatası:', parseError)
+      return NextResponse.json({ 
+        success: false,
+        error: 'Geçersiz JSON verisi' 
+      }, { status: 400 })
+    }
   const {
     addressId,
     invoiceAddressId,
@@ -91,28 +106,11 @@ export async function POST(request: NextRequest) {
 
   // Transaction ile sipariş oluştur ve stok güncelle
   const order = await prisma.$transaction(async (tx: any) => {
-    // Adres oluştur (eğer address objesi gönderilmişse)
-    let createdAddressId = addressId;
-    if (!addressId && body.address) {
-      const newAddress = await tx.address.create({
-        data: {
-          userId: userId || undefined,
-          title: body.address.title,
-          city: body.address.city,
-          district: body.address.district,
-          neighborhood: body.address.neighborhood,
-          address: body.address.address,
-          isDefault: false
-        }
-      });
-      createdAddressId = newAddress.id;
-    }
-
-    // Sipariş oluştur
+    // Sipariş oluştur (guest checkout için adres bilgileri doğrudan kullanılır)
     const newOrder = await tx.order.create({
       data: {
         userId: userId || undefined,
-        addressId: createdAddressId,
+        addressId: addressId, // Eğer varsa kullan, yoksa null
         invoiceAddressId,
         shippingMethod,
         paymentMethod,
@@ -261,4 +259,12 @@ export async function POST(request: NextRequest) {
     order: order,
     message: 'Sipariş başarıyla oluşturuldu'
   })
+  
+  } catch (error) {
+    console.error('❌ Sipariş oluşturma hatası:', error)
+    return NextResponse.json({ 
+      success: false,
+      error: 'Sipariş oluşturulurken hata oluştu: ' + (error instanceof Error ? error.message : 'Bilinmeyen hata') 
+    }, { status: 500 })
+  }
 }
