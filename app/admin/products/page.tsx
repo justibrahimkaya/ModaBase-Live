@@ -510,18 +510,29 @@ export default function AdminProductsPage() {
       .filter(slot => slot.image && !slot.error)
       .map(slot => slot.image)
 
+    console.log('Modal\'dan gelen resimler:', validImages)
+    console.log('Mevcut form resimleri:', form.images)
+
     if (validImages.length === 0) {
       setError('En az 1 resim yüklemelisiniz.')
       return
     }
 
-    setForm((prev: any) => ({
-      ...prev,
-      images: validImages
-    }))
+    // Form state'ini güncelle
+    setForm((prev: any) => {
+      const newForm = {
+        ...prev,
+        images: validImages
+      }
+      console.log('Yeni form state:', newForm)
+      return newForm
+    })
 
     setShowImageModal(false)
     setSuccess(`${validImages.length} resim başarıyla eklendi!`)
+    
+    // 3 saniye sonra success mesajını temizle
+    setTimeout(() => setSuccess(''), 3000)
   }
 
   // Modal'ı sıfırla
@@ -1490,6 +1501,9 @@ export default function AdminProductsPage() {
                     {/* Image Preview Grid */}
                     {form.images.length > 0 && (
                       <div className="grid grid-cols-2 gap-4 mt-4">
+                        <div className="col-span-2 mb-2 p-2 bg-blue-50 rounded text-sm text-blue-700">
+                          Debug: {form.images.length} resim yüklendi
+                        </div>
                         {form.images.map((image: string, index: number) => (
                           <div key={index} className="relative group">
                             <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
