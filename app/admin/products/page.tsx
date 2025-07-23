@@ -768,6 +768,29 @@ export default function AdminProductsPage() {
       })
 
       // Payload boyutunu kontrol et
+      // VARYANT DEBUG - Frontend
+      console.log('🔍 FRONTEND VARYANT DEBUG:')
+      console.log('form.variants tipi:', typeof form.variants)
+      console.log('form.variants değeri:', form.variants)
+      console.log('form.variants uzunluk:', form.variants?.length || 0)
+      
+      if (form.variants && form.variants.length > 0) {
+        console.log('✅ Frontend\'de varyantlar var:')
+        form.variants.forEach((variant: any, index: number) => {
+          console.log(`Frontend Varyant ${index + 1}:`, {
+            size: variant.size,
+            color: variant.color,
+            colorCode: variant.colorCode,
+            stock: variant.stock,
+            price: variant.price,
+            sku: variant.sku,
+            isActive: variant.isActive
+          })
+        })
+      } else {
+        console.log('❌ Frontend\'de hiç varyant yok!')
+      }
+      
       const payload = {
         ...form,
         images: JSON.stringify(optimizedImages),

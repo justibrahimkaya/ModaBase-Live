@@ -11,8 +11,8 @@ interface ProductPageProps {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   try {
-    // Ürünü veritabanından getir
-    const product = await prisma.product.findUnique({
+    // Ürünü veritabanından getir - önce ID ile dene, sonra slug ile
+    let product = await prisma.product.findUnique({
       where: { id: params.id },
       include: {
         category: {
@@ -54,6 +54,49 @@ export default async function ProductPage({ params }: ProductPageProps) {
         }
       }
     })
+
+    // Eğer ID ile bulunamazsa slug ile dene
+    if (!product) {
+      product = await prisma.product.findUnique({
+        where: { slug: params.id },
+        include: {
+          category: {
+            include: {
+              business: {
+                select: {
+                  id: true,
+                  businessName: true
+                }
+              }
+            }
+          },
+          variants: {
+            where: {
+              isActive: true
+            },
+            orderBy: [
+              { size: 'asc' },
+              { color: 'asc' }
+            ]
+          },
+          reviews: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                  surname: true
+                }
+              }
+            }
+          },
+          _count: {
+            select: {
+              reviews: true
+            }
+          }
+        }
+      })
+    }
 
     if (!product) {
       notFound()

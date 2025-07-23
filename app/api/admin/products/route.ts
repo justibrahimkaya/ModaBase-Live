@@ -336,20 +336,47 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      // Varyantları ekle
+      // Varyantları ekle - DEBUG LOGLARI
+      console.log('🔍 VARYANT DEBUG:')
+      console.log('variants tipi:', typeof variants)
+      console.log('variants değeri:', variants)
+      console.log('variants uzunluk:', variants?.length || 0)
+      
       if (variants && variants.length > 0) {
-        await tx.productVariant.createMany({
-          data: variants.map((variant: any) => ({
-            productId: product.id,
+        console.log('✅ Varyantlar ekleniyor...')
+        console.log('Varyant detayları:')
+        variants.forEach((variant: any, index: number) => {
+          console.log(`Varyant ${index + 1}:`, {
             size: variant.size,
             color: variant.color,
             colorCode: variant.colorCode,
-            stock: parseInt(variant.stock) || 0,
-            price: variant.price ? parseFloat(variant.price) : null,
+            stock: variant.stock,
+            price: variant.price,
             sku: variant.sku,
-            isActive: variant.isActive !== false
-          }))
+            isActive: variant.isActive
+          })
         })
+        
+        const variantData = variants.map((variant: any) => ({
+          productId: product.id,
+          size: variant.size,
+          color: variant.color,
+          colorCode: variant.colorCode,
+          stock: parseInt(variant.stock) || 0,
+          price: variant.price ? parseFloat(variant.price) : null,
+          sku: variant.sku,
+          isActive: variant.isActive !== false
+        }))
+        
+        console.log('📦 Veritabanına gönderilecek varyant verisi:', variantData)
+        
+        await tx.productVariant.createMany({
+          data: variantData
+        })
+        
+        console.log('✅ Varyantlar başarıyla eklendi')
+      } else {
+        console.log('❌ Hiç varyant yok veya boş array')
       }
 
       console.log('✅ Ürün başarıyla oluşturuldu:', product.id)
