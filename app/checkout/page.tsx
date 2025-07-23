@@ -409,6 +409,8 @@ export default function CheckoutPage() {
         transferNote: bankTransferData.transferNote || `Sipariş #${orderId}`
       }
 
+      console.log('📤 Havale bildirimi gönderiliyor:', transferData)
+
       const transferResponse = await fetch('/api/payment/bank-transfer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

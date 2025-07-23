@@ -4,8 +4,30 @@ import { EmailService } from '@/lib/emailService';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    console.log('📥 Havale bildirimi alınıyor...')
+    
+    let body;
+    try {
+      body = await request.json();
+      console.log('📋 Request body:', body)
+    } catch (parseError) {
+      console.error('❌ JSON parse hatası:', parseError)
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Geçersiz JSON verisi' 
+      }, { status: 400 });
+    }
+    
     const { orderId, customerName, customerEmail, customerPhone, transferAmount, transferDate, transferNote } = body;
+
+    // Gerekli alanları kontrol et
+    if (!orderId || !customerName || !customerEmail || !customerPhone || !transferAmount) {
+      console.error('❌ Eksik alanlar:', { orderId, customerName, customerEmail, customerPhone, transferAmount })
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Eksik bilgiler: Sipariş ID, müşteri bilgileri ve tutar gereklidir' 
+      }, { status: 400 });
+    }
 
     // Siparişi kontrol et
     const order = await prisma.order.findUnique({
