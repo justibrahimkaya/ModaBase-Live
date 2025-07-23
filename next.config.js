@@ -3,6 +3,15 @@ const nextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
   
+  // Next.js 15 body size limits
+  experimental: {
+    optimizePackageImports: ['@headlessui/react', 'lucide-react', 'framer-motion'],
+    // Body size limit for API routes
+    serverComponentsExternalPackages: ['@prisma/client'],
+    // Increase body size limit
+    bodySizeLimit: '100mb',
+  },
+  
   // Image optimization settings
   images: {
     remotePatterns: [

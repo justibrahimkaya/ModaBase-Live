@@ -1,10 +1,12 @@
 {
   "functions": {
     "app/api/admin/products/route.ts": {
-      "maxDuration": 30
+      "maxDuration": 300,
+      "memory": 3008
     },
     "app/api/admin/products/[id]/route.ts": {
-      "maxDuration": 30
+      "maxDuration": 300,
+      "memory": 3008
     }
   },
   "headers": [
@@ -17,5 +19,8 @@
         }
       ]
     }
-  ]
+  ],
+  "env": {
+    "NEXT_BODY_SIZE_LIMIT": "100mb"
+  }
 }

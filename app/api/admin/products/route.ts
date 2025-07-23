@@ -4,15 +4,85 @@ import { requireAdmin } from '@/lib/adminAuth'
 
 export const dynamic = 'force-dynamic'
 
-// Body parser'ı tamamen devre dışı bırak
+// Next.js 15 body parser configuration
 export const config = {
   api: {
     bodyParser: false,
+    responseLimit: false,
   },
 }
 
-// Body size limit - 100MB
+// Body size limit - 100MB for Next.js 15
 export const maxDuration = 300 // 5 dakika
+
+// Memory-efficient body parser for Next.js 15
+async function parseLargeBody(request: NextRequest): Promise<any> {
+  console.log('🔧 Next.js 15 body parsing başlatıldı')
+  
+  const contentType = request.headers.get('content-type')
+  if (!contentType || !contentType.includes('application/json')) {
+    throw new Error('Content-Type must be application/json')
+  }
+
+  // Chunked reading with memory management
+  const chunks: Uint8Array[] = []
+  const reader = request.body?.getReader()
+  
+  if (!reader) {
+    throw new Error('Request body okunamadı')
+  }
+
+  let totalSize = 0
+  const maxSize = 100 * 1024 * 1024 // 100MB limit
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      
+      if (value) {
+        totalSize += value.length
+        if (totalSize > maxSize) {
+          throw new Error('Request body çok büyük (100MB limit)')
+        }
+        chunks.push(value)
+      }
+    }
+  } catch (readError) {
+    console.error('Body reading error:', readError)
+    throw new Error('Body okuma hatası')
+  } finally {
+    reader.releaseLock()
+  }
+
+  // Efficient buffer concatenation
+  const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
+  const buffer = new Uint8Array(totalLength)
+  let offset = 0
+  
+  for (const chunk of chunks) {
+    buffer.set(chunk, offset)
+    offset += chunk.length
+  }
+
+  // Clear chunks array to free memory
+  chunks.length = 0
+
+  // Text decoding with error handling
+  const bodyText = new TextDecoder().decode(buffer)
+  
+  console.log('📄 Body text length:', bodyText.length, 'bytes')
+  
+  try {
+    const body = JSON.parse(bodyText)
+    console.log('✅ JSON parse başarılı')
+    return body
+  } catch (parseError) {
+    console.error('❌ JSON parse error:', parseError)
+    console.error('❌ Body text preview:', bodyText.substring(0, 500))
+    throw new Error('JSON parse hatası: Geçersiz veri formatı')
+  }
+}
 
 // GET: Tüm ürünleri getir
 export async function GET(request: NextRequest) {
@@ -90,9 +160,9 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST: Yeni ürün ekle - Raw body handling
+// POST: Yeni ürün ekle - Next.js 15 optimized
 export async function POST(request: NextRequest) {
-  console.log('🚀 POST /api/admin/products çağrıldı')
+  console.log('🚀 POST /api/admin/products çağrıldı (Next.js 15)')
   
   const authError = await requireAdmin(request)
   if (authError) {
@@ -101,63 +171,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Content-Type kontrolü
-    const contentType = request.headers.get('content-type')
-    if (!contentType || !contentType.includes('application/json')) {
-      return NextResponse.json({ 
-        error: 'Content-Type must be application/json' 
-      }, { status: 400 })
-    }
-
-    // Raw body okuma - chunked
-    const chunks: Uint8Array[] = []
-    const reader = request.body?.getReader()
-    
-    if (!reader) {
-      return NextResponse.json({ error: 'Request body okunamadı' }, { status: 400 })
-    }
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        if (value) chunks.push(value)
-      }
-    } catch (readError) {
-      console.error('Body reading error:', readError)
-      return NextResponse.json({ error: 'Body okuma hatası' }, { status: 400 })
-    }
-
-    // Buffer'ları birleştir
-    const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
-    const buffer = new Uint8Array(totalLength)
-    let offset = 0
-    
-    for (const chunk of chunks) {
-      buffer.set(chunk, offset)
-      offset += chunk.length
-    }
-
-    // Text'e çevir
-    const bodyText = new TextDecoder().decode(buffer)
-    
-    // Debug için log
-    console.log('📄 Body text length:', bodyText.length)
-    console.log('📄 Body text preview:', bodyText.substring(0, 500))
-    
-    let body
-    try {
-      body = JSON.parse(bodyText)
-      console.log('✅ JSON parse başarılı')
-      console.log('📦 Parsed body:', JSON.stringify(body, null, 2))
-    } catch (parseError) {
-      console.error('❌ JSON parse error:', parseError)
-      console.error('❌ Body text start:', bodyText.substring(0, 500))
-      return NextResponse.json({ 
-        error: 'JSON parse hatası: Geçersiz veri formatı',
-        details: parseError instanceof Error ? parseError.message : 'Unknown error'
-      }, { status: 400 })
-    }
+    // Next.js 15 optimized body parsing
+    const body = await parseLargeBody(request)
+    console.log('✅ Body parsing tamamlandı')
+    console.log('📦 Parsed body preview:', JSON.stringify(body, null, 2).substring(0, 500))
 
     const { 
       name, 

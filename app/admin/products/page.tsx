@@ -600,7 +600,7 @@ export default function AdminProductsPage() {
     setForm({ ...form, variants: [...form.variants, ...newVariants] })
   }
 
-  // Kaydetme işlemi - chunked upload sistemi
+  // Kaydetme işlemi - Next.js 15 chunked upload sistemi
   const handleSave = async () => {
     if (!form.name || !form.slug || !form.price || !form.categoryId) {
       setError('Lütfen tüm zorunlu alanları doldurun.')
@@ -621,16 +621,15 @@ export default function AdminProductsPage() {
     setError('')
 
     try {
-      console.log('🚀 Ürün kaydediliyor...')
+      console.log('🚀 Next.js 15 ürün kaydetme başlatıldı...')
       console.log('📊 Form verisi:', form)
       console.log('🖼️ Resim sayısı:', validImages.length)
-      console.log('🖼️ Resimler:', validImages)
       
-      // Resimleri optimize et - daha esnek limit
+      // Resimleri optimize et - Next.js 15 için daha esnek limit
       const optimizedImages = validImages.map((img: string, index: number) => {
         console.log(`Resim ${index + 1} boyutu:`, img.length, 'bytes')
-        // 2MB'dan büyükse placeholder kullan (200KB'dan 2MB'a çıkarıldı)
-        if (img.length > 2 * 1024 * 1024) {
+        // 5MB'dan büyükse placeholder kullan (2MB'dan 5MB'a çıkarıldı)
+        if (img.length > 5 * 1024 * 1024) {
           console.log('Resim çok büyük, placeholder kullanılıyor:', img.length, 'bytes')
           return 'https://via.placeholder.com/400x400/cccccc/666666?text=Resim'
         }
@@ -651,9 +650,9 @@ export default function AdminProductsPage() {
 
       const payloadSize = JSON.stringify(payload).length
       console.log('📦 Payload boyutu:', payloadSize, 'bytes')
-      console.log('📦 Payload:', JSON.stringify(payload, null, 2))
+      console.log('📦 Payload preview:', JSON.stringify(payload, null, 2).substring(0, 1000))
       
-      // 100MB'dan büyükse hata ver (10MB'dan 100MB'a çıkarıldı)
+      // 100MB'dan büyükse hata ver
       if (payloadSize > 100 * 1024 * 1024) {
         console.log('❌ Payload çok büyük:', payloadSize, 'bytes')
         setError('Ürün verisi çok büyük. Lütfen daha az resim ekleyin veya resimleri küçültün.')
@@ -661,13 +660,14 @@ export default function AdminProductsPage() {
         return
       }
 
-      // Chunked upload sistemi - büyük payload'lar için
-      console.log('🌐 API isteği gönderiliyor...')
+      // Next.js 15 optimized API isteği
+      console.log('🌐 Next.js 15 API isteği gönderiliyor...')
       const response = await fetch('/api/admin/products', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'X-NextJS-Version': '15',
         },
         body: JSON.stringify(payload)
       })
@@ -675,98 +675,57 @@ export default function AdminProductsPage() {
       console.log('📥 API yanıtı:', response.status, response.statusText)
 
       if (!response.ok) {
-        const errorData = await response.json()
-        console.error('❌ API Hatası:', errorData)
+        const errorText = await response.text()
+        console.error('❌ API Hatası (raw):', errorText)
+        
+        let errorData
+        try {
+          errorData = JSON.parse(errorText)
+        } catch (parseError) {
+          console.error('❌ Error JSON parse failed:', parseError)
+          errorData = { error: 'API yanıtı geçersiz' }
+        }
+        
         throw new Error(errorData.error || 'Ürün eklenemedi')
       }
 
       const responseData = await response.json()
       console.log('✅ API Başarılı:', responseData)
 
-             // Başarı mesajı
+      // Başarı mesajı
       setSuccess('Ürün başarıyla eklendi!')
       
       // 3 saniye sonra success mesajını temizle
       setTimeout(() => setSuccess(''), 3000)
-
-      // Formu güvenli şekilde temizle
-      setTimeout(() => {
-        setForm({
-          name: '',
-          slug: '',
-          description: '',
-          price: '',
-          originalPrice: '',
-          images: [],
-          stock: '',
-          minStockLevel: '5',
-          maxStockLevel: '',
-          categoryId: '',
-          variants: [],
-          // SEO alanları
-          metaTitle: '',
-          metaDescription: '',
-          keywords: '',
-          altText: '',
-          brand: 'ModaBase',
-          sku: '',
-          gtin: '',
-          mpn: '',
-          condition: 'new',
-          availability: 'in_stock',
-          material: '',
-          color: '',
-          size: '',
-          weight: '',
-          dimensions: '',
-          warranty: '',
-          countryOfOrigin: 'Türkiye',
-          // Sosyal medya
-          ogTitle: '',
-          ogDescription: '',
-          ogImage: '',
-          ogType: '',
-          twitterCard: '',
-          twitterTitle: '',
-          twitterDescription: '',
-          twitterImage: '',
-          // Yapılandırılmış veri
-          structuredData: '',
-          canonicalUrl: '',
-          hreflang: '',
-          // Analitik
-          googleAnalyticsId: '',
-          googleTagManagerId: '',
-          facebookPixelId: '',
-          // Arama motoru
-          robotsMeta: '',
-          sitemapPriority: '',
-          changeFrequency: '',
-          lastModified: ''
-        })
-        
-        // Ürünleri yeniden yükle
-        fetchProducts()
-        
-        // Modal'ı kapat
-        closeModal()
-        
-        // Slot'ları sıfırla
-        setImageSlots([
-          { id: 1, image: '', loading: false, error: '' },
-          { id: 2, image: '', loading: false, error: '' },
-          { id: 3, image: '', loading: false, error: '' },
-          { id: 4, image: '', loading: false, error: '' },
-          { id: 5, image: '', loading: false, error: '' },
-          { id: 6, image: '', loading: false, error: '' },
-          { id: 7, image: '', loading: false, error: '' },
-          { id: 8, image: '', loading: false, error: '' }
-        ])
-      }, 100)
       
-    } catch (error: any) {
-      console.error('Save error:', error)
-      setError(error?.message || 'Ürün eklenirken bir hata oluştu')
+      // Form'u temizle
+      setForm({
+        name: '',
+        slug: '',
+        description: '',
+        price: '',
+        originalPrice: '',
+        stock: '0',
+        minStockLevel: '5',
+        maxStockLevel: '',
+        categoryId: '',
+        variants: []
+      })
+      
+      // Resim slot'larını temizle
+      setImageSlots(Array(8).fill(null).map((_, index) => ({ 
+        id: index + 1, 
+        image: '', 
+        loading: false, 
+        error: '' 
+      })))
+      
+      // Ürün listesini yenile
+      fetchProducts()
+      
+    } catch (error) {
+      console.error('❌ Ürün kaydetme hatası:', error)
+      setError(error instanceof Error ? error.message : 'Ürün eklenirken bir hata oluştu')
     } finally {
       setSaving(false)
     }
