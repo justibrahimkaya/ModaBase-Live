@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     if (status === 'success') {
       orderStatus = 'PAID';
       
-      // Stok güncelleme
+      // Stok güncelleme ve hareket kaydet
       for (const item of order.items) {
         await prisma.product.update({
           where: { id: item.productId },
@@ -53,6 +53,16 @@ export async function POST(request: NextRequest) {
             stock: {
               decrement: item.quantity
             }
+          }
+        });
+
+        await prisma.stockMovement.create({
+          data: {
+            productId: item.productId,
+            orderId: order.id,
+            type: 'OUT',
+            quantity: item.quantity,
+            description: `PayTR ödeme başarılı - Sipariş #${order.id} için stok düşüldü`
           }
         });
       }
@@ -128,7 +138,7 @@ export async function POST(request: NextRequest) {
             customerName,
             customerEmail: updatedOrder.user?.email || updatedOrder.guestEmail || 'E-posta yok',
             totalAmount: updatedOrder.total,
-            paymentMethod: updatedOrder.paymentMethod,
+            paymentMethod: updatedOrder.paymentMethod || 'Belirtilmemiş',
             items: updatedOrder.items.map(item => ({
               name: item.product?.name || 'Ürün',
               quantity: item.quantity,

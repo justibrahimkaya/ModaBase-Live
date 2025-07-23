@@ -190,14 +190,14 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
           })
 
           // Eğer ödeme henüz yapılmamışsa, ödeme talimatları e-postası gönder
-          if (order.status === 'PENDING' || order.status === 'AWAITING_PAYMENT') {
+          if (order.paymentMethod === 'BANK_TRANSFER' && (order.status === 'PENDING' || order.status === 'AWAITING_PAYMENT')) {
             await EmailService.sendPaymentInstructions({
               to: customerEmail,
               customerName,
               orderId: order.id,
               orderNumber: order.id.slice(-8),
               totalAmount: order.total,
-              paymentMethod: order.paymentMethod,
+              paymentMethod: order.paymentMethod || 'Belirtilmemiş',
               items: order.items.map(item => ({
                 name: item.product.name,
                 quantity: item.quantity,

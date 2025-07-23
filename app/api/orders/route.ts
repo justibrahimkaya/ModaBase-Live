@@ -143,26 +143,19 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Stok güncelle ve hareket kaydet
+    // Stok rezervasyonu yap (henüz düşme, sadece kontrol)
     for (const item of items) {
-      await tx.product.update({
-        where: { id: item.productId },
-        data: {
-          stock: {
-            decrement: item.quantity
-          }
-        }
+      const product = await tx.product.findUnique({
+        where: { id: item.productId }
       })
-
-      await tx.stockMovement.create({
-        data: {
-          productId: item.productId,
-          orderId: newOrder.id,
-          type: 'OUT',
-          quantity: item.quantity,
-          description: `Sipariş #${newOrder.id} için stok düşüldü`
-        }
-      })
+      
+      if (!product) {
+        throw new Error(`Ürün bulunamadı: ${item.productId}`)
+      }
+      
+      if (product.stock < item.quantity) {
+        throw new Error(`${product.name} için yeterli stok yok. Mevcut: ${product.stock}, İstenen: ${item.quantity}`)
+      }
     }
 
     return newOrder
@@ -293,7 +286,7 @@ export async function POST(request: NextRequest) {
         customerEmail: order.user?.email || order.guestEmail || 'E-posta yok',
         totalAmount: order.total,
         paymentMethod: order.paymentMethod,
-        items: order.items.map(item => ({
+        items: order.items.map((item: { product?: { name?: string }, quantity: number, price: number }) => ({
           name: item.product?.name || 'Ürün',
           quantity: item.quantity,
           price: item.price

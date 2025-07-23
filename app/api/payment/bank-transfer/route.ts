@@ -230,7 +230,7 @@ export async function PUT(request: NextRequest) {
         }
       });
 
-      // Stok güncelle
+      // Stok güncelle ve hareket kaydet
       const order = await prisma.order.findUnique({
         where: { id: transfer.orderId },
         include: { items: true }
@@ -244,6 +244,16 @@ export async function PUT(request: NextRequest) {
               stock: {
                 decrement: item.quantity
               }
+            }
+          });
+
+          await prisma.stockMovement.create({
+            data: {
+              productId: item.productId,
+              orderId: order.id,
+              type: 'OUT',
+              quantity: item.quantity,
+              description: `Havale onaylandı - Sipariş #${order.id} için stok düşüldü`
             }
           });
         }
