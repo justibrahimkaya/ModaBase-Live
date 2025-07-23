@@ -139,7 +139,7 @@ const sizeCategories = {
   }
 }
 
-// Profesyonel Renk Paleti
+// Profesyonel Renk Paleti - Genişletilmiş
 const colorPalettes = {
   basic: {
     name: 'Temel Renkler',
@@ -147,13 +147,18 @@ const colorPalettes = {
       { name: 'Siyah', code: '#000000', hex: '#000000' },
       { name: 'Beyaz', code: '#FFFFFF', hex: '#FFFFFF' },
       { name: 'Gri', code: '#808080', hex: '#808080' },
+      { name: 'Açık Gri', code: '#D3D3D3', hex: '#D3D3D3' },
+      { name: 'Koyu Gri', code: '#404040', hex: '#404040' },
       { name: 'Kırmızı', code: '#FF0000', hex: '#FF0000' },
       { name: 'Mavi', code: '#0000FF', hex: '#0000FF' },
       { name: 'Yeşil', code: '#008000', hex: '#008000' },
       { name: 'Sarı', code: '#FFFF00', hex: '#FFFF00' },
       { name: 'Turuncu', code: '#FFA500', hex: '#FFA500' },
       { name: 'Mor', code: '#800080', hex: '#800080' },
-      { name: 'Pembe', code: '#FFC0CB', hex: '#FFC0CB' }
+      { name: 'Pembe', code: '#FFC0CB', hex: '#FFC0CB' },
+      { name: 'Kahverengi', code: '#8B4513', hex: '#8B4513' },
+      { name: 'Açık Kahve', code: '#D2691E', hex: '#D2691E' },
+      { name: 'Koyu Kahve', code: '#654321', hex: '#654321' }
     ]
   },
   fashion: {
@@ -168,7 +173,18 @@ const colorPalettes = {
       { name: 'Turkuaz', code: '#40E0D0', hex: '#40E0D0' },
       { name: 'Altın', code: '#FFD700', hex: '#FFD700' },
       { name: 'Gümüş', code: '#C0C0C0', hex: '#C0C0C0' },
-      { name: 'Rose Gold', code: '#B76E79', hex: '#B76E79' }
+      { name: 'Rose Gold', code: '#B76E79', hex: '#B76E79' },
+      { name: 'Füme', code: '#708090', hex: '#708090' },
+      { name: 'Açık Füme', code: '#B0C4DE', hex: '#B0C4DE' },
+      { name: 'Koyu Füme', code: '#2F4F4F', hex: '#2F4F4F' },
+      { name: 'Lavanta', code: '#E6E6FA', hex: '#E6E6FA' },
+      { name: 'Koyu Lavanta', code: '#9370DB', hex: '#9370DB' },
+      { name: 'Açık Lavanta', code: '#E6E6FA', hex: '#E6E6FA' },
+      { name: 'Kahve', code: '#8B4513', hex: '#8B4513' },
+      { name: 'Açık Kahve', code: '#D2691E', hex: '#D2691E' },
+      { name: 'Koyu Kahve', code: '#654321', hex: '#654321' },
+      { name: 'Mocha', code: '#967969', hex: '#967969' },
+      { name: 'Cappuccino', code: '#C19A6B', hex: '#C19A6B' }
     ]
   },
   seasonal: {
@@ -183,7 +199,32 @@ const colorPalettes = {
       { name: 'Şeftali', code: '#FFCBA4', hex: '#FFCBA4' },
       { name: 'Açık Sarı', code: '#FFFFE0', hex: '#FFFFE0' },
       { name: 'Açık Yeşil', code: '#90EE90', hex: '#90EE90' },
-      { name: 'Açık Mor', code: '#DDA0DD', hex: '#DDA0DD' }
+      { name: 'Açık Mor', code: '#DDA0DD', hex: '#DDA0DD' },
+      { name: 'Açık Gri', code: '#D3D3D3', hex: '#D3D3D3' },
+      { name: 'Açık Kahve', code: '#D2691E', hex: '#D2691E' },
+      { name: 'Açık Füme', code: '#B0C4DE', hex: '#B0C4DE' },
+      { name: 'Açık Lavanta', code: '#E6E6FA', hex: '#E6E6FA' },
+      { name: 'Açık Turkuaz', code: '#AFEEEE', hex: '#AFEEEE' }
+    ]
+  },
+  neutral: {
+    name: 'Nötr Renkler',
+    colors: [
+      { name: 'Beyaz', code: '#FFFFFF', hex: '#FFFFFF' },
+      { name: 'Krem', code: '#FFFDD0', hex: '#FFFDD0' },
+      { name: 'Bej', code: '#F5F5DC', hex: '#F5F5DC' },
+      { name: 'Açık Bej', code: '#F5F5DC', hex: '#F5F5DC' },
+      { name: 'Koyu Bej', code: '#DEB887', hex: '#DEB887' },
+      { name: 'Gri', code: '#808080', hex: '#808080' },
+      { name: 'Açık Gri', code: '#D3D3D3', hex: '#D3D3D3' },
+      { name: 'Koyu Gri', code: '#404040', hex: '#404040' },
+      { name: 'Füme', code: '#708090', hex: '#708090' },
+      { name: 'Açık Füme', code: '#B0C4DE', hex: '#B0C4DE' },
+      { name: 'Koyu Füme', code: '#2F4F4F', hex: '#2F4F4F' },
+      { name: 'Kahve', code: '#8B4513', hex: '#8B4513' },
+      { name: 'Açık Kahve', code: '#D2691E', hex: '#D2691E' },
+      { name: 'Koyu Kahve', code: '#654321', hex: '#654321' },
+      { name: 'Siyah', code: '#000000', hex: '#000000' }
     ]
   }
 }
