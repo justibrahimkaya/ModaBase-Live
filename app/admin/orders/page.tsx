@@ -100,16 +100,22 @@ export default function AdminOrdersPage() {
     })
   }
 
-  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+  const updateOrderStatus = async (orderId: string, newStatus: string, reason?: string) => {
     setUpdatingOrder(orderId)
     try {
       const response = await fetch(`/api/admin/orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ 
+          status: newStatus,
+          reason: reason || '',
+          action: newStatus === 'REJECTED' ? 'reject' : 'approve'
+        })
       })
       
       if (response.ok) {
+        const result = await response.json()
+        
         // Başarılı güncelleme
         setOrders(orders.map(order => 
           order.id === orderId 
@@ -121,11 +127,27 @@ export default function AdminOrdersPage() {
             ? { ...order, status: newStatus }
             : order
         ))
+        
+        // Başarı mesajı göster
+        if (result.success) {
+          alert(result.message)
+        }
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'Sipariş güncellenirken hata oluştu')
       }
     } catch (error) {
       console.error('Status update error:', error)
+      alert('Sipariş güncellenirken hata oluştu')
     } finally {
       setUpdatingOrder(null)
+    }
+  }
+
+  const rejectOrder = async (orderId: string) => {
+    const reason = prompt('Siparişi reddetme sebebini yazın:')
+    if (reason !== null) {
+      await updateOrderStatus(orderId, 'REJECTED', reason)
     }
   }
 
@@ -198,7 +220,17 @@ export default function AdminOrdersPage() {
           text: 'text-blue-700',
           icon: CheckCircle,
           nextStatus: 'SHIPPED',
-          nextLabel: 'Kargo Ver'
+          nextLabel: 'Kargoya Ver'
+        }
+      case 'REJECTED':
+        return { 
+          label: 'Reddedildi', 
+          color: 'from-red-500 to-pink-500',
+          bg: 'bg-red-50 border-red-200',
+          text: 'text-red-700',
+          icon: XCircle,
+          nextStatus: null,
+          nextLabel: null
         }
       case 'SHIPPED':
         return { 
@@ -344,17 +376,48 @@ export default function AdminOrdersPage() {
             >
               <Eye className="w-4 h-4" />
             </button>
-            <button
-              onClick={() => updateOrderStatus(order.id, getNextStatus(order.status))}
-              disabled={updatingOrder === order.id}
-              className="p-2 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30 transition-colors disabled:opacity-50"
-            >
-              {updatingOrder === order.id ? (
-                <RefreshCw className="w-4 h-4 animate-spin" />
-              ) : (
-                <Check className="w-4 h-4" />
-              )}
-            </button>
+            
+            {/* Sadece PENDING ve AWAITING_PAYMENT durumlarında onay/red butonları göster */}
+            {(order.status === 'PENDING' || order.status === 'AWAITING_PAYMENT') && (
+              <>
+                <button
+                  onClick={() => updateOrderStatus(order.id, getNextStatus(order.status))}
+                  disabled={updatingOrder === order.id}
+                  className="p-2 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30 transition-colors disabled:opacity-50"
+                  title="Siparişi Onayla"
+                >
+                  {updatingOrder === order.id ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Check className="w-4 h-4" />
+                  )}
+                </button>
+                <button
+                  onClick={() => rejectOrder(order.id)}
+                  disabled={updatingOrder === order.id}
+                  className="p-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-colors disabled:opacity-50"
+                  title="Siparişi Reddet"
+                >
+                  <XCircle className="w-4 h-4" />
+                </button>
+              </>
+            )}
+            
+            {/* Diğer durumlar için sadece ileri butonu */}
+            {order.status !== 'PENDING' && order.status !== 'AWAITING_PAYMENT' && order.status !== 'REJECTED' && (
+              <button
+                onClick={() => updateOrderStatus(order.id, getNextStatus(order.status))}
+                disabled={updatingOrder === order.id || !getStatusConfig(order.status).nextStatus}
+                className="p-2 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30 transition-colors disabled:opacity-50"
+                title={getStatusConfig(order.status).nextLabel || 'İleri'}
+              >
+                {updatingOrder === order.id ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Check className="w-4 h-4" />
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>

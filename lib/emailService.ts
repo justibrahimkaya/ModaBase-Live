@@ -811,4 +811,218 @@ export class EmailService {
       </html>
     `;
   }
+
+  // Sipariş reddetme e-postası gönderme
+  static async sendOrderRejection(data: {
+    to: string;
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    reason: string;
+    totalAmount: number;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `ModaBase - Sipariş Reddedildi #${data.orderNumber}`,
+        html: this.generateOrderRejectionHTML(data)
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('Sipariş reddetme e-postası gönderme hatası:', error);
+      return false;
+    }
+  }
+
+  // Sipariş onaylama e-postası gönderme
+  static async sendOrderApproval(data: {
+    to: string;
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    totalAmount: number;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `ModaBase - Sipariş Onaylandı #${data.orderNumber}`,
+        html: this.generateOrderApprovalHTML(data)
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('Sipariş onaylama e-postası gönderme hatası:', error);
+      return false;
+    }
+  }
+
+  private static generateOrderRejectionHTML(data: {
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    reason: string;
+    totalAmount: number;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): string {
+    const itemsHTML = data.items.map(item => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${item.price.toFixed(2)} ₺</td>
+      </tr>
+    `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Sipariş Reddedildi - ModaBase</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #dc3545; color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { padding: 30px 20px; background: white; }
+          .order-info { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #dc3545; }
+          .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .items-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0;">❌ Sipariş Reddedildi</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Sipariş #${data.orderNumber}</p>
+          </div>
+          
+          <div class="content">
+            <h2>Merhaba ${data.customerName},</h2>
+            
+            <p>Maalesef siparişiniz reddedilmiştir. Aşağıda sipariş detayları ve reddetme sebebi bulunmaktadır.</p>
+            
+            <div class="order-info">
+              <h3 style="margin: 0 0 15px 0; color: #dc3545;">Sipariş Bilgileri</h3>
+              <p><strong>Sipariş No:</strong> ${data.orderNumber}</p>
+              <p><strong>Toplam Tutar:</strong> ${data.totalAmount.toFixed(2)} ₺</p>
+              <p><strong>Reddetme Sebebi:</strong> ${data.reason}</p>
+            </div>
+            
+            <h3>Sipariş İçeriği:</h3>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Ürün</th>
+                  <th>Adet</th>
+                  <th>Fiyat</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHTML}
+              </tbody>
+            </table>
+            
+            <p>Eğer bu karar hakkında sorularınız varsa, lütfen bizimle iletişime geçin.</p>
+            
+            <p>Teşekkürler,<br>
+            <strong>ModaBase Ekibi</strong></p>
+          </div>
+          
+          <div class="footer">
+            <p>Bu e-posta ModaBase e-ticaret sistemi tarafından otomatik olarak gönderilmiştir.</p>
+            <p>© 2024 ModaBase. Tüm hakları saklıdır.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  private static generateOrderApprovalHTML(data: {
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    totalAmount: number;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): string {
+    const itemsHTML = data.items.map(item => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${item.price.toFixed(2)} ₺</td>
+      </tr>
+    `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Sipariş Onaylandı - ModaBase</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #28a745; color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { padding: 30px 20px; background: white; }
+          .order-info { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #28a745; }
+          .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .items-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0;">✅ Sipariş Onaylandı</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Sipariş #${data.orderNumber}</p>
+          </div>
+          
+          <div class="content">
+            <h2>Merhaba ${data.customerName},</h2>
+            
+            <p>Siparişiniz başarıyla onaylanmıştır! Siparişiniz hazırlanmaya başlanacak ve en kısa sürede kargoya verilecektir.</p>
+            
+            <div class="order-info">
+              <h3 style="margin: 0 0 15px 0; color: #28a745;">Sipariş Bilgileri</h3>
+              <p><strong>Sipariş No:</strong> ${data.orderNumber}</p>
+              <p><strong>Toplam Tutar:</strong> ${data.totalAmount.toFixed(2)} ₺</p>
+              <p><strong>Durum:</strong> Onaylandı</p>
+            </div>
+            
+            <h3>Sipariş İçeriği:</h3>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Ürün</th>
+                  <th>Adet</th>
+                  <th>Fiyat</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHTML}
+              </tbody>
+            </table>
+            
+            <p>Siparişinizin durumunu takip etmek için hesabınızdan siparişler sayfasını ziyaret edebilirsiniz.</p>
+            
+            <p>Teşekkürler,<br>
+            <strong>ModaBase Ekibi</strong></p>
+          </div>
+          
+          <div class="footer">
+            <p>Bu e-posta ModaBase e-ticaret sistemi tarafından otomatik olarak gönderilmiştir.</p>
+            <p>© 2024 ModaBase. Tüm hakları saklıdır.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
 }
