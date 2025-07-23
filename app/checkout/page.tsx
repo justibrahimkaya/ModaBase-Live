@@ -13,22 +13,8 @@ const steps = [
   { id: 3, label: 'Sipariş Özeti' }
 ]
 
-// Kargo seçenekleri
+// Kargo seçenekleri - Dinamik olacak
 const shippingOptions = [
-  {
-    id: 'standard',
-    name: 'Standart Kargo',
-    price: 49.90,
-    description: '1-3 iş günü',
-    icon: '🚚'
-  },
-  {
-    id: 'express',
-    name: 'Ekspres Kargo',
-    price: 99.90,
-    description: 'Ertesi gün teslimat',
-    icon: '⚡'
-  },
   {
     id: 'free',
     name: 'Ücretsiz Kargo',
@@ -103,6 +89,13 @@ export default function CheckoutPage() {
     }
   }, [loading, items, router]);
 
+  // Kargo fiyatlarını otomatik hesapla
+  useEffect(() => {
+    if (delivery.city && delivery.district && items.length > 0) {
+      calculateCargoPrices();
+    }
+  }, [delivery.city, delivery.district, items]);
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center text-lg">Sepet yükleniyor...</div>;
   }
@@ -128,9 +121,13 @@ export default function CheckoutPage() {
     return selectedOption?.price || 49.90
   }
 
-  // Kargo fiyatlarını hesapla
+  // Kargo fiyatlarını hesapla - GERÇEK API
   const calculateCargoPrices = async () => {
     if (!delivery.city || !delivery.district) return
+    
+    console.log('🚚 Gerçek kargo fiyatları hesaplanıyor...')
+    console.log('📍 Adres:', delivery.city, delivery.district)
+    console.log('📦 Ürün sayısı:', items.length)
     
     setIsLoadingCargo(true)
     try {
@@ -145,14 +142,25 @@ export default function CheckoutPage() {
       })
       
       const data = await response.json()
+      console.log('📡 API yanıtı:', data)
+      
       if (data.success) {
         setCargoQuotes(data.quotes)
+        console.log('✅ Kargo fiyatları alındı:', data.quotes.length, 'firma')
+        
         if (data.quotes.length > 0) {
-          setSelectedCargoCompany(data.quotes[0].companyId) // En ucuz olanı seç
+          // En ucuz olanı seç
+          const cheapest = data.quotes.reduce((min: any, quote: any) => 
+            quote.price < min.price ? quote : min
+          )
+          setSelectedCargoCompany(cheapest.companyId)
+          console.log('💰 En ucuz kargo:', cheapest.companyName, cheapest.price, '₺')
         }
+      } else {
+        console.error('❌ Kargo API hatası:', data.error)
       }
     } catch (error) {
-      console.error('Kargo fiyatı hesaplanamadı:', error)
+      console.error('❌ Kargo fiyatı hesaplanamadı:', error)
     } finally {
       setIsLoadingCargo(false)
     }
@@ -521,7 +529,58 @@ export default function CheckoutPage() {
                   </div>
                 )}
                 
-                {/* Standart Kargo Seçenekleri */}
+                {/* Gerçek Kargo Firmaları */}
+                {cargoQuotes.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-gray-900">🚚 Kargo Firmaları</h4>
+                    {cargoQuotes.map((quote) => {
+                      const isSelected = selectedCargoCompany === quote.companyId
+                      return (
+                        <label
+                          key={quote.companyId}
+                          className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
+                            isSelected 
+                              ? 'border-primary-500 bg-primary-50' 
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="cargo"
+                            value={quote.companyId}
+                            checked={isSelected}
+                            onChange={(e) => {
+                              setSelectedCargoCompany(e.target.value)
+                              setSelectedShipping('')
+                            }}
+                            className="sr-only"
+                          />
+                          <div className="flex items-center justify-center w-5 h-5 border-2 rounded-full mr-3">
+                            {isSelected && (
+                              <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center">
+                                <span className="text-xl mr-2">🚚</span>
+                                <div>
+                                  <div className="font-medium text-gray-900">{quote.companyName}</div>
+                                  <div className="text-sm text-gray-500">{quote.estimatedDays} iş günü</div>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <span className="font-semibold text-gray-900">{quote.price.toFixed(2)}₺</span>
+                              </div>
+                            </div>
+                          </div>
+                        </label>
+                      )
+                    })}
+                  </div>
+                )}
+
+                {/* Ücretsiz Kargo Seçeneği */}
                 <div className="space-y-3">
                   {shippingOptions.map((option) => {
                     const isFree = option.id === 'free' && subtotal >= 2500
