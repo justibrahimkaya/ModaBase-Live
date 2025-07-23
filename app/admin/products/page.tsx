@@ -258,17 +258,32 @@ export default function AdminProductsPage() {
   const [showSizeSelector, setShowSizeSelector] = useState(false)
   const [currentColorForSizes, setCurrentColorForSizes] = useState<{ name: string; code: string; hex: string } | null>(null)
   
-  // Resim yükleme modal için state'ler - Ultra güvenli başlangıç
+  // Resim yükleme modal için state'ler - ULTRA GÜVENLİ başlangıç
   const [imageSlots, setImageSlots] = useState<Array<{ id: number; image: string; loading: boolean; error: string }>>(() => {
     console.log('🔄 imageSlots state başlatılıyor...')
-    const initialSlots = Array.from({ length: 8 }, (_, index) => ({
-      id: index + 1,
-      image: '',
-      loading: false,
-      error: ''
-    }))
-    console.log('✅ imageSlots başlatıldı:', initialSlots.length, 'slot')
-    return initialSlots
+    try {
+      const initialSlots = Array.from({ length: 8 }, (_, index) => ({
+        id: index + 1,
+        image: '',
+        loading: false,
+        error: ''
+      }))
+      console.log('✅ imageSlots başlatıldı:', initialSlots.length, 'slot')
+      return initialSlots
+    } catch (error) {
+      console.error('❌ imageSlots başlatma hatası:', error)
+      // Fallback - güvenli varsayılan değer
+      return [
+        { id: 1, image: '', loading: false, error: '' },
+        { id: 2, image: '', loading: false, error: '' },
+        { id: 3, image: '', loading: false, error: '' },
+        { id: 4, image: '', loading: false, error: '' },
+        { id: 5, image: '', loading: false, error: '' },
+        { id: 6, image: '', loading: false, error: '' },
+        { id: 7, image: '', loading: false, error: '' },
+        { id: 8, image: '', loading: false, error: '' }
+      ]
+    }
   })
 
   useEffect(() => {
@@ -288,22 +303,42 @@ export default function AdminProductsPage() {
     }
   }, [])
 
-  // imageSlots state'ini koru
+  // imageSlots state'ini koru - ULTRA GÜVENLİ
   useEffect(() => {
     console.log('🔄 imageSlots useEffect çalıştı')
-    console.log('imageSlots güncel durum:', imageSlots)
     
-    // Eğer imageSlots undefined ise yeniden başlat
-    if (!imageSlots || !Array.isArray(imageSlots)) {
-      console.log('⚠️ imageSlots geçersiz, yeniden başlatılıyor...')
-      const newSlots = Array.from({ length: 8 }, (_, index) => ({
-        id: index + 1,
-        image: '',
-        loading: false,
-        error: ''
-      }))
-      setImageSlots(newSlots)
-      console.log('✅ imageSlots yeniden başlatıldı')
+    try {
+      console.log('imageSlots güncel durum:', imageSlots)
+      console.log('imageSlots tipi:', typeof imageSlots)
+      console.log('imageSlots Array.isArray:', Array.isArray(imageSlots))
+      
+      // Eğer imageSlots undefined ise yeniden başlat
+      if (!imageSlots || !Array.isArray(imageSlots)) {
+        console.log('⚠️ imageSlots geçersiz, yeniden başlatılıyor...')
+        const newSlots = Array.from({ length: 8 }, (_, index) => ({
+          id: index + 1,
+          image: '',
+          loading: false,
+          error: ''
+        }))
+        setImageSlots(newSlots)
+        console.log('✅ imageSlots yeniden başlatıldı')
+      }
+    } catch (error) {
+      console.error('❌ imageSlots useEffect hatası:', error)
+      // Güvenli fallback
+      const fallbackSlots = [
+        { id: 1, image: '', loading: false, error: '' },
+        { id: 2, image: '', loading: false, error: '' },
+        { id: 3, image: '', loading: false, error: '' },
+        { id: 4, image: '', loading: false, error: '' },
+        { id: 5, image: '', loading: false, error: '' },
+        { id: 6, image: '', loading: false, error: '' },
+        { id: 7, image: '', loading: false, error: '' },
+        { id: 8, image: '', loading: false, error: '' }
+      ]
+      setImageSlots(fallbackSlots)
+      console.log('🔄 Güvenli fallback imageSlots ayarlandı')
     }
   }, [imageSlots])
 
@@ -686,30 +721,47 @@ export default function AdminProductsPage() {
       return
     }
 
-    // ULTRA GÜVENLİ imageSlots kontrolü
+    // ULTRA GÜVENLİ imageSlots kontrolü - TRY CATCH ile
     console.log('🔍 ULTRA DEBUG: imageSlots kontrolü')
-    console.log('imageSlots tipi:', typeof imageSlots)
-    console.log('imageSlots değeri:', imageSlots)
-    console.log('imageSlots Array.isArray:', Array.isArray(imageSlots))
     
-    if (!imageSlots) {
-      console.error('❌ imageSlots null/undefined')
-      setError('Resim slot\'ları yüklenemedi. Sayfayı yenileyin.')
-      setSaving(false)
-      return
+    let safeImageSlots: Array<{ id: number; image: string; loading: boolean; error: string }> = []
+    
+    try {
+      console.log('imageSlots tipi:', typeof imageSlots)
+      console.log('imageSlots değeri:', imageSlots)
+      console.log('imageSlots Array.isArray:', Array.isArray(imageSlots))
+      
+      if (!imageSlots) {
+        console.error('❌ imageSlots null/undefined')
+        throw new Error('imageSlots null/undefined')
+      }
+      
+      if (!Array.isArray(imageSlots)) {
+        console.error('❌ imageSlots array değil:', imageSlots)
+        throw new Error('imageSlots array değil')
+      }
+      
+      console.log('✅ imageSlots geçerli, uzunluk:', imageSlots.length)
+      safeImageSlots = imageSlots
+      
+    } catch (error) {
+      console.error('❌ imageSlots güvenlik hatası:', error)
+      // Güvenli fallback değer
+      safeImageSlots = [
+        { id: 1, image: '', loading: false, error: '' },
+        { id: 2, image: '', loading: false, error: '' },
+        { id: 3, image: '', loading: false, error: '' },
+        { id: 4, image: '', loading: false, error: '' },
+        { id: 5, image: '', loading: false, error: '' },
+        { id: 6, image: '', loading: false, error: '' },
+        { id: 7, image: '', loading: false, error: '' },
+        { id: 8, image: '', loading: false, error: '' }
+      ]
+      console.log('🔄 Güvenli fallback imageSlots kullanılıyor')
     }
     
-    if (!Array.isArray(imageSlots)) {
-      console.error('❌ imageSlots array değil:', imageSlots)
-      setError('Resim slot\'ları geçersiz. Sayfayı yenileyin.')
-      setSaving(false)
-      return
-    }
-    
-    console.log('✅ imageSlots geçerli, uzunluk:', imageSlots.length)
-    
-    // Her slot'u detaylı kontrol et
-    imageSlots.forEach((slot, index) => {
+    // Her slot'u detaylı kontrol et - GÜVENLİ
+    safeImageSlots.forEach((slot, index) => {
       console.log(`Slot ${index + 1} detayı:`, {
         slot: slot,
         slotType: typeof slot,
@@ -723,8 +775,8 @@ export default function AdminProductsPage() {
       })
     })
 
-    // ULTRA GÜVENLİ filtreleme
-    const validImages = imageSlots
+    // ULTRA GÜVENLİ filtreleme - safeImageSlots kullan
+    const validImages = safeImageSlots
       .filter(slot => {
         const isValid = slot && typeof slot === 'object' && slot.image && !slot.error
         console.log(`Slot ${slot?.id} filtreleme:`, { slot, isValid })
