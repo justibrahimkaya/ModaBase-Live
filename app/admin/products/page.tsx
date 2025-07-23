@@ -23,7 +23,9 @@ import {
   Star,
   TrendingUp,
   BarChart3,
-  Sparkles
+  Sparkles,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
 
 import AdvancedSEOGenerator from '@/components/AdvancedSEOGenerator'
@@ -206,6 +208,8 @@ export default function AdminProductsPage() {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
   
   const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [previewImages, setPreviewImages] = useState<string[]>([])
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   
   // Akıllı varyant sistemi için state'ler
   const [selectedColors, setSelectedColors] = useState<Array<{ name: string; code: string; hex: string }>>([])
@@ -893,8 +897,13 @@ export default function AdminProductsPage() {
                 <Edit className="w-4 h-4" />
               </button>
               <button
-                onClick={() => setPreviewImage(images[0])}
+                onClick={() => {
+                  setPreviewImages(images)
+                  setCurrentImageIndex(0)
+                  setPreviewImage(images[0])
+                }}
                 className="p-2 bg-gray-500 text-white rounded-full hover:bg-gray-600 transition-colors"
+                title={`${images.length} resim görüntüle`}
               >
                 <Eye className="w-4 h-4" />
               </button>
@@ -2120,21 +2129,83 @@ export default function AdminProductsPage() {
 
         
 
-      {/* Image Preview Modal */}
-      {previewImage && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="relative max-w-4xl max-h-[90vh]">
+      {/* Image Gallery Modal */}
+      {previewImage && previewImages.length > 0 && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
+          <div className="relative max-w-6xl max-h-[90vh] w-full">
+            {/* Close Button */}
             <button
-              onClick={() => setPreviewImage(null)}
-              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+              onClick={() => {
+                setPreviewImage(null)
+                setPreviewImages([])
+                setCurrentImageIndex(0)
+              }}
+              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors z-10"
             >
               <X className="w-8 h-8" />
             </button>
-            <img
-              src={previewImage}
-              alt="Preview"
-              className="max-w-full max-h-full object-contain rounded-lg"
-            />
+            
+            {/* Image Counter */}
+            <div className="absolute top-4 left-4 text-white bg-black/50 px-3 py-1 rounded-full text-sm z-10">
+              {currentImageIndex + 1} / {previewImages.length}
+            </div>
+            
+            {/* Main Image */}
+            <div className="relative w-full h-full flex items-center justify-center">
+              <img
+                src={previewImages[currentImageIndex]}
+                alt={`Resim ${currentImageIndex + 1}`}
+                className="max-w-full max-h-full object-contain rounded-lg"
+                onError={(e) => {
+                  console.log('Resim yüklenemedi:', previewImages[currentImageIndex])
+                  e.currentTarget.src = 'https://via.placeholder.com/400x400/cccccc/666666?text=Resim'
+                }}
+              />
+              
+              {/* Navigation Buttons */}
+              {previewImages.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setCurrentImageIndex(prev => prev > 0 ? prev - 1 : previewImages.length - 1)}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-colors"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={() => setCurrentImageIndex(prev => prev < previewImages.length - 1 ? prev + 1 : 0)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-colors"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </>
+              )}
+            </div>
+            
+            {/* Thumbnail Gallery */}
+            {previewImages.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/50 p-2 rounded-lg">
+                {previewImages.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                      index === currentImageIndex 
+                        ? 'border-blue-500 scale-110' 
+                        : 'border-transparent hover:border-white/50'
+                    }`}
+                  >
+                    <img
+                      src={image}
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://via.placeholder.com/64x64/cccccc/666666?text=Resim'
+                      }}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
