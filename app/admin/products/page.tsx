@@ -117,21 +117,76 @@ const initialForm = {
   lastModified: new Date().toISOString()
 }
 
-const commonSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45']
-const commonColors = [
-  { name: 'Kırmızı', code: '#FF0000' },
-  { name: 'Mavi', code: '#0000FF' },
-  { name: 'Yeşil', code: '#008000' },
-  { name: 'Siyah', code: '#000000' },
-  { name: 'Beyaz', code: '#FFFFFF' },
-  { name: 'Gri', code: '#808080' },
-  { name: 'Sarı', code: '#FFFF00' },
-  { name: 'Pembe', code: '#FFC0CB' },
-  { name: 'Turuncu', code: '#FFA500' },
-  { name: 'Mor', code: '#800080' },
-  { name: 'Kahverengi', code: '#A52A2A' },
-  { name: 'Lacivert', code: '#000080' }
-]
+// Profesyonel Beden Kategorileri
+const sizeCategories = {
+  clothing: {
+    name: 'Giyim Bedenleri',
+    sizes: ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL']
+  },
+  shoes: {
+    name: 'Ayakkabı Bedenleri',
+    sizes: ['35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48']
+  },
+  accessories: {
+    name: 'Aksesuar Bedenleri',
+    sizes: ['Tek Beden', 'S', 'M', 'L', 'XL', 'XXL']
+  },
+  jewelry: {
+    name: 'Takı Bedenleri',
+    sizes: ['16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28']
+  }
+}
+
+// Profesyonel Renk Paleti
+const colorPalettes = {
+  basic: {
+    name: 'Temel Renkler',
+    colors: [
+      { name: 'Siyah', code: '#000000', hex: '#000000' },
+      { name: 'Beyaz', code: '#FFFFFF', hex: '#FFFFFF' },
+      { name: 'Gri', code: '#808080', hex: '#808080' },
+      { name: 'Kırmızı', code: '#FF0000', hex: '#FF0000' },
+      { name: 'Mavi', code: '#0000FF', hex: '#0000FF' },
+      { name: 'Yeşil', code: '#008000', hex: '#008000' },
+      { name: 'Sarı', code: '#FFFF00', hex: '#FFFF00' },
+      { name: 'Turuncu', code: '#FFA500', hex: '#FFA500' },
+      { name: 'Mor', code: '#800080', hex: '#800080' },
+      { name: 'Pembe', code: '#FFC0CB', hex: '#FFC0CB' }
+    ]
+  },
+  fashion: {
+    name: 'Moda Renkleri',
+    colors: [
+      { name: 'Navy', code: '#000080', hex: '#000080' },
+      { name: 'Bordo', code: '#800020', hex: '#800020' },
+      { name: 'Bej', code: '#F5F5DC', hex: '#F5F5DC' },
+      { name: 'Haki', code: '#806B2A', hex: '#806B2A' },
+      { name: 'Lavanta', code: '#E6E6FA', hex: '#E6E6FA' },
+      { name: 'Mercan', code: '#FF7F50', hex: '#FF7F50' },
+      { name: 'Turkuaz', code: '#40E0D0', hex: '#40E0D0' },
+      { name: 'Altın', code: '#FFD700', hex: '#FFD700' },
+      { name: 'Gümüş', code: '#C0C0C0', hex: '#C0C0C0' },
+      { name: 'Rose Gold', code: '#B76E79', hex: '#B76E79' }
+    ]
+  },
+  seasonal: {
+    name: 'Sezon Renkleri',
+    colors: [
+      { name: 'Pastel Mavi', code: '#ADD8E6', hex: '#ADD8E6' },
+      { name: 'Pastel Pembe', code: '#FFB6C1', hex: '#FFB6C1' },
+      { name: 'Mint Yeşili', code: '#98FF98', hex: '#98FF98' },
+      { name: 'Somon', code: '#FA8072', hex: '#FA8072' },
+      { name: 'Limon', code: '#FFFACD', hex: '#FFFACD' },
+      { name: 'Lavanta', code: '#E6E6FA', hex: '#E6E6FA' },
+      { name: 'Şeftali', code: '#FFCBA4', hex: '#FFCBA4' },
+      { name: 'Açık Sarı', code: '#FFFFE0', hex: '#FFFFE0' },
+      { name: 'Açık Yeşil', code: '#90EE90', hex: '#90EE90' },
+      { name: 'Açık Mor', code: '#DDA0DD', hex: '#DDA0DD' }
+    ]
+  }
+}
+
+
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -1390,83 +1445,183 @@ export default function AdminProductsPage() {
                   </button>
                 </div>
                 
-                {/* Quick Add Buttons */}
-                <div className="flex gap-3 mb-4">
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Hızlı Beden Ekleme</label>
-                    <select
-                      multiple
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      onChange={(e) => {
-                        const selected = Array.from(e.target.selectedOptions, option => option.value)
-                        addSizeVariants(selected)
-                      }}
-                    >
-                      {commonSizes.map(size => (
-                        <option key={size} value={size}>{size}</option>
+                {/* Profesyonel Varyant Ekleme Sistemi */}
+                <div className="space-y-6 mb-6">
+                  {/* Beden Seçimi */}
+                  <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Beden Seçimi</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {Object.entries(sizeCategories).map(([key, category]) => (
+                        <div key={key} className="space-y-3">
+                          <h5 className="font-medium text-gray-700 text-sm">{category.name}</h5>
+                          <div className="grid grid-cols-2 gap-2">
+                            {category.sizes.map((size) => (
+                              <button
+                                key={size}
+                                type="button"
+                                onClick={() => addSizeVariants([size])}
+                                className="px-3 py-2 text-sm bg-gray-50 hover:bg-blue-50 hover:text-blue-600 border border-gray-200 rounded-lg transition-all duration-200 hover:border-blue-300"
+                              >
+                                {size}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       ))}
-                    </select>
+                    </div>
                   </div>
-                  
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Hızlı Renk Ekleme</label>
-                    <select
-                      multiple
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      onChange={(e) => {
-                        const selected = Array.from(e.target.selectedOptions, option => {
-                          const color = commonColors.find(c => c.name === option.value)
-                          return color || { name: option.value, code: '' }
-                        })
-                        addColorVariants(selected)
-                      }}
-                    >
-                      {commonColors.map(color => (
-                        <option key={color.name} value={color.name}>{color.name}</option>
+
+                  {/* Renk Seçimi */}
+                  <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Renk Seçimi</h4>
+                    <div className="space-y-4">
+                      {Object.entries(colorPalettes).map(([key, palette]) => (
+                        <div key={key} className="space-y-3">
+                          <h5 className="font-medium text-gray-700 text-sm">{palette.name}</h5>
+                          <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
+                            {palette.colors.map((color) => (
+                              <button
+                                key={color.name}
+                                type="button"
+                                onClick={() => addColorVariants([color])}
+                                className="group relative p-3 rounded-lg border-2 border-gray-200 hover:border-blue-400 transition-all duration-200"
+                                style={{ backgroundColor: color.hex }}
+                                title={color.name}
+                              >
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-all duration-200"></div>
+                                <span className="text-xs font-medium text-white drop-shadow-lg">
+                                  {color.name}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       ))}
-                    </select>
+                    </div>
+                  </div>
+
+                  {/* Hızlı Kombinasyon */}
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-200">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Hızlı Kombinasyon</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const sizes = ['S', 'M', 'L', 'XL']
+                          const colors = [
+                            { name: 'Siyah', code: '#000000' },
+                            { name: 'Beyaz', code: '#FFFFFF' },
+                            { name: 'Gri', code: '#808080' }
+                          ]
+                          addSizeVariants(sizes)
+                          addColorVariants(colors)
+                        }}
+                        className="p-4 bg-white rounded-lg border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all duration-200"
+                      >
+                        <div className="text-center">
+                          <div className="text-sm font-medium text-gray-900">Klasik Kombinasyon</div>
+                          <div className="text-xs text-gray-500 mt-1">S-M-L-XL + Siyah-Beyaz-Gri</div>
+                        </div>
+                      </button>
+                      
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const sizes = ['36', '37', '38', '39', '40', '41', '42', '43']
+                          const colors = [
+                            { name: 'Siyah', code: '#000000' },
+                            { name: 'Beyaz', code: '#FFFFFF' },
+                            { name: 'Navy', code: '#000080' }
+                          ]
+                          addSizeVariants(sizes)
+                          addColorVariants(colors)
+                        }}
+                        className="p-4 bg-white rounded-lg border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all duration-200"
+                      >
+                        <div className="text-center">
+                          <div className="text-sm font-medium text-gray-900">Ayakkabı Kombinasyonu</div>
+                          <div className="text-xs text-gray-500 mt-1">36-43 + Siyah-Beyaz-Navy</div>
+                        </div>
+                      </button>
+                      
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const sizes = ['Tek Beden']
+                          const colors = colorPalettes.fashion.colors.slice(0, 6)
+                          addSizeVariants(sizes)
+                          addColorVariants(colors)
+                        }}
+                        className="p-4 bg-white rounded-lg border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all duration-200"
+                      >
+                        <div className="text-center">
+                          <div className="text-sm font-medium text-gray-900">Aksesuar Kombinasyonu</div>
+                          <div className="text-xs text-gray-500 mt-1">Tek Beden + Moda Renkleri</div>
+                        </div>
+                      </button>
+                    </div>
                   </div>
                 </div>
                 
-                {/* Variants List */}
-                <div className="space-y-3">
+                {/* Profesyonel Varyant Listesi */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-lg font-semibold text-gray-900">Ürün Varyantları ({form.variants.length})</h4>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">Toplam Stok:</span>
+                      <span className="text-sm font-semibold text-blue-600">
+                        {form.variants.reduce((sum: number, v: ProductVariant) => sum + (v.stock || 0), 0)}
+                      </span>
+                    </div>
+                  </div>
+                  
                   {form.variants.map((variant: ProductVariant, index: number) => (
-                    <div key={index} className="bg-white rounded-lg p-4 border border-gray-200">
-                      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
+                    <div key={index} className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                      <div className="grid grid-cols-1 lg:grid-cols-7 gap-4 items-center">
+                        {/* Beden */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Beden</label>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">Beden</label>
                           <input
                             type="text"
                             value={variant.size || ''}
                             onChange={(e) => updateVariant(index, 'size', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium"
                             placeholder="S, M, L, 38..."
                           />
                         </div>
                         
+                        {/* Renk */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Renk</label>
-                          <input
-                            type="text"
-                            value={variant.color || ''}
-                            onChange={(e) => updateVariant(index, 'color', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                            placeholder="Kırmızı, Mavi..."
-                          />
+                          <label className="block text-xs font-medium text-gray-700 mb-2">Renk</label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={variant.color || ''}
+                              onChange={(e) => updateVariant(index, 'color', e.target.value)}
+                              className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                              placeholder="Kırmızı, Mavi..."
+                            />
+                            <div
+                              className="w-8 h-8 rounded-lg border-2 border-gray-200"
+                              style={{ backgroundColor: variant.colorCode || '#000000' }}
+                            ></div>
+                          </div>
                         </div>
                         
+                        {/* Renk Kodu */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Renk Kodu</label>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">Renk Kodu</label>
                           <input
                             type="color"
                             value={variant.colorCode || '#000000'}
                             onChange={(e) => updateVariant(index, 'colorCode', e.target.value)}
-                            className="w-full h-10 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full h-10 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
                           />
                         </div>
                         
+                        {/* Stok */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Stok</label>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">Stok</label>
                           <input
                             type="number"
                             value={variant.stock || 0}
@@ -1474,10 +1629,14 @@ export default function AdminProductsPage() {
                             className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                             min="0"
                           />
+                          <div className="text-xs text-gray-500 mt-1">
+                            {variant.stock > 10 ? '✅ Stokta' : variant.stock > 0 ? '⚠️ Az Stok' : '❌ Tükendi'}
+                          </div>
                         </div>
                         
+                        {/* Fiyat */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Fiyat</label>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">Fiyat (₺)</label>
                           <input
                             type="number"
                             value={variant.price || ''}
@@ -1487,13 +1646,48 @@ export default function AdminProductsPage() {
                             min="0"
                             placeholder="Farklı fiyat"
                           />
+                          {variant.price && variant.price !== form.price && (
+                            <div className="text-xs text-orange-600 mt-1">
+                              Ana fiyattan farklı: {form.price - variant.price > 0 ? '-' : '+'}₺{Math.abs(form.price - variant.price).toFixed(2)}
+                            </div>
+                          )}
                         </div>
                         
-                        <div className="flex items-end">
+                        {/* SKU */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">SKU</label>
+                          <input
+                            type="text"
+                            value={variant.sku || ''}
+                            onChange={(e) => updateVariant(index, 'sku', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                            placeholder="Otomatik oluşturulacak"
+                          />
+                        </div>
+                        
+                        {/* İşlemler */}
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newVariants = [...form.variants]
+                              newVariants[index] = { ...newVariants[index], isActive: !newVariants[index].isActive }
+                              setForm({ ...form, variants: newVariants })
+                            }}
+                            className={`p-2 rounded-lg transition-colors ${
+                              variant.isActive 
+                                ? 'bg-green-500 text-white hover:bg-green-600' 
+                                : 'bg-gray-300 text-gray-600 hover:bg-gray-400'
+                            }`}
+                            title={variant.isActive ? 'Aktif' : 'Pasif'}
+                          >
+                            {variant.isActive ? '✓' : '✗'}
+                          </button>
                           <button
                             type="button"
                             onClick={() => removeVariant(index)}
                             className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                            title="Sil"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -1501,6 +1695,14 @@ export default function AdminProductsPage() {
                       </div>
                     </div>
                   ))}
+                  
+                  {form.variants.length === 0 && (
+                    <div className="text-center py-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+                      <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500">Henüz varyant eklenmemiş</p>
+                      <p className="text-sm text-gray-400 mt-1">Yukarıdaki seçeneklerden beden ve renk ekleyin</p>
+                    </div>
+                  )}
                 </div>
               </div>
               
