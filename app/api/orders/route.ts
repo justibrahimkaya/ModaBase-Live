@@ -55,7 +55,10 @@ export async function POST(request: NextRequest) {
   // Guest checkout validasyonu
   if (!userId) {
     if (!guestName || !guestSurname || !guestEmail || !guestPhone) {
-      return NextResponse.json({ error: 'Kayıtsız alışveriş için ad, soyad, e-posta ve telefon gereklidir.' }, { status: 400 })
+      return NextResponse.json({ 
+        success: false,
+        error: 'Kayıtsız alışveriş için ad, soyad, e-posta ve telefon gereklidir.' 
+      }, { status: 400 })
     }
   }
 
@@ -67,14 +70,20 @@ export async function POST(request: NextRequest) {
     
     if (!product) {
       return NextResponse.json(
-        { error: `Ürün bulunamadı: ${item.productId}` },
+        { 
+          success: false,
+          error: `Ürün bulunamadı: ${item.productId}` 
+        },
         { status: 400 }
       )
     }
     
     if (product.stock < item.quantity) {
       return NextResponse.json(
-        { error: `${product.name} için yeterli stok yok. Mevcut: ${product.stock}, İstenen: ${item.quantity}` },
+        { 
+          success: false,
+          error: `${product.name} için yeterli stok yok. Mevcut: ${product.stock}, İstenen: ${item.quantity}` 
+        },
         { status: 400 }
       )
     }
@@ -82,11 +91,28 @@ export async function POST(request: NextRequest) {
 
   // Transaction ile sipariş oluştur ve stok güncelle
   const order = await prisma.$transaction(async (tx: any) => {
+    // Adres oluştur (eğer address objesi gönderilmişse)
+    let createdAddressId = addressId;
+    if (!addressId && body.address) {
+      const newAddress = await tx.address.create({
+        data: {
+          userId: userId || undefined,
+          title: body.address.title,
+          city: body.address.city,
+          district: body.address.district,
+          neighborhood: body.address.neighborhood,
+          address: body.address.address,
+          isDefault: false
+        }
+      });
+      createdAddressId = newAddress.id;
+    }
+
     // Sipariş oluştur
     const newOrder = await tx.order.create({
       data: {
         userId: userId || undefined,
-        addressId,
+        addressId: createdAddressId,
         invoiceAddressId,
         shippingMethod,
         paymentMethod,
@@ -230,5 +256,9 @@ export async function POST(request: NextRequest) {
     // Hata durumunda siparişi iptal etme, sadece log
   }
 
-  return NextResponse.json(order)
+  return NextResponse.json({
+    success: true,
+    order: order,
+    message: 'Sipariş başarıyla oluşturuldu'
+  })
 }
