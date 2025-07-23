@@ -213,18 +213,16 @@ export default function AdminProductsPage() {
   const [showSizeSelector, setShowSizeSelector] = useState(false)
   const [currentColorForSizes, setCurrentColorForSizes] = useState<{ name: string; code: string; hex: string } | null>(null)
   
-  // Resim yükleme modal için state'ler
-
-  const [imageSlots, setImageSlots] = useState<Array<{ id: number; image: string; loading: boolean; error: string }>>([
-    { id: 1, image: '', loading: false, error: '' },
-    { id: 2, image: '', loading: false, error: '' },
-    { id: 3, image: '', loading: false, error: '' },
-    { id: 4, image: '', loading: false, error: '' },
-    { id: 5, image: '', loading: false, error: '' },
-    { id: 6, image: '', loading: false, error: '' },
-    { id: 7, image: '', loading: false, error: '' },
-    { id: 8, image: '', loading: false, error: '' }
-  ])
+  // Resim yükleme modal için state'ler - Güvenli başlangıç
+  const [imageSlots, setImageSlots] = useState<Array<{ id: number; image: string; loading: boolean; error: string }>>(() => {
+    // Güvenli başlangıç değeri
+    return Array.from({ length: 8 }, (_, index) => ({
+      id: index + 1,
+      image: '',
+      loading: false,
+      error: ''
+    }))
+  })
 
   useEffect(() => {
     let mounted = true
@@ -470,12 +468,24 @@ export default function AdminProductsPage() {
   // Resim yükleme işlemi - optimize edilmiş kalite
   // Modal için resim yükleme fonksiyonu
   const handleSlotImageUpload = async (slotId: number, file: File) => {
-    // Loading state'i güncelle
-    setImageSlots(prev => prev.map(slot => 
-      slot.id === slotId 
-        ? { ...slot, loading: true, error: '' }
-        : slot
-    ))
+    // Güvenli state güncelleme
+    setImageSlots(prev => {
+      if (!prev || !Array.isArray(prev)) {
+        console.error('❌ imageSlots undefined, yeniden başlatılıyor')
+        return Array.from({ length: 8 }, (_, index) => ({
+          id: index + 1,
+          image: '',
+          loading: index + 1 === slotId,
+          error: ''
+        }))
+      }
+      
+      return prev.map(slot => 
+        slot && slot.id === slotId 
+          ? { ...slot, loading: true, error: '' }
+          : slot
+      )
+    })
 
     try {
       // Dosya boyutu kontrolü - 10MB limit (5MB'dan 10MB'a çıkarıldı)
@@ -607,22 +617,33 @@ export default function AdminProductsPage() {
       return
     }
 
-    // DEBUG: Tüm slot'ları kontrol et
+    // DEBUG: Tüm slot'ları kontrol et - Güvenli kontrol
     console.log('🔍 DEBUG: Tüm imageSlots durumu:')
+    if (!imageSlots || !Array.isArray(imageSlots)) {
+      console.error('❌ imageSlots undefined veya array değil:', imageSlots)
+      setError('Resim slot\'ları yüklenemedi. Sayfayı yenileyin.')
+      setSaving(false)
+      return
+    }
+    
     imageSlots.forEach((slot, index) => {
-      console.log(`Slot ${index + 1}:`, {
-        id: slot.id,
-        hasImage: !!slot.image,
-        imageLength: slot.image ? slot.image.length : 0,
-        hasError: !!slot.error,
-        error: slot.error,
-        loading: slot.loading
-      })
+      if (slot) {
+        console.log(`Slot ${index + 1}:`, {
+          id: slot.id,
+          hasImage: !!slot.image,
+          imageLength: slot.image ? slot.image.length : 0,
+          hasError: !!slot.error,
+          error: slot.error,
+          loading: slot.loading
+        })
+      } else {
+        console.error(`❌ Slot ${index + 1} undefined:`, slot)
+      }
     })
 
-    // Slot'lardan geçerli resimleri al
+    // Slot'lardan geçerli resimleri al - Güvenli filtreleme
     const validImages = imageSlots
-      .filter(slot => slot.image && !slot.error)
+      .filter(slot => slot && slot.image && !slot.error)
       .map(slot => slot.image as string)
 
     console.log('🖼️ DEBUG: Geçerli resimler:')
