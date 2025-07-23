@@ -92,7 +92,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     shippingCompany,
     shippingTrackingUrl,
     reason,
-    action,
     // İade/Değişim işlemleri için yeni alanlar
     returnAction,
     exchangeAction,

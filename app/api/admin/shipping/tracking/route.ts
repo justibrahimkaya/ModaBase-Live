@@ -122,9 +122,14 @@ export async function GET(request: NextRequest) {
           order.trackingNumber!
         );
 
+        if (!trackingStatus) {
+          console.error(`Kargo takip durumu alınamadı - Sipariş ${order.id}`);
+          continue;
+        }
+
         if (trackingStatus.status === 'DELIVERED' && order.status !== 'DELIVERED') {
           // Teslim edildi olarak güncelle
-          const updatedOrder = await prisma.order.update({
+          await prisma.order.update({
             where: { id: order.id },
             data: {
               status: 'DELIVERED',
@@ -204,7 +209,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Kargo firması API'sinden durum kontrolü (mock)
-async function checkTrackingStatus(shippingCompany: string, trackingNumber: string) {
+async function checkTrackingStatus(_shippingCompany: string, trackingNumber: string) {
   // Gerçek uygulamada kargo firması API'sine bağlanılacak
   // Şimdilik mock response döndürüyoruz
   

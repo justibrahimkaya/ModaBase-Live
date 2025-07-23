@@ -48,9 +48,6 @@ export class StockNotificationService {
       for (const notification of notifications) {
         try {
           const email = notification.user?.email || notification.guestEmail;
-          const customerName = notification.user 
-            ? `${notification.user.name} ${notification.user.surname}`
-            : 'Değerli Müşterimiz';
 
           if (email) {
             const success = await EmailService.sendStockNotificationEmail(
@@ -91,9 +88,7 @@ export class StockNotificationService {
       const lowStockProducts = await prisma.product.findMany({
         where: {
           stock: {
-            lte: prisma.product.fields.minStockLevel
-          },
-          stock: {
+            lte: prisma.product.fields.minStockLevel,
             gt: 0 // Stoksuz olmayan
           }
         },
@@ -236,8 +231,8 @@ export class StockNotificationService {
             quantity: m.quantity,
             productName: m.product.name,
             category: m.product.category.name,
-            orderId: m.orderId,
-            description: m.description,
+            orderId: m.orderId || '',
+            description: m.description || '',
             createdAt: m.createdAt
           })),
           lowStockProducts: lowStockProducts.map(p => ({
