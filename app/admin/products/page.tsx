@@ -341,9 +341,9 @@ export default function AdminProductsPage() {
       const img = new window.Image()
       
       img.onload = () => {
-        // Çok küçük boyutlar - minimum kalite
-        const maxWidth = 200  // 400'den 200'e düşürüldü
-        const maxHeight = 200 // 400'den 200'e düşürüldü
+        // Daha büyük boyutlar - daha iyi kalite
+        const maxWidth = 800  // 200'den 800'e çıkarıldı
+        const maxHeight = 800 // 200'den 800'e çıkarıldı
         
         let { width, height } = img
         
@@ -365,8 +365,8 @@ export default function AdminProductsPage() {
         
         ctx?.drawImage(img, 0, 0, width, height)
         
-        // Çok düşük kalitede JPEG sıkıştır (0.1 kalite - %10)
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.1)
+        // Daha yüksek kalitede JPEG sıkıştır (0.8 kalite - %80)
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8)
         resolve(compressedDataUrl)
       }
       
@@ -375,7 +375,7 @@ export default function AdminProductsPage() {
     })
   }
 
-  // Resim yükleme işlemi - çok agresif optimizasyon
+  // Resim yükleme işlemi - optimize edilmiş kalite
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (!files) return
