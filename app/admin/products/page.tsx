@@ -206,6 +206,12 @@ export default function AdminProductsPage() {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
   
   const [previewImage, setPreviewImage] = useState<string | null>(null)
+  
+  // Akıllı varyant sistemi için state'ler
+  const [selectedColors, setSelectedColors] = useState<Array<{ name: string; code: string; hex: string }>>([])
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([])
+  const [showSizeSelector, setShowSizeSelector] = useState(false)
+  const [currentColorForSizes, setCurrentColorForSizes] = useState<{ name: string; code: string; hex: string } | null>(null)
 
   useEffect(() => {
     let mounted = true
@@ -510,6 +516,39 @@ export default function AdminProductsPage() {
     setForm({ ...form, variants: newVariants })
   }
 
+  // Akıllı renk seçimi - renk seçildiğinde beden seçici açılır
+  const selectColor = (color: { name: string; code: string; hex: string }) => {
+    setCurrentColorForSizes(color)
+    setShowSizeSelector(true)
+    setSelectedSizes([]) // Beden seçimini sıfırla
+  }
+
+  // Beden seçimi - seçilen renk için bedenler eklenir
+  const selectSizesForColor = (sizes: string[]) => {
+    if (!currentColorForSizes) return
+
+    const newVariants = sizes.map(size => ({
+      size,
+      color: currentColorForSizes.name,
+      colorCode: currentColorForSizes.code,
+      stock: 0,
+      price: 0,
+      sku: '',
+      isActive: true
+    }))
+
+    setForm({ ...form, variants: [...form.variants, ...newVariants] })
+    
+    // Seçilen rengi listeye ekle
+    setSelectedColors(prev => [...prev, currentColorForSizes])
+    
+    // Beden seçiciyi kapat
+    setShowSizeSelector(false)
+    setCurrentColorForSizes(null)
+    setSelectedSizes([])
+  }
+
+  // Eski sistem için geriye uyumluluk
   const addSizeVariants = (selectedSizes: string[]) => {
     const newVariants = selectedSizes.map(size => ({
       size,
@@ -1471,34 +1510,167 @@ export default function AdminProductsPage() {
                     </div>
                   </div>
 
-                  {/* Renk Seçimi */}
+                  {/* Akıllı Renk Seçimi */}
                   <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                     <h4 className="text-lg font-semibold text-gray-900 mb-4">Renk Seçimi</h4>
+                    
+                    {/* Seçilen Renkler */}
+                    {selectedColors.length > 0 && (
+                      <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <h5 className="font-medium text-blue-900 mb-2">Seçilen Renkler:</h5>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedColors.map((color, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-blue-300"
+                              style={{ backgroundColor: color.hex }}
+                            >
+                              <span className="text-xs font-medium text-white drop-shadow-lg">
+                                {color.name}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedColors(prev => prev.filter((_, i) => i !== index))
+                                  // Bu renge ait varyantları da kaldır
+                                  setForm({
+                                    ...form,
+                                    variants: form.variants.filter((v: ProductVariant) => v.color !== color.name)
+                                  })
+                                }}
+                                className="text-white hover:text-red-200 transition-colors"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="space-y-4">
                       {Object.entries(colorPalettes).map(([key, palette]) => (
                         <div key={key} className="space-y-3">
                           <h5 className="font-medium text-gray-700 text-sm">{palette.name}</h5>
                           <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
-                            {palette.colors.map((color) => (
-                              <button
-                                key={color.name}
-                                type="button"
-                                onClick={() => addColorVariants([color])}
-                                className="group relative p-3 rounded-lg border-2 border-gray-200 hover:border-blue-400 transition-all duration-200"
-                                style={{ backgroundColor: color.hex }}
-                                title={color.name}
-                              >
-                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-all duration-200"></div>
-                                <span className="text-xs font-medium text-white drop-shadow-lg">
-                                  {color.name}
-                                </span>
-                              </button>
-                            ))}
+                            {palette.colors.map((color) => {
+                              const isSelected = selectedColors.some(c => c.name === color.name)
+                              return (
+                                <button
+                                  key={color.name}
+                                  type="button"
+                                  onClick={() => selectColor(color)}
+                                  disabled={isSelected}
+                                  className={`group relative p-3 rounded-lg border-2 transition-all duration-200 ${
+                                    isSelected 
+                                      ? 'border-green-400 bg-green-100 opacity-60 cursor-not-allowed' 
+                                      : 'border-gray-200 hover:border-blue-400'
+                                  }`}
+                                  style={{ backgroundColor: color.hex }}
+                                  title={isSelected ? `${color.name} - Zaten seçildi` : `${color.name} - Beden seçmek için tıklayın`}
+                                >
+                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-all duration-200"></div>
+                                  <span className="text-xs font-medium text-white drop-shadow-lg">
+                                    {color.name}
+                                  </span>
+                                  {isSelected && (
+                                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                                      <span className="text-white text-xs">✓</span>
+                                    </div>
+                                  )}
+                                </button>
+                              )
+                            })}
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
+
+                  {/* Beden Seçici Modal */}
+                  {showSizeSelector && currentColorForSizes && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                      <div className="bg-white rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-xl font-semibold text-gray-900">
+                            <span 
+                              className="inline-block w-6 h-6 rounded-lg border-2 border-gray-300 mr-3"
+                              style={{ backgroundColor: currentColorForSizes.hex }}
+                            ></span>
+                            {currentColorForSizes.name} için Beden Seçin
+                          </h3>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowSizeSelector(false)
+                              setCurrentColorForSizes(null)
+                              setSelectedSizes([])
+                            }}
+                            className="text-gray-400 hover:text-gray-600 transition-colors"
+                          >
+                            <X className="w-6 h-6" />
+                          </button>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          {Object.entries(sizeCategories).map(([key, category]) => (
+                            <div key={key} className="space-y-3">
+                              <h5 className="font-medium text-gray-700 text-sm">{category.name}</h5>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                {category.sizes.map((size) => (
+                                  <button
+                                    key={size}
+                                    type="button"
+                                    onClick={() => {
+                                      if (selectedSizes.includes(size)) {
+                                        setSelectedSizes(prev => prev.filter(s => s !== size))
+                                      } else {
+                                        setSelectedSizes(prev => [...prev, size])
+                                      }
+                                    }}
+                                    className={`px-3 py-2 text-sm border rounded-lg transition-all duration-200 ${
+                                      selectedSizes.includes(size)
+                                        ? 'bg-blue-500 text-white border-blue-500'
+                                        : 'bg-gray-50 hover:bg-blue-50 hover:text-blue-600 border-gray-200 hover:border-blue-300'
+                                    }`}
+                                  >
+                                    {size}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                          <div className="text-sm text-gray-600">
+                            {selectedSizes.length} beden seçildi
+                          </div>
+                          <div className="flex gap-3">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowSizeSelector(false)
+                                setCurrentColorForSizes(null)
+                                setSelectedSizes([])
+                              }}
+                              className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                            >
+                              İptal
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => selectSizesForColor(selectedSizes)}
+                              disabled={selectedSizes.length === 0}
+                              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              Ekle ({selectedSizes.length})
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Hızlı Kombinasyon */}
                   <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-200">
