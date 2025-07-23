@@ -214,7 +214,7 @@ export default function AdminProductsPage() {
   const [currentColorForSizes, setCurrentColorForSizes] = useState<{ name: string; code: string; hex: string } | null>(null)
   
   // Resim yükleme modal için state'ler
-  const [showImageModal, setShowImageModal] = useState(false)
+
   const [imageSlots, setImageSlots] = useState<Array<{ id: number; image: string; loading: boolean; error: string }>>([
     { id: 1, image: '', loading: false, error: '' },
     { id: 2, image: '', loading: false, error: '' },
@@ -504,68 +504,13 @@ export default function AdminProductsPage() {
     }
   }
 
-  // Modal'dan resimleri form'a aktar
-  const applyImagesFromModal = () => {
-    const validImages = imageSlots
-      .filter(slot => slot.image && !slot.error)
-      .map(slot => slot.image)
-
-    console.log('Modal\'dan gelen resimler:', validImages)
-    console.log('Mevcut form resimleri:', form.images)
-
-    if (validImages.length === 0) {
-      setError('En az 1 resim yüklemelisiniz.')
-      return
-    }
-
-    // Form state'ini güncelle
-    setForm((prev: any) => {
-      const newForm = {
-        ...prev,
-        images: validImages
-      }
-      console.log('Yeni form state:', newForm)
-      return newForm
-    })
-
-    setShowImageModal(false)
-    setSuccess(`${validImages.length} resim başarıyla eklendi!`)
-    
-    // 3 saniye sonra success mesajını temizle
-    setTimeout(() => setSuccess(''), 3000)
-  }
-
-  // Modal'ı sıfırla
-  const resetImageModal = () => {
-    setImageSlots([
-      { id: 1, image: '', loading: false, error: '' },
-      { id: 2, image: '', loading: false, error: '' },
-      { id: 3, image: '', loading: false, error: '' },
-      { id: 4, image: '', loading: false, error: '' },
-      { id: 5, image: '', loading: false, error: '' },
-      { id: 6, image: '', loading: false, error: '' },
-      { id: 7, image: '', loading: false, error: '' },
-      { id: 8, image: '', loading: false, error: '' }
-    ])
-  }
 
 
 
-  const removeImage = (index: number) => {
-    const newImages = form.images.filter((_: any, i: number) => i !== index)
-    setForm({ ...form, images: newImages })
-  }
 
-  // Ana fotoğraf yapma fonksiyonu
-  const makeMainImage = (index: number) => {
-    if (index === 0) return // Zaten ana fotoğraf
-    
-    const newImages = [...form.images]
-    const mainImage = newImages[index]
-    newImages.splice(index, 1) // Seçilen fotoğrafı kaldır
-    newImages.unshift(mainImage) // Başa ekle
-    setForm({ ...form, images: newImages })
-  }
+
+
+
 
 
 
@@ -662,7 +607,12 @@ export default function AdminProductsPage() {
       return
     }
 
-    if (form.images.length === 0) {
+    // Slot'lardan geçerli resimleri al
+    const validImages = imageSlots
+      .filter(slot => slot.image && !slot.error)
+      .map(slot => slot.image as string)
+
+    if (validImages.length === 0) {
       setError('En az 1 fotoğraf yüklemelisiniz.')
       return
     }
@@ -672,10 +622,10 @@ export default function AdminProductsPage() {
 
     try {
       console.log('Ürün kaydediliyor...')
-      console.log('Resim sayısı:', form.images.length)
+      console.log('Resim sayısı:', validImages.length)
       
       // Resimleri optimize et - daha esnek limit
-      const optimizedImages = form.images.map((img: string, index: number) => {
+      const optimizedImages = validImages.map((img: string, index: number) => {
         console.log(`Resim ${index + 1} boyutu:`, img.length, 'bytes')
         // 200KB'dan büyükse placeholder kullan (100KB'dan 200KB'a çıkarıldı)
         if (img.length > 200000) {
@@ -1472,89 +1422,195 @@ export default function AdminProductsPage() {
                       </div>
                     </div>
                     
-                    {/* Image Upload Area */}
+                    {/* Image Upload Grid - 8 Slots */}
                     <div className="mb-6">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Ürün Fotoğrafları
-                      </label>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            resetImageModal()
-                            setShowImageModal(true)
-                          }}
-                          className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                        >
-                          <ImageIcon className="w-5 h-5 mr-2" />
-                          Görsel Yükle
-                        </button>
-                        <p className="mt-2 text-sm text-gray-500">
+                      <div className="grid grid-cols-4 gap-4">
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map((slotId) => {
+                          const slot = imageSlots.find(s => s.id === slotId) || {
+                            id: slotId,
+                            image: '',
+                            loading: false,
+                            error: ''
+                          }
+                          const hasImage = slot.image && !slot.error
+                          
+                          return (
+                            <div key={slotId} className="relative">
+                              <div className={`aspect-square rounded-lg border-2 border-dashed transition-all duration-200 ${
+                                hasImage 
+                                  ? 'border-green-300 bg-green-50' 
+                                  : slot.error 
+                                  ? 'border-red-300 bg-red-50' 
+                                  : 'border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50'
+                              }`}>
+                                
+                                {/* Image Preview */}
+                                {hasImage && (
+                                  <div className="relative w-full h-full">
+                                    <img
+                                      src={slot.image}
+                                      alt={`Slot ${slotId}`}
+                                      className="w-full h-full object-cover rounded-lg"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setImageSlots(prev => prev.map(s => 
+                                          s.id === slotId ? { ...s, image: '', error: '' } : s
+                                        ))
+                                      }}
+                                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                                      title="Resmi Kaldır"
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                )}
+                                
+                                {/* Upload Button */}
+                                {!hasImage && (
+                                  <div className="flex flex-col items-center justify-center h-full p-2">
+                                    {slot.loading ? (
+                                      <div className="flex flex-col items-center">
+                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mb-2"></div>
+                                        <span className="text-xs text-gray-600">Yükleniyor...</span>
+                                      </div>
+                                    ) : (
+                                      <>
+                                        <input
+                                          type="file"
+                                          id={`image-upload-${slotId}`}
+                                          accept="image/*"
+                                          className="hidden"
+                                          onChange={(e) => {
+                                            const file = e.target.files?.[0]
+                                            if (file) {
+                                              handleSlotImageUpload(slotId, file)
+                                            }
+                                          }}
+                                        />
+                                        <label
+                                          htmlFor={`image-upload-${slotId}`}
+                                          className="cursor-pointer flex flex-col items-center"
+                                        >
+                                          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mb-1">
+                                            <ImageIcon className="w-4 h-4 text-white" />
+                                          </div>
+                                          <span className="text-xs text-gray-600 text-center">
+                                            Slot {slotId}
+                                          </span>
+                                        </label>
+                                      </>
+                                    )}
+                                  </div>
+                                )}
+                                
+                                {/* Error Message */}
+                                {slot.error && (
+                                  <div className="absolute bottom-0 left-0 right-0 bg-red-100 text-red-700 text-xs p-1 rounded-b-lg">
+                                    {slot.error}
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* Slot Number */}
+                              <div className="absolute -top-2 -left-2 bg-gray-800 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center font-medium">
+                                {slotId}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      
+                      {/* Info Text */}
+                      <div className="mt-4 text-center">
+                        <p className="text-sm text-gray-600">
                           JPG, PNG, WebP formatları desteklenir (Maks. 5MB per resim)
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-gray-500 mt-1">
                           Her slot için ayrı resim yükleyebilirsiniz (minimum 1, maksimum 8)
                         </p>
                       </div>
                     </div>
                     
-                    {/* Image Preview Grid */}
-                    {form.images.length > 0 && (
-                      <div className="grid grid-cols-2 gap-4 mt-4">
-                        <div className="col-span-2 mb-2 p-2 bg-blue-50 rounded text-sm text-blue-700">
-                          Debug: {form.images.length} resim yüklendi
-                        </div>
-                        {form.images.map((image: string, index: number) => (
-                          <div key={index} className="relative group">
-                            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                              <img
-                                src={image}
-                                alt={`Product ${index + 1}`}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                              <div className="flex gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => setPreviewImage(image)}
-                                  className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
-                                  title="Büyüt"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                </button>
-                                {index !== 0 && (
-                                  <button
-                                    type="button"
-                                    onClick={() => makeMainImage(index)}
-                                    className="p-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors"
-                                    title="Ana Fotoğraf Yap"
-                                  >
-                                    <Star className="w-4 h-4" />
-                                  </button>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() => removeImage(index)}
-                                  className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                                  title="Sil"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </div>
-                            {index === 0 && (
-                              <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                                Ana Fotoğraf
-                              </div>
-                            )}
-                            <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
-                              {index + 1}
-                            </div>
+                    {/* Final Image Preview Grid */}
+                    {(() => {
+                      const validImages = imageSlots
+                        .filter(slot => slot.image && !slot.error)
+                        .map(slot => slot.image as string)
+                      
+                      return validImages.length > 0 && (
+                        <div className="mt-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-md font-semibold text-gray-900">Yüklenen Resimler</h4>
+                            <span className="text-sm text-gray-600">
+                              {validImages.length}/8 resim
+                            </span>
                           </div>
-                        ))}
-                      </div>
-                    )}
+                          <div className="grid grid-cols-2 gap-4">
+                            {validImages.map((image: string, index: number) => (
+                              <div key={index} className="relative group">
+                                <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                                  <img
+                                    src={image}
+                                    alt={`Product ${index + 1}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                  <div className="flex gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => setPreviewImage(image)}
+                                      className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+                                      title="Büyüt"
+                                    >
+                                      <Eye className="w-4 h-4" />
+                                    </button>
+                                    {index !== 0 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          // Ana fotoğraf yapma işlemi
+                                          const newImages = [...validImages]
+                                          const mainImage = newImages[index]
+                                          if (mainImage) {
+                                            newImages.splice(index, 1)
+                                            newImages.unshift(mainImage)
+                                          }
+                                          
+                                          // Slot'ları güncelle
+                                          const newSlots = [...imageSlots]
+                                          newSlots.forEach((slot, slotIndex) => {
+                                            const image = newImages[slotIndex]
+                                            if (slotIndex < newImages.length && image) {
+                                              slot.image = image
+                                            }
+                                          })
+                                          setImageSlots(newSlots)
+                                        }}
+                                        className="p-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors"
+                                        title="Ana Fotoğraf Yap"
+                                      >
+                                        <Star className="w-4 h-4" />
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                                {index === 0 && (
+                                  <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                                    Ana Fotoğraf
+                                  </div>
+                                )}
+                                <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                                  {index + 1}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })()}
                   </div>
                 </div>
               </div>
@@ -2030,137 +2086,8 @@ export default function AdminProductsPage() {
         </div>
       )}
       
-      {/* Image Upload Modal */}
-      {showImageModal && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-gray-900">
-                  Ürün Görselleri Yükle
-                </h3>
-                <button
-                  onClick={() => setShowImageModal(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-              <p className="text-sm text-gray-600 mt-2">
-                Her slot için ayrı resim yükleyin. En az 1 resim zorunludur.
-              </p>
-            </div>
-            
-            <div className="p-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {imageSlots.map((slot) => (
-                  <div key={slot.id} className="space-y-3">
-                    <div className="aspect-square bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 relative overflow-hidden">
-                      {slot.image ? (
-                        <>
-                          <img
-                            src={slot.image}
-                            alt={`Slot ${slot.id}`}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setImageSlots(prev => prev.map(s => 
-                                  s.id === slot.id 
-                                    ? { ...s, image: '', error: '' }
-                                    : s
-                                ))
-                              }}
-                              className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                              title="Resmi Kaldır"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="flex items-center justify-center h-full">
-                          {slot.loading ? (
-                            <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-                          ) : (
-                            <ImageIcon className="w-8 h-8 text-gray-400" />
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Slot {slot.id}
-                      </label>
-                      
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0]
-                          if (file) {
-                            handleSlotImageUpload(slot.id, file)
-                          }
-                        }}
-                        className="hidden"
-                        id={`image-slot-${slot.id}`}
-                        disabled={slot.loading}
-                      />
-                      
-                      <label
-                        htmlFor={`image-slot-${slot.id}`}
-                        className={`block w-full text-center px-3 py-2 text-sm font-medium rounded-lg border-2 border-dashed transition-colors cursor-pointer ${
-                          slot.loading
-                            ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                            : slot.image
-                            ? 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
-                            : 'border-gray-300 text-gray-700 hover:border-blue-400 hover:text-blue-700'
-                        }`}
-                      >
-                        {slot.loading ? 'Yükleniyor...' : slot.image ? 'Değiştir' : 'Resim Seç'}
-                      </label>
-                      
-                      {slot.error && (
-                        <p className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
-                          {slot.error}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="p-6 border-t border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-600">
-                  {imageSlots.filter(s => s.image).length} / 8 resim yüklendi
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowImageModal(false)}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-                  >
-                    İptal
-                  </button>
-                  <button
-                    type="button"
-                    onClick={applyImagesFromModal}
-                    disabled={imageSlots.filter(s => s.image).length === 0}
-                    className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Uygula ({imageSlots.filter(s => s.image).length})
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+
+        
 
       {/* Image Preview Modal */}
       {previewImage && (
