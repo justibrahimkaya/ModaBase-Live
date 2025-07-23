@@ -2072,7 +2072,8 @@ export default function AdminProductsPage() {
                     İptal
                   </button>
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handleSave}
                     disabled={saving}
                     className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50"
                   >
