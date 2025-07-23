@@ -945,6 +945,88 @@ export class EmailService {
     `;
   }
 
+  // Yeni sipariş bildirimi e-postası gönderme (işletme sahibine)
+  static async sendNewOrderNotification(data: {
+    to: string;
+    businessName: string;
+    orderId: string;
+    orderNumber: string;
+    customerName: string;
+    customerEmail: string;
+    totalAmount: number;
+    paymentMethod: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `🆕 Yeni Sipariş #${data.orderNumber} - ${data.businessName}`,
+        html: this.generateNewOrderNotificationHTML(data)
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('Yeni sipariş bildirimi e-postası gönderme hatası:', error);
+      return false;
+    }
+  }
+
+  // Ödeme başarılı bildirimi e-postası gönderme (işletme sahibine)
+  static async sendPaymentSuccessNotification(data: {
+    to: string;
+    businessName: string;
+    orderId: string;
+    orderNumber: string;
+    customerName: string;
+    customerEmail: string;
+    totalAmount: number;
+    paymentMethod: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `💰 Ödeme Başarılı #${data.orderNumber} - ${data.businessName}`,
+        html: this.generatePaymentSuccessNotificationHTML(data)
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('Ödeme başarılı bildirimi e-postası gönderme hatası:', error);
+      return false;
+    }
+  }
+
+  // Ödeme talimatları e-postası gönderme (müşteriye)
+  static async sendPaymentInstructions(data: {
+    to: string;
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    totalAmount: number;
+    paymentMethod: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `💳 Ödeme Talimatları - Sipariş #${data.orderNumber}`,
+        html: this.generatePaymentInstructionsHTML(data)
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('Ödeme talimatları e-postası gönderme hatası:', error);
+      return false;
+    }
+  }
+
   private static generateOrderApprovalHTML(data: {
     customerName: string;
     orderId: string;
@@ -1011,6 +1093,297 @@ export class EmailService {
             </table>
             
             <p>Siparişinizin durumunu takip etmek için hesabınızdan siparişler sayfasını ziyaret edebilirsiniz.</p>
+            
+            <p>Teşekkürler,<br>
+            <strong>ModaBase Ekibi</strong></p>
+          </div>
+          
+          <div class="footer">
+            <p>Bu e-posta ModaBase e-ticaret sistemi tarafından otomatik olarak gönderilmiştir.</p>
+            <p>© 2024 ModaBase. Tüm hakları saklıdır.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  private static generateNewOrderNotificationHTML(data: {
+    businessName: string;
+    orderId: string;
+    orderNumber: string;
+    customerName: string;
+    customerEmail: string;
+    totalAmount: number;
+    paymentMethod: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): string {
+    const itemsHTML = data.items.map(item => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${item.price.toFixed(2)} ₺</td>
+      </tr>
+    `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Yeni Sipariş - ${data.businessName}</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #007bff; color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { padding: 30px 20px; background: white; }
+          .order-info { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #007bff; }
+          .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .items-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }
+          .cta-button { display: inline-block; background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 20px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0;">🆕 Yeni Sipariş</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">${data.businessName}</p>
+          </div>
+          
+          <div class="content">
+            <h2>Merhaba,</h2>
+            
+            <p>Yeni bir sipariş alındı! Aşağıda sipariş detayları bulunmaktadır.</p>
+            
+            <div class="order-info">
+              <h3 style="margin: 0 0 15px 0; color: #007bff;">Sipariş Bilgileri</h3>
+              <p><strong>Sipariş No:</strong> ${data.orderNumber}</p>
+              <p><strong>Müşteri:</strong> ${data.customerName}</p>
+              <p><strong>E-posta:</strong> ${data.customerEmail}</p>
+              <p><strong>Toplam Tutar:</strong> ${data.totalAmount.toFixed(2)} ₺</p>
+              <p><strong>Ödeme Yöntemi:</strong> ${data.paymentMethod}</p>
+            </div>
+            
+            <h3>Sipariş İçeriği:</h3>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Ürün</th>
+                  <th>Adet</th>
+                  <th>Fiyat</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHTML}
+              </tbody>
+            </table>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/admin/orders/${data.orderId}" class="cta-button">
+                📋 Siparişi Görüntüle
+              </a>
+            </div>
+            
+            <p>Bu siparişi inceleyip onaylayabilir veya reddedebilirsiniz.</p>
+            
+            <p>Teşekkürler,<br>
+            <strong>ModaBase Sistemi</strong></p>
+          </div>
+          
+          <div class="footer">
+            <p>Bu e-posta ModaBase e-ticaret sistemi tarafından otomatik olarak gönderilmiştir.</p>
+            <p>© 2024 ModaBase. Tüm hakları saklıdır.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  private static generatePaymentSuccessNotificationHTML(data: {
+    businessName: string;
+    orderId: string;
+    orderNumber: string;
+    customerName: string;
+    customerEmail: string;
+    totalAmount: number;
+    paymentMethod: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): string {
+    const itemsHTML = data.items.map(item => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${item.price.toFixed(2)} ₺</td>
+      </tr>
+    `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Ödeme Başarılı - ${data.businessName}</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #28a745; color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { padding: 30px 20px; background: white; }
+          .order-info { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #28a745; }
+          .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .items-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }
+          .cta-button { display: inline-block; background: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 20px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0;">💰 Ödeme Başarılı</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">${data.businessName}</p>
+          </div>
+          
+          <div class="content">
+            <h2>Merhaba,</h2>
+            
+            <p>Bir sipariş için ödeme başarıyla alındı! Aşağıda sipariş detayları bulunmaktadır.</p>
+            
+            <div class="order-info">
+              <h3 style="margin: 0 0 15px 0; color: #28a745;">Sipariş Bilgileri</h3>
+              <p><strong>Sipariş No:</strong> ${data.orderNumber}</p>
+              <p><strong>Müşteri:</strong> ${data.customerName}</p>
+              <p><strong>E-posta:</strong> ${data.customerEmail}</p>
+              <p><strong>Toplam Tutar:</strong> ${data.totalAmount.toFixed(2)} ₺</p>
+              <p><strong>Ödeme Yöntemi:</strong> ${data.paymentMethod}</p>
+              <p><strong>Durum:</strong> ✅ Ödendi</p>
+            </div>
+            
+            <h3>Sipariş İçeriği:</h3>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Ürün</th>
+                  <th>Adet</th>
+                  <th>Fiyat</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHTML}
+              </tbody>
+            </table>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/admin/orders/${data.orderId}" class="cta-button">
+                📋 Siparişi Görüntüle
+              </a>
+            </div>
+            
+            <p>Bu sipariş artık hazırlanmaya başlanabilir ve kargoya verilebilir.</p>
+            
+            <p>Teşekkürler,<br>
+            <strong>ModaBase Sistemi</strong></p>
+          </div>
+          
+          <div class="footer">
+            <p>Bu e-posta ModaBase e-ticaret sistemi tarafından otomatik olarak gönderilmiştir.</p>
+            <p>© 2024 ModaBase. Tüm hakları saklıdır.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  private static generatePaymentInstructionsHTML(data: {
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    totalAmount: number;
+    paymentMethod: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): string {
+    const itemsHTML = data.items.map(item => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${item.price.toFixed(2)} ₺</td>
+      </tr>
+    `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Ödeme Talimatları - ModaBase</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #ffc107; color: #333; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { padding: 30px 20px; background: white; }
+          .order-info { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #ffc107; }
+          .payment-info { background: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 10px; margin: 20px 0; }
+          .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .items-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }
+          .cta-button { display: inline-block; background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 20px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0;">💳 Ödeme Talimatları</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Sipariş #${data.orderNumber}</p>
+          </div>
+          
+          <div class="content">
+            <h2>Merhaba ${data.customerName},</h2>
+            
+            <p>Siparişiniz onaylanmıştır! Ödeme yapmak için aşağıdaki talimatları takip edin.</p>
+            
+            <div class="order-info">
+              <h3 style="margin: 0 0 15px 0; color: #333;">Sipariş Bilgileri</h3>
+              <p><strong>Sipariş No:</strong> ${data.orderNumber}</p>
+              <p><strong>Toplam Tutar:</strong> ${data.totalAmount.toFixed(2)} ₺</p>
+              <p><strong>Ödeme Yöntemi:</strong> ${data.paymentMethod}</p>
+            </div>
+            
+            <div class="payment-info">
+              <h3 style="margin: 0 0 15px 0; color: #856404;">Ödeme Talimatları</h3>
+              ${data.paymentMethod === 'BANK_TRANSFER' ? `
+                <p><strong>Banka Transferi:</strong></p>
+                <p>• IBAN: TR12 3456 7890 1234 5678 9012 34</p>
+                <p>• Hesap Sahibi: ModaBase</p>
+                <p>• Açıklama: Sipariş #${data.orderNumber}</p>
+                <p>• Transfer sonrası dekontu info@modabase.com.tr adresine gönderin.</p>
+              ` : `
+                <p><strong>Kredi Kartı ile Ödeme:</strong></p>
+                <p>Aşağıdaki butona tıklayarak güvenli ödeme sayfasına yönlendirileceksiniz.</p>
+              `}
+            </div>
+            
+            <h3>Sipariş İçeriği:</h3>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Ürün</th>
+                  <th>Adet</th>
+                  <th>Fiyat</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHTML}
+              </tbody>
+            </table>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/order/${data.orderId}" class="cta-button">
+                💳 Ödeme Yap
+              </a>
+            </div>
+            
+            <p><strong>Önemli:</strong> Ödeme yapılmadan siparişiniz hazırlanmayacaktır.</p>
             
             <p>Teşekkürler,<br>
             <strong>ModaBase Ekibi</strong></p>

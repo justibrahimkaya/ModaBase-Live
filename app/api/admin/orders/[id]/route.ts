@@ -188,6 +188,23 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
               price: item.price
             }))
           })
+
+          // Eğer ödeme henüz yapılmamışsa, ödeme talimatları e-postası gönder
+          if (order.status === 'PENDING' || order.status === 'AWAITING_PAYMENT') {
+            await EmailService.sendPaymentInstructions({
+              to: customerEmail,
+              customerName,
+              orderId: order.id,
+              orderNumber: order.id.slice(-8),
+              totalAmount: order.total,
+              paymentMethod: order.paymentMethod,
+              items: order.items.map(item => ({
+                name: item.product.name,
+                quantity: item.quantity,
+                price: item.price
+              }))
+            })
+          }
         }
       }
     } catch (emailError) {

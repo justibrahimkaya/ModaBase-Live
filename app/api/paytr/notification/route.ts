@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Siparişi güncelle
-    await prisma.order.update({
+    const updatedOrder = await prisma.order.update({
       where: { id: merchant_oid },
       data: {
         status: orderStatus,
@@ -77,10 +77,72 @@ export async function POST(request: NextRequest) {
         adminNotes: status === 'success' 
           ? 'Ödeme başarılı - PayTR - İşletme hesabına transfer yapıldı' 
           : `Ödeme başarısız - ${failed_reason_msg || 'Bilinmeyen hata'}`
+      },
+      include: {
+        items: {
+          include: {
+            product: true
+          }
+        },
+        user: true
       }
     });
 
     console.log(`PayTR notification processed: ${merchant_oid} - ${status}`);
+
+    // Ödeme başarılıysa işletme paneline bildirim gönder
+    if (status === 'success') {
+      try {
+        console.log('📧 Ödeme başarılı - İşletme paneline bildirim gönderiliyor...')
+        
+        // İşletme hesabını bul
+        const business = await prisma.business.findUnique({
+          where: { email: 'mbmodabase@gmail.com' },
+          select: {
+            id: true,
+            businessName: true,
+            contactEmail: true
+          }
+        });
+
+        if (business && business.contactEmail) {
+          EmailService.initialize({
+            host: process.env.SMTP_HOST || 'smtp.gmail.com',
+            port: parseInt(process.env.SMTP_PORT || '587'),
+            secure: false,
+            auth: {
+              user: process.env.SMTP_USER || 'info@modabase.com.tr',
+              pass: process.env.SMTP_PASS || 'password'
+            }
+          });
+
+          const customerName = updatedOrder.user ? `${updatedOrder.user.name} ${updatedOrder.user.surname}` : 
+                              updatedOrder.guestName && updatedOrder.guestSurname ? `${updatedOrder.guestName} ${updatedOrder.guestSurname}` : 
+                              'Misafir Müşteri';
+
+          await EmailService.sendPaymentSuccessNotification({
+            to: business.contactEmail,
+            businessName: business.businessName,
+            orderId: updatedOrder.id,
+            orderNumber: updatedOrder.id.slice(-8),
+            customerName,
+            customerEmail: updatedOrder.user?.email || updatedOrder.guestEmail || 'E-posta yok',
+            totalAmount: updatedOrder.total,
+            paymentMethod: updatedOrder.paymentMethod,
+            items: updatedOrder.items.map(item => ({
+              name: item.product?.name || 'Ürün',
+              quantity: item.quantity,
+              price: item.price
+            }))
+          });
+
+          console.log('✅ Ödeme başarılı bildirimi gönderildi')
+        }
+      } catch (notificationError) {
+        console.error('❌ Ödeme bildirimi hatası:', notificationError)
+        // Bildirim hatası ödeme işlemini etkilemesin
+      }
+    }
 
     return NextResponse.json({ status: 'OK' });
 

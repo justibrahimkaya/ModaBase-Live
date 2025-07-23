@@ -254,10 +254,63 @@ export async function POST(request: NextRequest) {
     // Hata durumunda siparişi iptal etme, sadece log
   }
 
+  // İşletme paneline bildirim gönder
+  try {
+    console.log('📧 İşletme paneline bildirim gönderiliyor...')
+    
+    // İşletme hesabını bul
+    const business = await prisma.business.findUnique({
+      where: { email: 'mbmodabase@gmail.com' },
+      select: {
+        id: true,
+        businessName: true,
+        contactEmail: true
+      }
+    });
+
+    if (business && business.contactEmail) {
+      // İşletme sahibine yeni sipariş bildirimi gönder
+      EmailService.initialize({
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: parseInt(process.env.SMTP_PORT || '587'),
+        secure: false,
+        auth: {
+          user: process.env.SMTP_USER || 'info@modabase.com.tr',
+          pass: process.env.SMTP_PASS || 'password'
+        }
+      });
+
+      const customerName = order.user ? `${order.user.name} ${order.user.surname}` : 
+                          order.guestName && order.guestSurname ? `${order.guestName} ${order.guestSurname}` : 
+                          'Misafir Müşteri';
+
+      await EmailService.sendNewOrderNotification({
+        to: business.contactEmail,
+        businessName: business.businessName,
+        orderId: order.id,
+        orderNumber: order.id.slice(-8),
+        customerName,
+        customerEmail: order.user?.email || order.guestEmail || 'E-posta yok',
+        totalAmount: order.total,
+        paymentMethod: order.paymentMethod,
+        items: order.items.map(item => ({
+          name: item.product?.name || 'Ürün',
+          quantity: item.quantity,
+          price: item.price
+        }))
+      });
+
+      console.log('✅ İşletme paneline bildirim gönderildi')
+    }
+  } catch (notificationError) {
+    console.error('❌ İşletme bildirimi hatası:', notificationError)
+    // Bildirim hatası sipariş oluşturmayı etkilemesin
+  }
+
   return NextResponse.json({
     success: true,
     order: order,
-    message: 'Sipariş başarıyla oluşturuldu'
+    message: 'Sipariş başarıyla oluşturuldu ve işletme paneline bildirim gönderildi'
   })
   
   } catch (error) {
