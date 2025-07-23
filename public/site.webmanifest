@@ -9,29 +9,5 @@
   "orientation": "portrait",
   "scope": "/",
   "lang": "tr",
-  "icons": [
-    {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    }
-  ],
-  "categories": ["shopping", "lifestyle", "fashion"],
-  "shortcuts": [
-    {
-      "name": "Ürünler",
-      "short_name": "Ürünler",
-      "description": "Tüm ürünleri görüntüle",
-      "url": "/products",
-      "icons": [{"src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml"}]
-    },
-    {
-      "name": "Sepet",
-      "short_name": "Sepet",
-      "description": "Sepetimi görüntüle",
-      "url": "/cart",
-      "icons": [{"src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml"}]
-    }
-  ]
+  "categories": ["shopping", "lifestyle", "fashion"]
 }
