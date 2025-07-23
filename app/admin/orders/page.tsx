@@ -12,13 +12,18 @@ import {
 
 interface Order {
   id: string
-  user: { name: string; surname: string; email: string }
-  address: { title: string; city: string; district: string }
+  user?: { name: string; surname: string; email: string } | null
+  address?: { title: string; city: string; district: string } | null
   status: string
   total: number
   createdAt: string
   trackingNumber?: string
   shippingCompany?: string
+  // Guest checkout için
+  guestName?: string
+  guestSurname?: string
+  guestEmail?: string
+  guestPhone?: string
 }
 
 interface OrderStats {
@@ -283,6 +288,17 @@ export default function AdminOrdersPage() {
   const OrderCard = ({ order }: { order: Order }) => {
     const statusConfig = getStatusConfig(order.status)
     
+    // Müşteri bilgilerini güvenli şekilde al
+    const customerName = order.user ? `${order.user.name} ${order.user.surname}` : 
+                        order.guestName && order.guestSurname ? `${order.guestName} ${order.guestSurname}` : 
+                        'Misafir Müşteri'
+    
+    const customerEmail = order.user?.email || order.guestEmail || 'E-posta yok'
+    
+    // Adres bilgilerini güvenli şekilde al
+    const addressInfo = order.address ? `${order.address.city}, ${order.address.district}` : 
+                       'Adres bilgisi yok'
+    
     return (
       <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4 hover:scale-105 transition-all duration-300">
         <div className="flex items-start justify-between mb-3">
@@ -291,9 +307,9 @@ export default function AdminOrdersPage() {
               Sipariş #{order.id.slice(-8)}
             </h3>
             <p className="text-gray-300 text-xs">
-              {order.user.name} {order.user.surname}
+              {customerName}
             </p>
-            <p className="text-gray-400 text-xs">{order.user.email}</p>
+            <p className="text-gray-400 text-xs">{customerEmail}</p>
           </div>
           <div className={`px-3 py-1 rounded-full text-xs font-medium ${statusConfig.bg} ${statusConfig.text}`}>
             {statusConfig.label}
@@ -307,7 +323,7 @@ export default function AdminOrdersPage() {
           </div>
           <div className="flex items-center text-xs text-gray-300">
             <Truck className="w-3 h-3 mr-2" />
-            {order.address.city}, {order.address.district}
+            {addressInfo}
           </div>
           {order.trackingNumber && (
             <div className="flex items-center text-xs text-gray-300">

@@ -49,15 +49,17 @@ export default function AdminLayout({
   useEffect(() => {
     let mounted = true
     let retryCount = 0
-    const maxRetries = 3
+    const maxRetries = 2 // Retry sayısını azalttım
     
     const checkAuth = async () => {
       try {
+        // Cache kontrolü ekle
         const response = await fetch('/api/admin/profile', {
           method: 'GET',
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache', // Cache'i devre dışı bırak
           },
         })
         
@@ -69,6 +71,15 @@ export default function AdminLayout({
         } else if (response.status === 401) {
           // Authentication failed, redirect to login
           router.replace('/admin/business-login')
+        } else if (response.status === 429) {
+          // Rate limited, wait and retry
+          console.warn('Rate limited, waiting...')
+          if (retryCount < maxRetries) {
+            retryCount++
+            setTimeout(checkAuth, 2000 * retryCount) // Daha uzun bekleme
+          } else {
+            router.replace('/admin/business-login')
+          }
         } else {
           // Server error, retry
           throw new Error(`HTTP ${response.status}`)
@@ -90,6 +101,7 @@ export default function AdminLayout({
       }
     }
     
+    // İlk yüklemede hemen çalıştır
     checkAuth()
     
     return () => {

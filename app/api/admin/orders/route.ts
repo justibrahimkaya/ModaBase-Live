@@ -18,7 +18,19 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: 'desc'
       },
-      include: {
+      select: {
+        id: true,
+        status: true,
+        total: true,
+        createdAt: true,
+        trackingNumber: true,
+        shippingCompany: true,
+        // Guest checkout bilgileri
+        guestName: true,
+        guestSurname: true,
+        guestEmail: true,
+        guestPhone: true,
+        // User bilgileri (null olabilir)
         user: {
           select: {
             name: true,
@@ -26,6 +38,7 @@ export async function GET(request: NextRequest) {
             email: true
           }
         },
+        // Address bilgileri (null olabilir)
         address: {
           select: {
             title: true,
