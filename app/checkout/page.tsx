@@ -529,6 +529,25 @@ export default function CheckoutPage() {
                   </div>
                 )}
                 
+                {/* Debug Bilgileri */}
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                  <h4 className="font-medium text-yellow-800 mb-2">🔍 Debug Bilgileri</h4>
+                  <div className="text-sm text-yellow-700 space-y-1">
+                    <div>İl: {delivery.city || 'Boş'}</div>
+                    <div>İlçe: {delivery.district || 'Boş'}</div>
+                    <div>Kargo Firmaları: {cargoQuotes.length} adet</div>
+                    <div>Seçili Kargo: {selectedCargoCompany || 'Yok'}</div>
+                    <div>Loading: {isLoadingCargo ? 'Evet' : 'Hayır'}</div>
+                  </div>
+                  <button
+                    onClick={calculateCargoPrices}
+                    disabled={!delivery.city || !delivery.district}
+                    className="mt-2 px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 disabled:opacity-50"
+                  >
+                    Kargo Fiyatlarını Hesapla
+                  </button>
+                </div>
+
                 {/* Gerçek Kargo Firmaları */}
                 {cargoQuotes.length > 0 && (
                   <div className="space-y-3">
