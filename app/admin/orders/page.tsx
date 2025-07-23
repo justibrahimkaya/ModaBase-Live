@@ -55,6 +55,9 @@ export default function AdminOrdersPage() {
   const [dateFilter, setDateFilter] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [updatingOrder, setUpdatingOrder] = useState<string | null>(null)
+  const [showRejectModal, setShowRejectModal] = useState(false)
+  const [rejectingOrderId, setRejectingOrderId] = useState<string | null>(null)
+  const [rejectReason, setRejectReason] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -145,10 +148,37 @@ export default function AdminOrdersPage() {
   }
 
   const rejectOrder = async (orderId: string) => {
-    const reason = prompt('Siparişi reddetme sebebini yazın:')
-    if (reason !== null) {
-      await updateOrderStatus(orderId, 'REJECTED', reason)
+    setRejectingOrderId(orderId)
+    setRejectReason('')
+    setShowRejectModal(true)
+  }
+
+  const handleRejectConfirm = async () => {
+    if (!rejectReason.trim()) {
+      alert('Reddetme sebebi boş olamaz!')
+      return
     }
+
+    if (!rejectingOrderId) return
+
+    setUpdatingOrder(rejectingOrderId)
+    try {
+      await updateOrderStatus(rejectingOrderId, 'REJECTED', rejectReason)
+      alert('Sipariş başarıyla reddedildi ve müşteriye bildirim gönderildi.')
+      setShowRejectModal(false)
+      setRejectingOrderId(null)
+      setRejectReason('')
+    } catch (error) {
+      alert('Sipariş reddedilirken hata oluştu')
+    } finally {
+      setUpdatingOrder(null)
+    }
+  }
+
+  const handleRejectCancel = () => {
+    setShowRejectModal(false)
+    setRejectingOrderId(null)
+    setRejectReason('')
   }
 
   const filteredOrders = orders.filter(order => {
@@ -377,37 +407,39 @@ export default function AdminOrdersPage() {
               <Eye className="w-4 h-4" />
             </button>
             
-            {/* Sadece PENDING ve AWAITING_PAYMENT durumlarında onay/red butonları göster */}
-            {(order.status === 'PENDING' || order.status === 'AWAITING_PAYMENT') && (
-              <>
-                <button
-                  onClick={() => updateOrderStatus(order.id, getNextStatus(order.status))}
-                  disabled={updatingOrder === order.id}
-                  className="p-2 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30 transition-colors disabled:opacity-50"
-                  title="Siparişi Onayla"
-                >
-                  {updatingOrder === order.id ? (
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Check className="w-4 h-4" />
-                  )}
-                </button>
-                <button
-                  onClick={() => rejectOrder(order.id)}
-                  disabled={updatingOrder === order.id}
-                  className="p-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-colors disabled:opacity-50"
-                  title="Siparişi Reddet"
-                >
-                  <XCircle className="w-4 h-4" />
-                </button>
-              </>
+            {/* Reddetme butonu - Tüm durumlar için erişilebilir (REJECTED hariç) */}
+            {order.status !== 'REJECTED' && (
+              <button
+                onClick={() => rejectOrder(order.id)}
+                disabled={updatingOrder === order.id}
+                className="p-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-colors disabled:opacity-50"
+                title="Siparişi Reddet"
+              >
+                <XCircle className="w-4 h-4" />
+              </button>
             )}
             
-            {/* Diğer durumlar için sadece ileri butonu */}
-            {order.status !== 'PENDING' && order.status !== 'AWAITING_PAYMENT' && order.status !== 'REJECTED' && (
+            {/* Onay/İleri butonları */}
+            {(order.status === 'PENDING' || order.status === 'AWAITING_PAYMENT') && (
               <button
                 onClick={() => updateOrderStatus(order.id, getNextStatus(order.status))}
-                disabled={updatingOrder === order.id || !getStatusConfig(order.status).nextStatus}
+                disabled={updatingOrder === order.id}
+                className="p-2 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30 transition-colors disabled:opacity-50"
+                title="Siparişi Onayla"
+              >
+                {updatingOrder === order.id ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Check className="w-4 h-4" />
+                )}
+              </button>
+            )}
+            
+            {/* Diğer durumlar için ileri butonu */}
+            {order.status !== 'PENDING' && order.status !== 'AWAITING_PAYMENT' && order.status !== 'REJECTED' && getStatusConfig(order.status).nextStatus && (
+              <button
+                onClick={() => updateOrderStatus(order.id, getNextStatus(order.status))}
+                disabled={updatingOrder === order.id}
                 className="p-2 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30 transition-colors disabled:opacity-50"
                 title={getStatusConfig(order.status).nextLabel || 'İleri'}
               >
@@ -765,6 +797,20 @@ export default function AdminOrdersPage() {
                         
                         <td className="px-6 py-4 whitespace-nowrap text-right">
                           <div className="flex items-center justify-end gap-2">
+                            {/* Reddetme butonu - REJECTED durumu hariç tüm durumlar için */}
+                            {order.status !== 'REJECTED' && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  rejectOrder(order.id)
+                                }}
+                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+                                title="Siparişi Reddet"
+                              >
+                                <XCircle className="w-4 h-4" />
+                              </button>
+                            )}
+                            
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
@@ -810,6 +856,64 @@ export default function AdminOrdersPage() {
           )}
         </div>
       </div>
+
+      {/* Reddetme Modal */}
+      {showRejectModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <XCircle className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Siparişi Reddet</h3>
+                <p className="text-sm text-gray-500">Sipariş #{rejectingOrderId?.slice(-8)}</p>
+              </div>
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="rejectReason" className="block text-sm font-medium text-gray-700 mb-2">
+                Reddetme Sebebi *
+              </label>
+              <textarea
+                id="rejectReason"
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="Siparişi neden reddettiğinizi açıklayın..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none"
+                rows={4}
+                required
+              />
+            </div>
+            
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={handleRejectCancel}
+                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                İptal
+              </button>
+              <button
+                onClick={handleRejectConfirm}
+                disabled={updatingOrder === rejectingOrderId || !rejectReason.trim()}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {updatingOrder === rejectingOrderId ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    İşleniyor...
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-4 h-4" />
+                    Siparişi Reddet
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
