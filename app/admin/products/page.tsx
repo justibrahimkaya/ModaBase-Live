@@ -212,6 +212,19 @@ export default function AdminProductsPage() {
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [showSizeSelector, setShowSizeSelector] = useState(false)
   const [currentColorForSizes, setCurrentColorForSizes] = useState<{ name: string; code: string; hex: string } | null>(null)
+  
+  // Resim yükleme modal için state'ler
+  const [showImageModal, setShowImageModal] = useState(false)
+  const [imageSlots, setImageSlots] = useState<Array<{ id: number; image: string; loading: boolean; error: string }>>([
+    { id: 1, image: '', loading: false, error: '' },
+    { id: 2, image: '', loading: false, error: '' },
+    { id: 3, image: '', loading: false, error: '' },
+    { id: 4, image: '', loading: false, error: '' },
+    { id: 5, image: '', loading: false, error: '' },
+    { id: 6, image: '', loading: false, error: '' },
+    { id: 7, image: '', loading: false, error: '' },
+    { id: 8, image: '', loading: false, error: '' }
+  ])
 
   useEffect(() => {
     let mounted = true
@@ -455,59 +468,77 @@ export default function AdminProductsPage() {
   }
 
   // Resim yükleme işlemi - optimize edilmiş kalite
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (!files) return
-
-    setError('')
-    const newImages: string[] = []
-    const errors: string[] = []
-
-    // Loading state ekle
-    setSaving(true)
+  // Modal için resim yükleme fonksiyonu
+  const handleSlotImageUpload = async (slotId: number, file: File) => {
+    // Loading state'i güncelle
+    setImageSlots(prev => prev.map(slot => 
+      slot.id === slotId 
+        ? { ...slot, loading: true, error: '' }
+        : slot
+    ))
 
     try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i]
-        if (!file) continue
-        
-        // Dosya boyutu kontrolü (5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          errors.push(`${file.name} dosyası çok büyük. Maksimum 5MB olmalıdır.`)
-          continue
-        }
-
-        try {
-          console.log(`Resim sıkıştırılıyor: ${file.name} (${file.size} bytes)`)
-          const compressedImage = await compressImage(file)
-          console.log(`Resim sıkıştırıldı: ${file.name} (${compressedImage.length} bytes)`)
-          newImages.push(compressedImage)
-        } catch (error) {
-          console.error(`Resim sıkıştırma hatası: ${file.name}`, error)
-          errors.push(`${file.name} sıkıştırılamadı: ${error}`)
-          continue
-        }
+      // Dosya boyutu kontrolü
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('Dosya çok büyük. Maksimum 5MB olmalıdır.')
       }
 
-      if (newImages.length > 0) {
-        setForm((prev: any) => ({
-          ...prev,
-          images: [...prev.images, ...newImages].slice(0, 20)
-        }))
-        console.log(`${newImages.length} resim başarıyla yüklendi`)
-      }
+      console.log(`Slot ${slotId} için resim sıkıştırılıyor: ${file.name}`)
+      const compressedImage = await compressImage(file)
+      console.log(`Slot ${slotId} resmi sıkıştırıldı: ${compressedImage.length} bytes`)
 
-      if (errors.length > 0) {
-        setError(`Bazı resimler yüklenemedi:\n${errors.join('\n')}`)
-      }
+      // Resmi slot'a ekle
+      setImageSlots(prev => prev.map(slot => 
+        slot.id === slotId 
+          ? { ...slot, image: compressedImage, loading: false, error: '' }
+          : slot
+      ))
 
     } catch (error) {
-      console.error('Genel resim yükleme hatası:', error)
-      setError(`Resim yükleme hatası: ${error}`)
-    } finally {
-      setSaving(false)
+      console.error(`Slot ${slotId} resim yükleme hatası:`, error)
+      setImageSlots(prev => prev.map(slot => 
+        slot.id === slotId 
+          ? { ...slot, loading: false, error: error instanceof Error ? error.message : 'Bilinmeyen hata' }
+          : slot
+      ))
     }
   }
+
+  // Modal'dan resimleri form'a aktar
+  const applyImagesFromModal = () => {
+    const validImages = imageSlots
+      .filter(slot => slot.image && !slot.error)
+      .map(slot => slot.image)
+
+    if (validImages.length === 0) {
+      setError('En az 1 resim yüklemelisiniz.')
+      return
+    }
+
+    setForm((prev: any) => ({
+      ...prev,
+      images: validImages
+    }))
+
+    setShowImageModal(false)
+    setSuccess(`${validImages.length} resim başarıyla eklendi!`)
+  }
+
+  // Modal'ı sıfırla
+  const resetImageModal = () => {
+    setImageSlots([
+      { id: 1, image: '', loading: false, error: '' },
+      { id: 2, image: '', loading: false, error: '' },
+      { id: 3, image: '', loading: false, error: '' },
+      { id: 4, image: '', loading: false, error: '' },
+      { id: 5, image: '', loading: false, error: '' },
+      { id: 6, image: '', loading: false, error: '' },
+      { id: 7, image: '', loading: false, error: '' },
+      { id: 8, image: '', loading: false, error: '' }
+    ])
+  }
+
+
 
   const removeImage = (index: number) => {
     const newImages = form.images.filter((_: any, i: number) => i !== index)
@@ -1436,26 +1467,23 @@ export default function AdminProductsPage() {
                         Ürün Fotoğrafları
                       </label>
                       <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="hidden"
-                          id="image-upload"
-                        />
-                        <label
-                          htmlFor="image-upload"
-                          className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                        <button
+                          type="button"
+                          onClick={() => {
+                            resetImageModal()
+                            setShowImageModal(true)
+                          }}
+                          className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
                         >
-                          Fotoğraf Seç
-                        </label>
-                                                 <p className="mt-2 text-sm text-gray-500">
-                           JPG, PNG, WebP formatları desteklenir (Maks. 5MB per resim)
-                         </p>
-                         <p className="text-xs text-gray-400">
-                           {20 - form.images.length} fotoğraf daha ekleyebilirsiniz (minimum 1, maksimum 20)
-                         </p>
+                          <ImageIcon className="w-5 h-5 mr-2" />
+                          Görsel Yükle
+                        </button>
+                        <p className="mt-2 text-sm text-gray-500">
+                          JPG, PNG, WebP formatları desteklenir (Maks. 5MB per resim)
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          Her slot için ayrı resim yükleyebilirsiniz (minimum 1, maksimum 8)
+                        </p>
                       </div>
                     </div>
                     
@@ -1988,6 +2016,138 @@ export default function AdminProductsPage() {
         </div>
       )}
       
+      {/* Image Upload Modal */}
+      {showImageModal && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Ürün Görselleri Yükle
+                </h3>
+                <button
+                  onClick={() => setShowImageModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 mt-2">
+                Her slot için ayrı resim yükleyin. En az 1 resim zorunludur.
+              </p>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {imageSlots.map((slot) => (
+                  <div key={slot.id} className="space-y-3">
+                    <div className="aspect-square bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 relative overflow-hidden">
+                      {slot.image ? (
+                        <>
+                          <img
+                            src={slot.image}
+                            alt={`Slot ${slot.id}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setImageSlots(prev => prev.map(s => 
+                                  s.id === slot.id 
+                                    ? { ...s, image: '', error: '' }
+                                    : s
+                                ))
+                              }}
+                              className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                              title="Resmi Kaldır"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex items-center justify-center h-full">
+                          {slot.loading ? (
+                            <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                          ) : (
+                            <ImageIcon className="w-8 h-8 text-gray-400" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Slot {slot.id}
+                      </label>
+                      
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) {
+                            handleSlotImageUpload(slot.id, file)
+                          }
+                        }}
+                        className="hidden"
+                        id={`image-slot-${slot.id}`}
+                        disabled={slot.loading}
+                      />
+                      
+                      <label
+                        htmlFor={`image-slot-${slot.id}`}
+                        className={`block w-full text-center px-3 py-2 text-sm font-medium rounded-lg border-2 border-dashed transition-colors cursor-pointer ${
+                          slot.loading
+                            ? 'border-gray-200 text-gray-400 cursor-not-allowed'
+                            : slot.image
+                            ? 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
+                            : 'border-gray-300 text-gray-700 hover:border-blue-400 hover:text-blue-700'
+                        }`}
+                      >
+                        {slot.loading ? 'Yükleniyor...' : slot.image ? 'Değiştir' : 'Resim Seç'}
+                      </label>
+                      
+                      {slot.error && (
+                        <p className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+                          {slot.error}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="p-6 border-t border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  {imageSlots.filter(s => s.image).length} / 8 resim yüklendi
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowImageModal(false)}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  >
+                    İptal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={applyImagesFromModal}
+                    disabled={imageSlots.filter(s => s.image).length === 0}
+                    className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Uygula ({imageSlots.filter(s => s.image).length})
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Image Preview Modal */}
       {previewImage && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
