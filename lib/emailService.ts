@@ -26,8 +26,26 @@ export class EmailService {
     this.transporter = nodemailer.createTransport(config);
   }
 
+  // Otomatik initialize kontrolü
+  private static ensureInitialized() {
+    if (!this.transporter) {
+      console.log('📧 EmailService otomatik initialize ediliyor...');
+      this.initialize({
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: parseInt(process.env.SMTP_PORT || '587'),
+        secure: false,
+        auth: {
+          user: process.env.SMTP_USER || 'info@modabase.com.tr',
+          pass: process.env.SMTP_PASS || 'password'
+        }
+      });
+    }
+  }
+
   static async sendInvoiceEmail(data: InvoiceEmailData): Promise<boolean> {
     try {
+      this.ensureInitialized();
+      
       const mailOptions = {
         from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
         to: data.to,
@@ -42,9 +60,10 @@ export class EmailService {
       };
 
       await this.transporter.sendMail(mailOptions);
+      console.log('✅ E-fatura e-postası gönderildi:', data.to);
       return true;
     } catch (error) {
-      console.error('E-posta gönderme hatası:', error);
+      console.error('❌ E-posta gönderme hatası:', error);
       return false;
     }
   }
@@ -106,6 +125,8 @@ export class EmailService {
 
   static async sendOrderConfirmation(to: string, customerName: string, orderNumber: string, totalAmount: number): Promise<boolean> {
     try {
+      this.ensureInitialized();
+      
       const mailOptions = {
         from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
         to: to,
@@ -114,9 +135,10 @@ export class EmailService {
       };
 
       await this.transporter.sendMail(mailOptions);
+      console.log('✅ Sipariş onay e-postası gönderildi:', to);
       return true;
     } catch (error) {
-      console.error('Sipariş onay e-postası gönderme hatası:', error);
+      console.error('❌ Sipariş onay e-postası gönderme hatası:', error);
       return false;
     }
   }
@@ -369,6 +391,8 @@ export class EmailService {
     transferNote: string;
   }): Promise<boolean> {
     try {
+      this.ensureInitialized();
+      
       const mailOptions = {
         from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
         to: data.to,
@@ -377,9 +401,10 @@ export class EmailService {
       };
 
       await this.transporter.sendMail(mailOptions);
+      console.log('✅ Havale talimatları e-postası gönderildi:', data.to);
       return true;
     } catch (error) {
-      console.error('Havale talimatları e-postası gönderme hatası:', error);
+      console.error('❌ Havale talimatları e-postası gönderme hatası:', error);
       return false;
     }
   }

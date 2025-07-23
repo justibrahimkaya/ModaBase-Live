@@ -120,16 +120,8 @@ export async function POST(request: NextRequest) {
 
     // Müşteriye havale bilgilerini e-posta ile gönder
     try {
-      EmailService.initialize({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: false,
-        auth: {
-          user: process.env.SMTP_USER || 'info@modabase.com.tr',
-          pass: process.env.SMTP_PASS || 'password'
-        }
-      });
-
+      console.log('📧 Havale bilgileri e-postası gönderiliyor:', customerEmail);
+      
       await EmailService.sendBankTransferInstructions({
         to: customerEmail,
         customerName: customerName,
@@ -142,12 +134,16 @@ export async function POST(request: NextRequest) {
         transferNote: transferNote
       });
 
+      console.log('✅ Havale bilgileri e-postası başarıyla gönderildi');
+
     } catch (emailError) {
-      console.error('Havale bilgileri e-postası gönderme hatası:', emailError);
+      console.error('❌ Havale bilgileri e-postası gönderme hatası:', emailError);
     }
 
     // İşletme sahibine havale bildirimi gönder
     try {
+      console.log('📧 İşletme bildirimi e-postası gönderiliyor:', business.contactEmail);
+      
       await EmailService.sendTransferNotification({
         to: business.contactEmail,
         businessName: business.businessName,
@@ -157,8 +153,10 @@ export async function POST(request: NextRequest) {
         accountHolder: business.accountHolderName || 'Belirtilmemiş',
         bankName: business.bankName || 'Belirtilmemiş'
       });
+      
+      console.log('✅ İşletme bildirimi e-postası başarıyla gönderildi');
     } catch (emailError) {
-      console.error('İşletme bildirimi e-postası hatası:', emailError);
+      console.error('❌ İşletme bildirimi e-postası hatası:', emailError);
     }
 
     // Sipariş durumunu güncelle

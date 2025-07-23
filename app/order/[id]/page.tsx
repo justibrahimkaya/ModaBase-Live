@@ -60,14 +60,20 @@ export default function OrderDetailPage() {
 
   const fetchOrder = async () => {
     try {
+      console.log('🔍 Sipariş detayı aranıyor:', params.id);
+      
       const response = await fetch(`/api/orders/${params.id}`);
+      const data = await response.json();
+      
       if (response.ok) {
-        const data = await response.json();
+        console.log('✅ Sipariş bulundu:', data.id);
         setOrder(data);
       } else {
-        setError('Sipariş bulunamadı');
+        console.log('❌ Sipariş bulunamadı:', data.error);
+        setError(data.message || data.error || 'Sipariş bulunamadı');
       }
     } catch (error) {
+      console.error('❌ Sipariş yükleme hatası:', error);
       setError('Sipariş yüklenirken hata oluştu');
     } finally {
       setLoading(false);
