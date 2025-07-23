@@ -11,6 +11,9 @@ export const config = {
   },
 }
 
+// Body size limit - 100MB
+export const maxDuration = 300 // 5 dakika
+
 // GET: Tüm ürünleri getir
 export async function GET(request: NextRequest) {
   const authError = await requireAdmin(request)

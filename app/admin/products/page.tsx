@@ -448,8 +448,8 @@ export default function AdminProductsPage() {
           // Daha yüksek kalitede JPEG sıkıştır (0.8 kalite - %80)
           const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8)
           
-          // Boyut kontrolü
-          if (compressedDataUrl.length > 500000) { // 500KB limit
+          // Boyut kontrolü - 2MB limit (500KB'dan 2MB'a çıkarıldı)
+          if (compressedDataUrl.length > 2 * 1024 * 1024) {
             console.warn(`Resim çok büyük: ${compressedDataUrl.length} bytes`)
             // Daha düşük kalitede tekrar dene
             const lowQualityDataUrl = canvas.toDataURL('image/jpeg', 0.6)
@@ -478,9 +478,9 @@ export default function AdminProductsPage() {
     ))
 
     try {
-      // Dosya boyutu kontrolü
-      if (file.size > 5 * 1024 * 1024) {
-        throw new Error('Dosya çok büyük. Maksimum 5MB olmalıdır.')
+      // Dosya boyutu kontrolü - 10MB limit (5MB'dan 10MB'a çıkarıldı)
+      if (file.size > 10 * 1024 * 1024) {
+        throw new Error('Dosya çok büyük. Maksimum 10MB olmalıdır.')
       }
 
       console.log(`Slot ${slotId} için resim sıkıştırılıyor: ${file.name}`)
@@ -629,8 +629,8 @@ export default function AdminProductsPage() {
       // Resimleri optimize et - daha esnek limit
       const optimizedImages = validImages.map((img: string, index: number) => {
         console.log(`Resim ${index + 1} boyutu:`, img.length, 'bytes')
-        // 200KB'dan büyükse placeholder kullan (100KB'dan 200KB'a çıkarıldı)
-        if (img.length > 200000) {
+        // 2MB'dan büyükse placeholder kullan (200KB'dan 2MB'a çıkarıldı)
+        if (img.length > 2 * 1024 * 1024) {
           console.log('Resim çok büyük, placeholder kullanılıyor:', img.length, 'bytes')
           return 'https://via.placeholder.com/400x400/cccccc/666666?text=Resim'
         }
@@ -653,8 +653,9 @@ export default function AdminProductsPage() {
       console.log('📦 Payload boyutu:', payloadSize, 'bytes')
       console.log('📦 Payload:', JSON.stringify(payload, null, 2))
       
-      // 10MB'dan büyükse hata ver (5MB'dan 10MB'a çıkarıldı)
-      if (payloadSize > 10 * 1024 * 1024) {
+      // 100MB'dan büyükse hata ver (10MB'dan 100MB'a çıkarıldı)
+      if (payloadSize > 100 * 1024 * 1024) {
+        console.log('❌ Payload çok büyük:', payloadSize, 'bytes')
         setError('Ürün verisi çok büyük. Lütfen daha az resim ekleyin veya resimleri küçültün.')
         setSaving(false)
         return

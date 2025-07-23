@@ -125,6 +125,8 @@ const nextConfig = {
     optimizePackageImports: ['@headlessui/react', 'lucide-react', 'framer-motion'],
   },
   
+
+  
   // Server external packages (Next.js 15 format)
   serverExternalPackages: ['@prisma/client'],
   
