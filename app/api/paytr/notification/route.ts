@@ -121,8 +121,8 @@ export async function POST(request: NextRequest) {
             port: parseInt(process.env.SMTP_PORT || '587'),
             secure: false,
             auth: {
-              user: process.env.SMTP_USER || 'info@modabase.com.tr',
-              pass: process.env.SMTP_PASS || 'password'
+              user: process.env.SMTP_USER || 'kavram.triko@gmail.com',
+              pass: process.env.SMTP_PASS || 'yqarfkyevahfnenq'
             }
           });
 
@@ -217,8 +217,8 @@ async function processBusinessTransfer(order: any) {
         port: parseInt(process.env.SMTP_PORT || '587'),
         secure: false,
         auth: {
-          user: process.env.SMTP_USER || 'info@modabase.com.tr',
-          pass: process.env.SMTP_PASS || 'password'
+          user: process.env.SMTP_USER || 'kavram.triko@gmail.com',
+          pass: process.env.SMTP_PASS || 'yqarfkyevahfnenq'
         }
       });
 

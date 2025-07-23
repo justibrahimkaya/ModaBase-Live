@@ -118,6 +118,18 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
+    // ✅ EMAIL SERVİSİNİ BAŞLAT
+    console.log('📧 Email servisi başlatılıyor...')
+    EmailService.initialize({
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER || 'kavram.triko@gmail.com',
+        pass: process.env.SMTP_PASS || 'yqarfkyevahfnenq'
+      }
+    })
+
     // Müşteriye havale bilgilerini e-posta ile gönder
     try {
       console.log('📧 Havale bilgileri e-postası gönderiliyor:', customerEmail);

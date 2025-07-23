@@ -203,14 +203,14 @@ export async function POST(request: NextRequest) {
       const customerName = orderWithDetails.user?.name || orderWithDetails.guestName || 'Müşteri';
 
       if (customerEmail) {
-        // E-posta servisini başlat (gerçek ortamda environment variables kullanılmalı)
+        // E-posta servisini başlat
         EmailService.initialize({
-          host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-          port: parseInt(process.env.EMAIL_PORT || '587'),
+          host: process.env.SMTP_HOST || 'smtp.gmail.com',
+          port: parseInt(process.env.SMTP_PORT || '587'),
           secure: false,
           auth: {
-            user: process.env.EMAIL_USER || 'test@example.com',
-            pass: process.env.EMAIL_PASS || 'password'
+            user: process.env.SMTP_USER || 'kavram.triko@gmail.com',
+            pass: process.env.SMTP_PASS || 'yqarfkyevahfnenq'
           }
         });
 
@@ -262,16 +262,16 @@ export async function POST(request: NextRequest) {
     });
 
     if (business && business.contactEmail) {
-      // İşletme sahibine yeni sipariş bildirimi gönder
-      EmailService.initialize({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: false,
-        auth: {
-          user: process.env.SMTP_USER || 'info@modabase.com.tr',
-          pass: process.env.SMTP_PASS || 'password'
-        }
-      });
+             // İşletme sahibine yeni sipariş bildirimi gönder
+       EmailService.initialize({
+         host: process.env.SMTP_HOST || 'smtp.gmail.com',
+         port: parseInt(process.env.SMTP_PORT || '587'),
+         secure: false,
+         auth: {
+           user: process.env.SMTP_USER || 'kavram.triko@gmail.com',
+           pass: process.env.SMTP_PASS || 'yqarfkyevahfnenq'
+         }
+       });
 
       const customerName = order.user ? `${order.user.name} ${order.user.surname}` : 
                           order.guestName && order.guestSurname ? `${order.guestName} ${order.guestSurname}` : 

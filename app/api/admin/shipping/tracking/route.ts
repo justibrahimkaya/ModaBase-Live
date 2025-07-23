@@ -50,6 +50,17 @@ export async function POST(request: NextRequest) {
 
     if (customerEmail) {
       try {
+        // Email servisini başlat
+        EmailService.initialize({
+          host: process.env.SMTP_HOST || 'smtp.gmail.com',
+          port: parseInt(process.env.SMTP_PORT || '587'),
+          secure: false,
+          auth: {
+            user: process.env.SMTP_USER || 'kavram.triko@gmail.com',
+            pass: process.env.SMTP_PASS || 'yqarfkyevahfnenq'
+          }
+        });
+
         await EmailService.sendShippingNotification({
           to: customerEmail,
           customerName,
@@ -146,6 +157,17 @@ export async function GET(request: NextRequest) {
 
           if (customerEmail) {
             try {
+              // Email servisini başlat
+              EmailService.initialize({
+                host: process.env.SMTP_HOST || 'smtp.gmail.com',
+                port: parseInt(process.env.SMTP_PORT || '587'),
+                secure: false,
+                auth: {
+                  user: process.env.SMTP_USER || 'kavram.triko@gmail.com',
+                  pass: process.env.SMTP_PASS || 'yqarfkyevahfnenq'
+                }
+              });
+
               await EmailService.sendDeliveryNotification({
                 to: customerEmail,
                 customerName,
