@@ -9,20 +9,10 @@ import { ShippingQuote } from '@/lib/shippingService'
 
 const steps = [
   { id: 1, label: 'Teslimat Bilgileri' },
-  { id: 2, label: 'Ödeme Bilgileri' },
-  { id: 3, label: 'Sipariş Özeti' }
+  { id: 2, label: 'Ödeme Yöntemi' }
 ]
 
-// Kargo seçenekleri - Dinamik olacak
-const shippingOptions = [
-  {
-    id: 'free',
-    name: 'Ücretsiz Kargo',
-    price: 0,
-    description: '2500₺ üzeri alışverişlerde',
-    icon: '🎁'
-  }
-]
+
 
 export default function CheckoutPage() {
   // Tüm hook'lar en başta
@@ -58,7 +48,7 @@ export default function CheckoutPage() {
     unvan: ''
   })
   const [invoiceErrors, setInvoiceErrors] = useState<{ [key: string]: string }>({})
-  const [selectedShipping, setSelectedShipping] = useState('standard')
+
   const [selectedCargoCompany, setSelectedCargoCompany] = useState<string>('')
   const [cargoQuotes, setCargoQuotes] = useState<ShippingQuote[]>([])
   const [isLoadingCargo, setIsLoadingCargo] = useState(false)
@@ -107,7 +97,7 @@ export default function CheckoutPage() {
   const getShippingCost = () => {
     const subtotal = getTotal()
     
-    // Ücretsiz kargo kontrolü
+    // 2500₺ üzeri alışverişlerde ücretsiz kargo
     if (subtotal >= 2500) return 0
     
     // Gerçek kargo firması seçilmişse
@@ -116,9 +106,8 @@ export default function CheckoutPage() {
       return selectedQuote ? selectedQuote.price : 0
     }
     
-    // Standart kargo seçenekleri
-    const selectedOption = shippingOptions.find(option => option.id === selectedShipping)
-    return selectedOption?.price || 49.90
+    // Kargo seçilmemişse 0 döndür
+    return 0
   }
 
   // Kargo fiyatlarını hesapla - GERÇEK API
@@ -199,7 +188,7 @@ export default function CheckoutPage() {
     if (!delivery.district) newErrors.district = 'İlçe zorunlu'
     if (!delivery.neighborhood) newErrors.neighborhood = 'Mahalle zorunlu'
     if (!delivery.address) newErrors.address = 'Açık adres zorunlu'
-    if (!selectedShipping) newErrors.shipping = 'Kargo seçimi zorunlu'
+    if (!selectedCargoCompany) newErrors.shipping = 'Kargo firması seçimi zorunlu'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -271,7 +260,7 @@ export default function CheckoutPage() {
         total: total,
         discount: discount,
         shippingCost: getShippingCost(),
-        shippingMethod: selectedShipping,
+        shippingMethod: selectedCargoCompany || 'cargo',
         paymentMethod: 'PAYTR',
         // Teslimat bilgileri
         guestName: delivery.name,
@@ -371,7 +360,7 @@ export default function CheckoutPage() {
         total: total,
         discount: discount,
         shippingCost: getShippingCost(),
-        shippingMethod: selectedShipping,
+        shippingMethod: selectedCargoCompany || 'cargo',
         paymentMethod: 'BANK_TRANSFER',
         // Teslimat bilgileri
         guestName: delivery.name,
@@ -533,25 +522,64 @@ export default function CheckoutPage() {
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
                   <h4 className="font-medium text-yellow-800 mb-2">🔍 Debug Bilgileri</h4>
                   <div className="text-sm text-yellow-700 space-y-1">
-                    <div>İl: {delivery.city || 'Boş'}</div>
-                    <div>İlçe: {delivery.district || 'Boş'}</div>
-                    <div>Kargo Firmaları: {cargoQuotes.length} adet</div>
-                    <div>Seçili Kargo: {selectedCargoCompany || 'Yok'}</div>
-                    <div>Loading: {isLoadingCargo ? 'Evet' : 'Hayır'}</div>
+                    <div>📍 İl: {delivery.city || 'Boş'}</div>
+                    <div>📍 İlçe: {delivery.district || 'Boş'}</div>
+                    <div>🚚 Kargo Firmaları: {cargoQuotes.length} adet</div>
+                    <div>✅ Seçili Kargo: {selectedCargoCompany || 'Yok'}</div>
+                    <div>⏳ Loading: {isLoadingCargo ? 'Evet' : 'Hayır'}</div>
+                    <div>📦 Ürün Sayısı: {items.length}</div>
+                    <div>💰 Toplam Tutar: {subtotal.toFixed(2)}₺</div>
+                    <div>🎯 Kargo Ücreti: {getShippingCost().toFixed(2)}₺</div>
+                    <div>🎁 Ücretsiz Kargo: {subtotal >= 2500 ? 'Evet (2500₺+)' : 'Hayır'}</div>
                   </div>
-                  <button
-                    onClick={calculateCargoPrices}
-                    disabled={!delivery.city || !delivery.district}
-                    className="mt-2 px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 disabled:opacity-50"
-                  >
-                    Kargo Fiyatlarını Hesapla
-                  </button>
+                  <div className="mt-2 space-x-2">
+                    <button
+                      onClick={calculateCargoPrices}
+                      disabled={!delivery.city || !delivery.district}
+                      className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 disabled:opacity-50"
+                    >
+                      🔄 Kargo Fiyatlarını Hesapla
+                    </button>
+                    <button
+                      onClick={() => {
+                        console.log('📊 Debug Bilgileri:');
+                        console.log('- İl:', delivery.city);
+                        console.log('- İlçe:', delivery.district);
+                        console.log('- Kargo Firmaları:', cargoQuotes);
+                        console.log('- Seçili Kargo:', selectedCargoCompany);
+                        console.log('- Ürünler:', items);
+                        console.log('- Ücretsiz Kargo:', subtotal >= 2500);
+                      }}
+                      className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                    >
+                      📊 Console Log
+                    </button>
+                  </div>
                 </div>
 
                 {/* Gerçek Kargo Firmaları */}
                 {cargoQuotes.length > 0 && (
                   <div className="space-y-3">
                     <h4 className="font-medium text-gray-900">🚚 Kargo Firmaları</h4>
+                    
+                    {/* Ücretsiz Kargo Bilgisi */}
+                    {subtotal >= 2500 && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+                        <div className="flex items-center">
+                          <span className="text-green-600 text-xl mr-2">🎁</span>
+                          <div>
+                            <div className="font-medium text-green-800">Ücretsiz Kargo!</div>
+                            <div className="text-sm text-green-700">
+                              2500₺ üzeri alışverişinizde kargo ücreti alınmaz.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="text-sm text-gray-600 mb-3">
+                      {cargoQuotes.length} kargo firmasından birini seçin:
+                    </div>
                     {cargoQuotes.map((quote) => {
                       const isSelected = selectedCargoCompany === quote.companyId
                       return (
@@ -570,7 +598,6 @@ export default function CheckoutPage() {
                             checked={isSelected}
                             onChange={(e) => {
                               setSelectedCargoCompany(e.target.value)
-                              setSelectedShipping('')
                             }}
                             className="sr-only"
                           />
@@ -599,63 +626,32 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                {/* Ücretsiz Kargo Seçeneği */}
-                <div className="space-y-3">
-                  {shippingOptions.map((option) => {
-                    const isFree = option.id === 'free' && subtotal >= 2500
-                    const isSelected = selectedShipping === option.id && !selectedCargoCompany
-                    return (
-                      <label
-                        key={option.id}
-                        className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
-                          isSelected 
-                            ? 'border-primary-500 bg-primary-50' 
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="shipping"
-                          value={option.id}
-                          checked={selectedShipping === option.id && !selectedCargoCompany}
-                          onChange={(e) => {
-                            setSelectedShipping(e.target.value)
-                            setSelectedCargoCompany('')
-                          }}
-                          className="sr-only"
-                        />
-                        <div className="flex items-center justify-center w-5 h-5 border-2 rounded-full mr-3">
-                          {isSelected && (
-                            <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>
-                          )}
+                {/* Kargo Seçimi Bilgisi */}
+                {!delivery.city || !delivery.district ? (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-center">
+                      <span className="text-blue-600 text-xl mr-2">ℹ️</span>
+                      <div>
+                        <div className="font-medium text-blue-800">Kargo Fiyatları</div>
+                        <div className="text-sm text-blue-700">
+                          İl ve ilçe bilgilerinizi doldurduktan sonra gerçek kargo firmaları ve fiyatları görünecektir.
                         </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                              <span className="text-xl mr-2">{option.icon}</span>
-                              <div>
-                                <div className="font-medium text-gray-900">{option.name}</div>
-                                <div className="text-sm text-gray-500">{option.description}</div>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              {isFree ? (
-                                <span className="text-green-600 font-semibold">Ücretsiz</span>
-                              ) : (
-                                <span className="font-semibold text-gray-900">{option.price.toFixed(2)}₺</span>
-                              )}
-                            </div>
-                          </div>
-                          {option.id === 'free' && subtotal < 2500 && (
-                            <div className="text-xs text-gray-500 mt-1">
-                              {2500 - subtotal}₺ daha alışveriş yapın, ücretsiz kargo kazanın
-                            </div>
-                          )}
+                      </div>
+                    </div>
+                  </div>
+                ) : cargoQuotes.length === 0 ? (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-center">
+                      <span className="text-yellow-600 text-xl mr-2">⏳</span>
+                      <div>
+                        <div className="font-medium text-yellow-800">Kargo Fiyatları Hesaplanıyor</div>
+                        <div className="text-sm text-yellow-700">
+                          Kargo firmaları ve fiyatları yükleniyor...
                         </div>
-                      </label>
-                    )
-                  })}
-                </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
                 {errors.shipping && <span className="text-xs text-red-500">{errors.shipping}</span>}
               </div>
 
@@ -837,30 +833,18 @@ export default function CheckoutPage() {
 
           {step === 2 && (
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Ödeme Bilgileri</h2>
-              <div className="flex flex-col items-center justify-center py-8">
-                <p className="text-lg text-gray-700 mb-6">Ödeme işleminiz PayTR ile güvenli şekilde alınacaktır.</p>
-                <button
-                  type="button"
-                  onClick={() => setStep(3)}
-                  className="btn-primary px-8 py-3 text-lg"
-                >
-                  Devam Et
-                </button>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Ödeme Yöntemi Seçimi</h2>
+              <p className="text-gray-600 mb-6">Güvenli ödeme için 2 seçeneğiniz bulunmaktadır:</p>
               
-              {/* Ödeme Yöntemi Seçimi */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Ödeme Yöntemi Seçin</h3>
+                              {/* Ödeme Yöntemi Seçimi */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Ödeme Yöntemi Seçin</h3>
+                  <div className="text-sm text-gray-600 mb-4">
+                    Aşağıdaki 2 güvenli ödeme yönteminden birini seçin:
+                  </div>
                 
                 {/* PayTR Seçeneği */}
-                <label className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
+                <label className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
                   selectedPaymentMethod === 'paytr' 
                     ? 'border-primary-500 bg-primary-50' 
                     : 'border-gray-200 hover:border-gray-300'
@@ -880,9 +864,12 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Kredi Kartı / Taksitli Ödeme</h4>
-                        <p className="text-sm text-gray-600">PayTR ile güvenli ödeme</p>
+                      <div className="flex items-center">
+                        <span className="text-2xl mr-3">💳</span>
+                        <div>
+                          <h4 className="font-semibold text-gray-900">Kredi Kartı / Taksitli Ödeme</h4>
+                          <p className="text-sm text-gray-600">PayTR ile güvenli ödeme</p>
+                        </div>
                       </div>
                       <div className="text-right">
                         <div className="text-xs text-gray-500">Komisyon</div>
@@ -893,7 +880,7 @@ export default function CheckoutPage() {
                 </label>
 
                 {/* Havale Seçeneği */}
-                <label className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
+                <label className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
                   selectedPaymentMethod === 'bank-transfer' 
                     ? 'border-primary-500 bg-primary-50' 
                     : 'border-gray-200 hover:border-gray-300'
@@ -913,9 +900,12 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Havale / EFT</h4>
-                        <p className="text-sm text-gray-600">Direkt işletme IBAN'ına havale</p>
+                      <div className="flex items-center">
+                        <span className="text-2xl mr-3">🏦</span>
+                        <div>
+                          <h4 className="font-semibold text-gray-900">Havale / EFT</h4>
+                          <p className="text-sm text-gray-600">Direkt işletme IBAN'ına havale</p>
+                        </div>
                       </div>
                       <div className="text-right">
                         <div className="text-xs text-gray-500">Komisyon</div>
@@ -1028,7 +1018,7 @@ export default function CheckoutPage() {
               </div>
               {/* Siparişi Tamamla */}
               <div className="flex justify-between mt-6">
-                <button type="button" onClick={() => setStep(2)} className="btn-secondary px-8 py-3 text-lg">Geri</button>
+                <button type="button" onClick={() => setStep(1)} className="btn-secondary px-8 py-3 text-lg">Geri</button>
                 <button
                   type="button"
                   onClick={selectedPaymentMethod === 'paytr' ? handlePaytrPayment : handleBankTransferPayment}

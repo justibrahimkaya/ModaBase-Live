@@ -64,27 +64,8 @@ const calculatePrice = (desi: number, pricing: PricingTier[]): number => {
   return lastTier?.price || 0;
 };
 
-// Kargo firmaları konfigürasyonu - GERÇEK FİYATLAR
+// Kargo firmaları konfigürasyonu - KARGONOMİ GERÇEK FİYATLAR
 export const cargoCompanies: CargoCompany[] = [
-  {
-    id: 'kolaygelsin',
-    name: 'Kolay Gelsin',
-    logo: '/cargo-logos/kolaygelsin.png',
-    apiEndpoint: process.env.KOLAYGELSIN_API_ENDPOINT || '',
-    apiKey: process.env.KOLAYGELSIN_API_KEY || '',
-    isActive: true,
-    kdvRate: 20,
-    pricing: [
-      { minDesi: 0, maxDesi: 2, price: 89.00 },
-      { minDesi: 3, maxDesi: 5, price: 119.00 },
-      { minDesi: 6, maxDesi: 10, price: 169.00 },
-      { minDesi: 11, maxDesi: 15, price: 211.00 },
-      { minDesi: 16, maxDesi: 20, price: 250.00 },
-      { minDesi: 21, maxDesi: 25, price: 278.00 },
-      { minDesi: 26, maxDesi: 30, price: 324.00 },
-      { minDesi: 31, maxDesi: 999, price: 324.00, additionalPrice: 8.40 }
-    ]
-  },
   {
     id: 'aras',
     name: 'Aras Kargo',
@@ -94,13 +75,13 @@ export const cargoCompanies: CargoCompany[] = [
     isActive: true,
     kdvRate: 20,
     pricing: [
-      { minDesi: 0, maxDesi: 1, price: 96.47 }, // Şehir dışı fiyatı (daha yüksek)
-      { minDesi: 2, maxDesi: 2, price: 101.61 },
+      { minDesi: 0, maxDesi: 1, price: 96.47 }, // Şehir dışı fiyatı
+      { minDesi: 2, maxDesi: 2, price: 109.34 },
       { minDesi: 3, maxDesi: 5, price: 156.40 },
       { minDesi: 6, maxDesi: 10, price: 211.92 },
-      { minDesi: 11, maxDesi: 15, price: 270.00 },
+      { minDesi: 11, maxDesi: 15, price: 265.46 },
       { minDesi: 16, maxDesi: 20, price: 337.34 },
-      { minDesi: 21, maxDesi: 25, price: 400.00 },
+      { minDesi: 21, maxDesi: 25, price: 418.35 },
       { minDesi: 26, maxDesi: 30, price: 485.64 },
       { minDesi: 31, maxDesi: 999, price: 485.64, additionalPrice: 13.37 }
     ]

@@ -45,6 +45,8 @@ export async function POST(request: NextRequest) {
 
     // Kargonomi API ile gerçek fiyat hesaplama
     try {
+      console.log('🚚 Kargonomi API ile gerçek fiyat hesaplanıyor...');
+      
       // Örnek gönderi oluştur (gerçek uygulamada adres bilgileri kullanılacak)
       const shipment = createKargonomiShipment(
         {
@@ -71,11 +73,15 @@ export async function POST(request: NextRequest) {
         }]
       );
 
+      console.log('📦 Gönderi oluşturuluyor:', shipment);
+      
       // Gönderi oluştur
       const createdShipment = await kargonomiAPI.createShipment(shipment);
+      console.log('✅ Gönderi oluşturuldu:', createdShipment);
       
       // Fiyat karşılaştırması al
       const priceComparison = await kargonomiAPI.getPriceComparison(createdShipment.id);
+      console.log('💰 Fiyat karşılaştırması:', priceComparison);
 
       // Kargonomi formatından bizim formatımıza çevir
       const quotes = priceComparison.providers.map(provider => ({
@@ -86,38 +92,57 @@ export async function POST(request: NextRequest) {
         isAvailable: true
       }));
 
+      console.log('✅ Gerçek kargo fiyatları alındı:', quotes.length, 'firma');
+
       return NextResponse.json({
         success: true,
         packageInfo,
         quotes,
         totalWeight: Math.round(totalWeight * 100) / 100,
         desi: Math.round(desi * 10) / 10,
-        shipmentId: createdShipment.id
+        shipmentId: createdShipment.id,
+        source: 'Kargonomi API'
       });
 
     } catch (kargonomiError) {
-      console.error('Kargonomi API error:', kargonomiError);
+      console.error('❌ Kargonomi API error:', kargonomiError);
       
-      // Kargonomi API çalışmıyorsa mock fiyatlar döndür
-      const mockQuotes = [
-        {
-          companyId: 'kolaygelsin',
-          companyName: 'Kolay Gelsin',
-          price: desi <= 2 ? 106.80 : desi <= 5 ? 142.80 : 202.80,
-          estimatedDays: 2,
-          isAvailable: true
-        },
+      // Kargonomi API çalışmıyorsa gerçek fiyatları kullan
+      console.log('🔄 Gerçek fiyatlar kullanılıyor...');
+      
+      const realQuotes = [
         {
           companyId: 'aras',
           companyName: 'Aras Kargo',
-          price: desi <= 1 ? 115.76 : desi <= 5 ? 187.68 : 254.30,
+          price: desi <= 1 ? 115.76 : desi <= 2 ? 131.21 : desi <= 5 ? 187.68 : desi <= 10 ? 254.30 : desi <= 15 ? 318.55 : desi <= 20 ? 404.81 : desi <= 25 ? 502.04 : desi <= 30 ? 582.77 : 582.77,
           estimatedDays: 3,
           isAvailable: true
         },
         {
           companyId: 'surat',
           companyName: 'Sürat Kargo',
-          price: desi <= 2 ? 94.99 : desi <= 5 ? 112.49 : 143.93,
+          price: desi <= 2 ? 94.99 : desi <= 5 ? 112.49 : desi <= 10 ? 143.93 : desi <= 15 ? 179.30 : desi <= 20 ? 239.08 : desi <= 25 ? 311.30 : desi <= 30 ? 373.57 : 373.57,
+          estimatedDays: 2,
+          isAvailable: true
+        },
+        {
+          companyId: 'ptt',
+          companyName: 'PTT Kargo',
+          price: desi <= 0.5 ? 83.88 : desi <= 2 ? 97.50 : desi <= 5 ? 128.40 : desi <= 10 ? 178.80 : desi <= 15 ? 252.00 : desi <= 20 ? 306.00 : desi <= 25 ? 375.60 : desi <= 30 ? 444.00 : 444.00,
+          estimatedDays: 3,
+          isAvailable: true
+        },
+        {
+          companyId: 'hepsijet',
+          companyName: 'Hepsijet',
+          price: desi <= 2 ? 83.88 : desi <= 5 ? 107.88 : desi <= 10 ? 141.60 : desi <= 20 ? 204.00 : desi <= 30 ? 312.00 : 312.00,
+          estimatedDays: 2,
+          isAvailable: true
+        },
+        {
+          companyId: 'ups',
+          companyName: 'UPS Kargo',
+          price: desi <= 2 ? 102.60 : desi <= 5 ? 107.88 : desi <= 10 ? 133.20 : desi <= 15 ? 162.00 : desi <= 20 ? 181.20 : desi <= 25 ? 210.00 : desi <= 30 ? 256.80 : desi <= 40 ? 325.20 : desi <= 50 ? 409.20 : 409.20,
           estimatedDays: 2,
           isAvailable: true
         }
@@ -126,10 +151,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         packageInfo,
-        quotes: mockQuotes,
+        quotes: realQuotes,
         totalWeight: Math.round(totalWeight * 100) / 100,
         desi: Math.round(desi * 10) / 10,
-        note: 'Mock fiyatlar kullanılıyor (Kargonomi API bağlantısı kurulamadı)'
+        note: 'Gerçek fiyatlar kullanılıyor (Kargonomi API bağlantısı kurulamadı)',
+        source: 'Real Prices'
       });
     }
 

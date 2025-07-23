@@ -311,18 +311,8 @@ async function main() {
     })
   ])
 
-  // Kargo firmaları oluştur
+  // Kargo firmaları oluştur - KARGONOMİ FIRMALARI
   await Promise.all([
-    prisma.shippingCompany.upsert({
-      where: { code: 'yurtici' },
-      update: {},
-      create: {
-        name: 'Yurtiçi Kargo',
-        code: 'yurtici',
-        apiUrl: 'https://api.yurticikargo.com',
-        isActive: true
-      }
-    }),
     prisma.shippingCompany.upsert({
       where: { code: 'aras' },
       update: {},
@@ -334,12 +324,12 @@ async function main() {
       }
     }),
     prisma.shippingCompany.upsert({
-      where: { code: 'mng' },
+      where: { code: 'surat' },
       update: {},
       create: {
-        name: 'MNG Kargo',
-        code: 'mng',
-        apiUrl: 'https://api.mngkargo.com',
+        name: 'Sürat Kargo',
+        code: 'surat',
+        apiUrl: 'https://api.suratkargo.com',
         isActive: true
       }
     }),
@@ -350,6 +340,26 @@ async function main() {
         name: 'PTT Kargo',
         code: 'ptt',
         apiUrl: 'https://api.pttkargo.com',
+        isActive: true
+      }
+    }),
+    prisma.shippingCompany.upsert({
+      where: { code: 'hepsijet' },
+      update: {},
+      create: {
+        name: 'Hepsijet',
+        code: 'hepsijet',
+        apiUrl: 'https://api.hepsijet.com',
+        isActive: true
+      }
+    }),
+    prisma.shippingCompany.upsert({
+      where: { code: 'ups' },
+      update: {},
+      create: {
+        name: 'UPS Kargo',
+        code: 'ups',
+        apiUrl: 'https://api.ups.com',
         isActive: true
       }
     })
