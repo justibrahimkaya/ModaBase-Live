@@ -34,7 +34,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
     <div className="space-y-4">
       {/* Main Image */}
       <div className="relative group">
-        <div className="aspect-w-3 aspect-h-4 bg-gray-100 rounded-lg overflow-hidden">
+        <div className="aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden">
           <img
             src={productImages[selectedImage]?.src || productImages[0]?.src}
             alt={productImages[selectedImage]?.alt || productImages[0]?.alt}
@@ -84,7 +84,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
             <button
               key={image.id}
               onClick={() => setSelectedImage(index)}
-              className={`aspect-w-1 aspect-h-1 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+              className={`aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 ${
                 selectedImage === index
                   ? 'border-primary-600 ring-2 ring-primary-200'
                   : 'border-gray-200 hover:border-gray-300'

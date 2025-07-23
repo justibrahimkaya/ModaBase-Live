@@ -26,25 +26,7 @@ interface ProductOptionsProps {
   setQuantity: (quantity: number) => void
 }
 
-// Standart beden listesi
-const allSizes = [
-  { id: 'xs', name: 'XS' },
-  { id: 's', name: 'S' },
-  { id: 'm', name: 'M' },
-  { id: 'l', name: 'L' },
-  { id: 'xl', name: 'XL' },
-  { id: 'xxl', name: 'XXL' }
-]
 
-// Standart renk listesi
-const allColors = [
-  { id: 'blue', name: 'Mavi', hex: '#3b82f6' },
-  { id: 'red', name: 'Kırmızı', hex: '#ef4444' },
-  { id: 'green', name: 'Yeşil', hex: '#10b981' },
-  { id: 'yellow', name: 'Sarı', hex: '#f59e0b' },
-  { id: 'black', name: 'Siyah', hex: '#000000' },
-  { id: 'white', name: 'Beyaz', hex: '#ffffff' }
-]
 
 export default function ProductOptions({
   variants,
@@ -55,17 +37,22 @@ export default function ProductOptions({
   quantity,
   setQuantity
 }: ProductOptionsProps) {
-  // Mevcut varyantlardan bedenleri çıkar
-  const availableSizes = allSizes.map(size => ({
-    ...size,
-    available: variants.some(v => v.size?.toLowerCase() === size.id && v.stock > 0)
-  }))
+  // Varyantlardan gerçek bedenleri çıkar
+  const availableSizes = variants
+    .filter(v => v.size && v.stock > 0)
+    .map(v => v.size!)
+    .filter((size, index, arr) => arr.indexOf(size) === index) // Tekrarları kaldır
+    .sort()
 
-  // Mevcut varyantlardan renkleri çıkar
-  const availableColors = allColors.map(color => ({
-    ...color,
-    available: variants.some(v => v.color?.toLowerCase() === color.id && v.stock > 0)
-  }))
+  // Varyantlardan gerçek renkleri çıkar
+  const availableColors = variants
+    .filter(v => v.color && v.stock > 0)
+    .map(v => ({
+      name: v.color!,
+      code: v.colorCode || '',
+      hex: v.colorCode || '#cccccc' // Varsayılan renk
+    }))
+    .filter((color, index, arr) => arr.findIndex(c => c.name === color.name) === index) // Tekrarları kaldır
 
   // Seçili varyantın stok miktarını bul
   const selectedVariant = variants.find(v => 
@@ -98,24 +85,21 @@ export default function ProductOptions({
         <div className="grid grid-cols-6 gap-2">
           {availableSizes.map((size) => (
             <button
-              key={size.id}
-              onClick={() => size.available && setSelectedSize(size.id)}
-              disabled={!size.available}
+              key={size}
+              onClick={() => setSelectedSize(size)}
               className={`py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all duration-200 ${
-                selectedSize === size.id
+                selectedSize === size
                   ? 'border-primary-600 bg-primary-50 text-primary-700'
-                  : size.available
-                  ? 'border-gray-300 hover:border-gray-400 text-gray-700'
-                  : 'border-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'border-gray-300 hover:border-gray-400 text-gray-700'
               }`}
             >
-              {size.name}
+              {size}
             </button>
           ))}
         </div>
         {selectedSize && (
           <p className="text-sm text-green-600 mt-2">
-            ✓ {availableSizes.find(s => s.id === selectedSize)?.name} bedeni seçildi
+            ✓ {selectedSize} bedeni seçildi
           </p>
         )}
       </div>
@@ -126,30 +110,22 @@ export default function ProductOptions({
         <div className="flex space-x-3">
           {availableColors.map((color) => (
             <button
-              key={color.id}
-              onClick={() => color.available && setSelectedColor(color.id)}
-              disabled={!color.available}
+              key={color.name}
+              onClick={() => setSelectedColor(color.name)}
               className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 ${
-                selectedColor === color.id
+                selectedColor === color.name
                   ? 'border-primary-600 ring-2 ring-primary-200'
-                  : color.available
-                  ? 'border-gray-300 hover:border-gray-400'
-                  : 'border-gray-200 opacity-50 cursor-not-allowed'
+                  : 'border-gray-300 hover:border-gray-400'
               }`}
               style={{ backgroundColor: color.hex }}
               title={color.name}
             >
-              {!color.available && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-6 h-0.5 bg-gray-400 rotate-45"></div>
-                </div>
-              )}
             </button>
           ))}
         </div>
         {selectedColor && (
           <p className="text-sm text-green-600 mt-2">
-            ✓ {availableColors.find(c => c.id === selectedColor)?.name} rengi seçildi
+            ✓ {selectedColor} rengi seçildi
           </p>
         )}
       </div>
@@ -190,10 +166,10 @@ export default function ProductOptions({
           <h4 className="font-medium text-gray-900 mb-2">Seçimleriniz</h4>
           <div className="space-y-1 text-sm text-gray-600">
             {selectedSize && (
-              <p>Beden: {availableSizes.find(s => s.id === selectedSize)?.name}</p>
+              <p>Beden: {selectedSize}</p>
             )}
             {selectedColor && (
-              <p>Renk: {availableColors.find(c => c.id === selectedColor)?.name}</p>
+              <p>Renk: {selectedColor}</p>
             )}
             <p>Adet: {quantity}</p>
             {selectedVariant && (
