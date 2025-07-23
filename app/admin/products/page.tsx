@@ -591,11 +591,12 @@ export default function AdminProductsPage() {
     setError('')
 
     try {
-      // Resimleri çok agresif optimize et
+      // Resimleri optimize et - daha esnek limit
       const optimizedImages = form.images.map((img: string) => {
-        // 10KB'dan büyükse placeholder kullan
-        if (img.length > 10000) {
-          return 'https://via.placeholder.com/200x200/cccccc/666666?text=Resim'
+        // 100KB'dan büyükse placeholder kullan (10KB'dan 100KB'a çıkarıldı)
+        if (img.length > 100000) {
+          console.log('Resim çok büyük, placeholder kullanılıyor:', img.length, 'bytes')
+          return 'https://via.placeholder.com/400x400/cccccc/666666?text=Resim'
         }
         return img
       })
@@ -615,8 +616,8 @@ export default function AdminProductsPage() {
       const payloadSize = JSON.stringify(payload).length
       console.log('Payload boyutu:', payloadSize, 'bytes')
       
-      // 1MB'dan büyükse hata ver
-      if (payloadSize > 1 * 1024 * 1024) {
+      // 5MB'dan büyükse hata ver (1MB'dan 5MB'a çıkarıldı)
+      if (payloadSize > 5 * 1024 * 1024) {
         setError('Ürün verisi çok büyük. Lütfen daha az resim ekleyin veya resimleri küçültün.')
         setSaving(false)
         return
@@ -776,12 +777,16 @@ export default function AdminProductsPage() {
       <div className="group relative bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105">
         {/* Image Section */}
         <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100">
-          {images.length > 0 ? (
+          {images.length > 0 && images[0] ? (
             <div className="relative h-full">
               <img
                 src={images[0]}
                 alt={product.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                onError={(e) => {
+                  console.log('Resim yüklenemedi:', images[0])
+                  e.currentTarget.src = 'https://via.placeholder.com/400x400/cccccc/666666?text=Resim'
+                }}
               />
               {images.length > 1 && (
                 <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
