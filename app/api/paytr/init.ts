@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
     const paymentAmount = Math.round(parseFloat(body.amount) * 100).toString(); // Kuruş cinsinden
     
     // ✅ DÜZELTME: merchant_oid'den özel karakterleri temizle (PayTR alfanumerik istiyor)
+    // Alt çizgi (_) ve diğer özel karakterleri kaldır
     const sanitizedMerchantOid = body.merchant_oid.replace(/[^a-zA-Z0-9]/g, '');
     
     const params = new URLSearchParams();

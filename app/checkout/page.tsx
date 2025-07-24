@@ -307,7 +307,7 @@ export default function CheckoutPage() {
 
       // PayTR token isteği
       const paytrData = {
-        merchant_oid: orderId,
+        merchant_oid: orderId.replace(/[^a-zA-Z0-9]/g, ''), // Alt çizgi ve özel karakterleri kaldır
         amount: total.toString(), // TL cinsinden (API'de kuruş'a çevrilecek)
         email: delivery.email,
         user_ip: '127.0.0.1',
