@@ -52,11 +52,12 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.google-analytics.com https://www.googletagmanager.com https://js.stripe.com",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.google-analytics.com https://www.googletagmanager.com https://js.stripe.com https://www.paytr.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
-              "img-src 'self' data: https: blob: https://images.unsplash.com https://via.placeholder.com https://res.cloudinary.com",
+              "img-src 'self' data: https: blob: https://images.unsplash.com https://via.placeholder.com https://res.cloudinary.com https://www.paytr.com",
               "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
-              "connect-src 'self' https://www.google-analytics.com https://api.stripe.com wss://localhost:*",
+              "connect-src 'self' https://www.google-analytics.com https://api.stripe.com https://www.paytr.com wss://localhost:*",
+              "frame-src 'self' https://www.paytr.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
@@ -89,7 +90,7 @@ const nextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(), payment=()'
+            value: 'camera=(), microphone=(), geolocation=(), payment=(self)'
           },
           {
             key: 'X-Permitted-Cross-Domain-Policies',
