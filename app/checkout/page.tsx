@@ -353,8 +353,17 @@ export default function CheckoutPage() {
       
       if ((data.success || data.status === 'success') && data.token) {
         console.log('🎉 PayTR token başarılı:', data.token)
-        setPaytrUrl(`https://www.paytr.com/odeme/guvenli/${data.token}`)
-        setShowPaytrIframe(true)
+        const paytrUrl = `https://www.paytr.com/odeme/guvenli/${data.token}`
+        console.log('🔗 PayTR URL:', paytrUrl)
+        
+        // İframe yerine yeni sekmede aç
+        window.open(paytrUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')
+        
+        // Modal'ı kapat
+        setShowPaytrIframe(false)
+        
+        // Kullanıcıya bilgi ver
+        alert('PayTR ödeme sayfası yeni sekmede açıldı. Ödemenizi tamamladıktan sonra bu sayfaya geri dönebilirsiniz.')
       } else {
         console.error('❌ PayTR token başarısız:', data)
         
