@@ -19,8 +19,8 @@ export async function POST(request: NextRequest) {
     const payment_type = formData.get('payment_type') as string;
     const failed_reason_msg = formData.get('failed_reason_msg') as string;
 
-    // Hash doğrulama
-    const hashStr = `${PAYTR_MERCHANT_SALT}${merchant_oid}${status}${total_amount}`;
+    // Hash doğrulama - PayTR resmi formülü
+    const hashStr = `${merchant_oid}${PAYTR_MERCHANT_SALT}${status}${total_amount}`;
     const calculatedHash = crypto.createHmac('sha256', PAYTR_MERCHANT_KEY).update(hashStr).digest('base64');
 
     if (hash !== calculatedHash) {
