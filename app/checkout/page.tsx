@@ -346,7 +346,7 @@ export default function CheckoutPage() {
       
       if (data.success && data.token) {
         console.log('🎉 PayTR token başarılı:', data.token)
-        setPaytrUrl(`${data.paytr_url}?token=${data.token}`)
+        setPaytrUrl(`${data.paytr_url}${data.token}`)
         setShowPaytrIframe(true)
       } else {
         console.error('❌ PayTR token başarısız:', data)
