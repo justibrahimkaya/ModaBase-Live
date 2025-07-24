@@ -12,7 +12,10 @@ const PAYTR_BASE_URL = PAYTR_TEST_MODE
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔄 PayTR init başlatıldı');
+    console.log('🔄 PayTR init başlatıldı - CANLI ORTAM');
+    console.log('🌐 Request URL:', request.url);
+    console.log('🔧 Request Method:', request.method);
+    console.log('📋 Request Headers:', Object.fromEntries(request.headers.entries()));
     console.log('📋 Environment değerleri:');
     console.log(`   PAYTR_MERCHANT_ID: ${PAYTR_MERCHANT_ID}`);
     console.log(`   PAYTR_MERCHANT_KEY: ${PAYTR_MERCHANT_KEY ? 'SET' : 'NOT SET'}`);

@@ -325,6 +325,7 @@ export default function CheckoutPage() {
       })
 
       console.log('📡 PayTR API yanıt durumu:', res.status, res.statusText)
+      console.log('📡 PayTR API yanıt headers:', Object.fromEntries(res.headers.entries()))
 
       // Response'u parse etmeye çalış
       let data;
