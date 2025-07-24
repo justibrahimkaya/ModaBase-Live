@@ -70,8 +70,8 @@ export function middleware(request: NextRequest) {
   // Enhanced rate limiting with different limits for different endpoints
   const pathname = request.nextUrl.pathname
   
-  // API rate limiting
-  if (pathname.startsWith('/api/')) {
+  // API rate limiting - PayTR notification hariç tüm endpoint'ler için
+  if (pathname.startsWith('/api/') && !pathname.includes('/paytr/notification')) {
     // General API limit
     if (isRateLimited(`api_${ip}`, 200, 15 * 60 * 1000)) {
       return new NextResponse(
@@ -111,7 +111,7 @@ export function middleware(request: NextRequest) {
     }
     
     // Payment endpoints need extra protection (but not PayTR notifications)
-    if ((pathname.includes('/paytr/') || pathname.includes('/payment/')) && !pathname.includes('/paytr/notification')) {
+    if (pathname.includes('/paytr/') || pathname.includes('/payment/')) {
       if (isRateLimited(`payment_${ip}`, 10, 15 * 60 * 1000)) {
         return new NextResponse(
           JSON.stringify({ 

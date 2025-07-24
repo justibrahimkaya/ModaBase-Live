@@ -8,6 +8,9 @@ const PAYTR_MERCHANT_KEY = process.env.PAYTR_MERCHANT_KEY || 'srMxKnSgipN1Z1Td';
 const PAYTR_MERCHANT_SALT = process.env.PAYTR_MERCHANT_SALT || 'TzXLtjFSuyDPsi8B';
 
 export async function POST(request: NextRequest) {
+  // PayTR notification için rate limiting tamamen devre dışı
+  console.log('🔄 PayTR notification başlatıldı - Rate limiting devre dışı');
+  
   try {
     const formData = await request.formData();
     
