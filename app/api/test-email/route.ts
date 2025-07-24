@@ -10,6 +10,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Email servisi başlat
+    console.log('📧 Test email için EmailService başlatılıyor...');
+    console.log('📧 Environment değişkenleri:', {
+      SMTP_HOST: process.env.SMTP_HOST,
+      SMTP_PORT: process.env.SMTP_PORT,
+      SMTP_USER: process.env.SMTP_USER,
+      SMTP_PASS: process.env.SMTP_PASS ? '***SET***' : 'MISSING',
+      EMAIL_FROM: process.env.EMAIL_FROM
+    });
+    
     EmailService.initialize({
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.SMTP_PORT || '587'),

@@ -23,20 +23,45 @@ export class EmailService {
   private static transporter: nodemailer.Transporter;
 
   static initialize(config: EmailConfig) {
-    this.transporter = nodemailer.createTransport(config);
+    console.log('📧 EmailService initialize ediliyor...');
+    console.log('📧 Config:', {
+      host: config.host,
+      port: config.port,
+      secure: config.secure,
+      auth: {
+        user: config.auth.user,
+        pass: config.auth.pass ? '***SET***' : 'MISSING'
+      }
+    });
+    
+    try {
+      this.transporter = nodemailer.createTransport(config);
+      console.log('✅ EmailService başarıyla initialize edildi');
+    } catch (error) {
+      console.error('❌ EmailService initialize hatası:', error);
+      throw error;
+    }
   }
 
   // Otomatik initialize kontrolü
   private static ensureInitialized() {
     if (!this.transporter) {
       console.log('📧 EmailService otomatik initialize ediliyor...');
+      console.log('📧 SMTP Ayarları:', {
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: process.env.SMTP_PORT || '587',
+        user: process.env.SMTP_USER || 'kavram.triko@gmail.com',
+        pass: process.env.SMTP_PASS ? '***SET***' : 'MISSING',
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr'
+      });
+      
       this.initialize({
         host: process.env.SMTP_HOST || 'smtp.gmail.com',
         port: parseInt(process.env.SMTP_PORT || '587'),
         secure: false,
         auth: {
-          user: process.env.SMTP_USER || 'info@modabase.com.tr',
-          pass: process.env.SMTP_PASS || 'password'
+          user: process.env.SMTP_USER || 'kavram.triko@gmail.com',
+          pass: process.env.SMTP_PASS || 'yqarfkyevahfnenq'
         }
       });
     }
@@ -391,8 +416,10 @@ export class EmailService {
     transferNote: string;
   }): Promise<boolean> {
     try {
+      console.log('📧 sendBankTransferInstructions başlatılıyor...');
       this.ensureInitialized();
       
+      console.log('📧 Mail options hazırlanıyor...');
       const mailOptions = {
         from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
         to: data.to,
@@ -400,11 +427,26 @@ export class EmailService {
         html: this.generateBankTransferInstructionsHTML(data)
       };
 
-      await this.transporter.sendMail(mailOptions);
+      console.log('📧 Mail options:', {
+        from: mailOptions.from,
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+        htmlLength: mailOptions.html.length
+      });
+
+      console.log('📧 Email gönderiliyor...');
+      const result = await this.transporter.sendMail(mailOptions);
       console.log('✅ Havale talimatları e-postası gönderildi:', data.to);
+      console.log('✅ Email sonucu:', result);
       return true;
     } catch (error) {
       console.error('❌ Havale talimatları e-postası gönderme hatası:', error);
+      console.error('❌ Hata detayları:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        code: (error as any).code,
+        command: (error as any).command
+      });
       return false;
     }
   }
@@ -751,6 +793,9 @@ export class EmailService {
   // Şifre sıfırlama e-postası gönderme
   static async sendPasswordResetEmail(to: string, resetToken: string): Promise<boolean> {
     try {
+      console.log('📧 sendPasswordResetEmail başlatılıyor...');
+      this.ensureInitialized();
+      
       const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${resetToken}`;
       
       const mailOptions = {
@@ -760,10 +805,26 @@ export class EmailService {
         html: this.generatePasswordResetHTML(resetUrl)
       };
 
-      await this.transporter.sendMail(mailOptions);
+      console.log('📧 Mail options:', {
+        from: mailOptions.from,
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+        resetUrl: resetUrl
+      });
+
+      console.log('📧 Email gönderiliyor...');
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log('✅ Şifre sıfırlama e-postası gönderildi:', to);
+      console.log('✅ Email sonucu:', result);
       return true;
     } catch (error) {
-      console.error('Şifre sıfırlama e-postası gönderme hatası:', error);
+      console.error('❌ Şifre sıfırlama e-postası gönderme hatası:', error);
+      console.error('❌ Hata detayları:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        code: (error as any).code,
+        command: (error as any).command
+      });
       return false;
     }
   }

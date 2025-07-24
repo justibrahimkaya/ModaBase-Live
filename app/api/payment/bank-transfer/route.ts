@@ -120,6 +120,14 @@ export async function POST(request: NextRequest) {
 
     // ✅ EMAIL SERVİSİNİ BAŞLAT
     console.log('📧 Email servisi başlatılıyor...')
+    console.log('📧 Environment değişkenleri:', {
+      SMTP_HOST: process.env.SMTP_HOST,
+      SMTP_PORT: process.env.SMTP_PORT,
+      SMTP_USER: process.env.SMTP_USER,
+      SMTP_PASS: process.env.SMTP_PASS ? '***SET***' : 'MISSING',
+      EMAIL_FROM: process.env.EMAIL_FROM
+    })
+    
     EmailService.initialize({
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.SMTP_PORT || '587'),
@@ -133,8 +141,19 @@ export async function POST(request: NextRequest) {
     // Müşteriye havale bilgilerini e-posta ile gönder
     try {
       console.log('📧 Havale bilgileri e-postası gönderiliyor:', customerEmail);
+      console.log('📧 Email verileri:', {
+        to: customerEmail,
+        customerName: customerName,
+        orderId: orderId,
+        amount: transferAmount,
+        iban: business.ibanNumber,
+        accountHolder: business.accountHolderName || 'Belirtilmemiş',
+        bankName: business.bankName || 'Belirtilmemiş',
+        bankBranch: business.bankBranch || 'Belirtilmemiş',
+        transferNote: transferNote
+      });
       
-      await EmailService.sendBankTransferInstructions({
+      const emailResult = await EmailService.sendBankTransferInstructions({
         to: customerEmail,
         customerName: customerName,
         orderId: orderId,
@@ -146,10 +165,18 @@ export async function POST(request: NextRequest) {
         transferNote: transferNote
       });
 
-      console.log('✅ Havale bilgileri e-postası başarıyla gönderildi');
+      if (emailResult) {
+        console.log('✅ Havale bilgileri e-postası başarıyla gönderildi');
+      } else {
+        console.error('❌ Havale bilgileri e-postası gönderilemedi (false döndü)');
+      }
 
     } catch (emailError) {
       console.error('❌ Havale bilgileri e-postası gönderme hatası:', emailError);
+      console.error('❌ Hata detayları:', {
+        message: emailError instanceof Error ? emailError.message : 'Unknown error',
+        stack: emailError instanceof Error ? emailError.stack : undefined
+      });
     }
 
     // İşletme sahibine havale bildirimi gönder
