@@ -1115,16 +1115,23 @@ export default function CheckoutPage() {
                     ×
                   </button>
                 </div>
-                <iframe
-                  ref={paytrIframeRef}
-                  src={paytrUrl || ''}
-                  title="PayTR Güvenli Ödeme"
-                  className="w-full h-full border rounded"
-                  allow="payment *; camera *; microphone *; geolocation *"
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
-                  frameBorder="0"
-                  scrolling="auto"
-                />
+                <div className="w-full h-full">
+                  <iframe
+                    ref={paytrIframeRef}
+                    src={paytrUrl || ''}
+                    title="PayTR Güvenli Ödeme"
+                    className="w-full h-full border-0"
+                    allow="payment; camera; microphone; geolocation"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation allow-modals"
+                    frameBorder="0"
+                    scrolling="yes"
+                    style={{
+                      minHeight: '600px',
+                      border: 'none',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
               </div>
             </div>
           )}
