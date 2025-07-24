@@ -33,10 +33,13 @@ export async function POST(request: NextRequest) {
     // PayTR parametrelerini hazırla
     const paymentAmount = Math.round(parseFloat(body.amount) * 100).toString(); // Kuruş cinsinden
     
+    // ✅ DÜZELTME: merchant_oid'den özel karakterleri temizle (PayTR alfanumerik istiyor)
+    const sanitizedMerchantOid = body.merchant_oid.replace(/[^a-zA-Z0-9]/g, '');
+    
     const params = new URLSearchParams();
     params.append('merchant_id', PAYTR_MERCHANT_ID);
     params.append('user_ip', body.user_ip || '127.0.0.1');
-    params.append('merchant_oid', body.merchant_oid);
+    params.append('merchant_oid', sanitizedMerchantOid);
     params.append('email', body.email);
     params.append('payment_amount', paymentAmount); // ✅ DÜZELTME: payment_amount (kuruş)
     // params.append('paytr_token', ''); // PayTR token parametresi kaldırıldı
@@ -58,10 +61,12 @@ export async function POST(request: NextRequest) {
     // ✅ DÜZELTME: Hash hesaplama - doğru sıra ve format
     const testModeValue = PAYTR_TEST_MODE ? '1' : '0';
     const userBasket = JSON.stringify([['Sipariş', paymentAmount, 1]]);
-    const hashStr = `${PAYTR_MERCHANT_ID}${body.user_ip || '127.0.0.1'}${body.merchant_oid}${body.email}${paymentAmount}${userBasket}00TL${testModeValue}${PAYTR_MERCHANT_SALT}`;
+    const hashStr = `${PAYTR_MERCHANT_ID}${body.user_ip || '127.0.0.1'}${sanitizedMerchantOid}${body.email}${paymentAmount}${userBasket}00TL${testModeValue}${PAYTR_MERCHANT_SALT}`;
     const hash = crypto.createHmac('sha256', PAYTR_MERCHANT_KEY).update(hashStr).digest('base64');
     
     console.log('🔐 Hash hesaplama:');
+    console.log(`   Original merchant_oid: ${body.merchant_oid}`);
+    console.log(`   Sanitized merchant_oid: ${sanitizedMerchantOid}`);
     console.log(`   Test Mode: ${testModeValue}`);
     console.log(`   User Basket: ${userBasket}`);
     console.log(`   Hash String: ${hashStr.substring(0, 100)}...`);
