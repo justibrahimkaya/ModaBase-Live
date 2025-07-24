@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useCart } from '@/components/CartContext'
@@ -60,9 +60,7 @@ export default function CheckoutPage() {
     "MODA10": 0.10, // %10 indirim
     "MODA20": 0.20  // %20 indirim
   }
-  const [showPaytrIframe, setShowPaytrIframe] = useState(false)
-  const [paytrUrl, setPaytrUrl] = useState<string | null>(null)
-  const paytrIframeRef = useRef<HTMLIFrameElement>(null)
+
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'paytr' | 'bank-transfer'>('paytr')
   const [bankTransferData, setBankTransferData] = useState({
     customerName: '',
@@ -359,8 +357,7 @@ export default function CheckoutPage() {
         // İframe yerine yeni sekmede aç
         window.open(paytrUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')
         
-        // Modal'ı kapat
-        setShowPaytrIframe(false)
+
         
         // Kullanıcıya bilgi ver
         alert('PayTR ödeme sayfası yeni sekmede açıldı. Ödemenizi tamamladıktan sonra bu sayfaya geri dönebilirsiniz.')
@@ -1111,39 +1108,7 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          {/* PayTR Iframe Modal */}
-          {showPaytrIframe && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-              <div className="bg-white rounded-lg shadow-lg p-4 max-w-4xl w-full h-5/6 flex flex-col">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-bold">PayTR Güvenli Ödeme</h2>
-                  <button
-                    onClick={() => setShowPaytrIframe(false)}
-                    className="text-gray-500 hover:text-gray-700 text-2xl"
-                  >
-                    ×
-                  </button>
-                </div>
-                <div className="w-full h-full">
-                  <iframe
-                    ref={paytrIframeRef}
-                    src={paytrUrl || ''}
-                    title="PayTR Güvenli Ödeme"
-                    className="w-full h-full border-0"
-                    allow="payment; camera; microphone; geolocation"
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation allow-modals"
-                    frameBorder="0"
-                    scrolling="yes"
-                    style={{
-                      minHeight: '600px',
-                      border: 'none',
-                      outline: 'none'
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+
         </div>
       </main>
       <Footer />
