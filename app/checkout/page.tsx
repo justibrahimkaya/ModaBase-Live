@@ -1120,7 +1120,10 @@ export default function CheckoutPage() {
                   src={paytrUrl || ''}
                   title="PayTR Güvenli Ödeme"
                   className="w-full h-full border rounded"
-                  allow="payment"
+                  allow="payment *; camera *; microphone *; geolocation *"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
+                  frameBorder="0"
+                  scrolling="auto"
                 />
               </div>
             </div>
