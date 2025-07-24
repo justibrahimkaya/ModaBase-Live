@@ -154,7 +154,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ status: 'OK' });
+    return NextResponse.json({ 
+      status: 'success',
+      message: 'Payment notification processed successfully',
+      orderId: merchant_oid,
+      amount: total_amount
+    });
 
   } catch (error) {
     console.error('PayTR notification error:', error);
