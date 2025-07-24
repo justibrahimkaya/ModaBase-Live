@@ -338,15 +338,21 @@ export default function CheckoutPage() {
         
         data = JSON.parse(responseText)
         console.log('✅ PayTR API JSON parse başarılı:', data)
+        console.log('🔍 PayTR Response Analizi:')
+        console.log(`   success: ${data.success}`)
+        console.log(`   status: ${data.status}`)
+        console.log(`   token: ${data.token ? 'VAR' : 'YOK'}`)
+        console.log(`   error: ${data.error || 'YOK'}`)
+        console.log(`   reason: ${data.reason || 'YOK'}`)
         
       } catch (parseError) {
         console.error('❌ PayTR API JSON parse hatası:', parseError)
         throw new Error(`PayTR API yanıtı işlenemiyor. Lütfen daha sonra tekrar deneyin. (Hata: JSON parse)`);
       }
       
-      if (data.success && data.token) {
+      if ((data.success || data.status === 'success') && data.token) {
         console.log('🎉 PayTR token başarılı:', data.token)
-        setPaytrUrl(`${data.paytr_url}${data.token}`)
+        setPaytrUrl(`https://www.paytr.com/odeme/guvenli/${data.token}`)
         setShowPaytrIframe(true)
       } else {
         console.error('❌ PayTR token başarısız:', data)
@@ -362,9 +368,16 @@ export default function CheckoutPage() {
             errorMessage = 'Güvenlik doğrulaması başarısız. Lütfen sayfayı yenileyip tekrar deneyin.'
           } else if (data.error.includes('merchant')) {
             errorMessage = 'Ödeme sistemi yapılandırma hatası. Lütfen havale yöntemi kullanın.'
+          } else if (data.error.includes('payment_amount')) {
+            errorMessage = 'Ödeme tutarı hatası. Lütfen sepetinizi kontrol edin.'
+          } else if (data.error.includes('merchant_oid')) {
+            errorMessage = 'Sipariş numarası hatası. Lütfen sayfayı yenileyin.'
           } else {
             errorMessage = `PayTR Hatası: ${data.error}`
           }
+        } else if (data.reason) {
+          // PayTR API'den gelen reason mesajını kullan
+          errorMessage = `PayTR Hatası: ${data.reason}`
         }
         
         throw new Error(errorMessage)
