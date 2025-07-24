@@ -110,8 +110,8 @@ export function middleware(request: NextRequest) {
       }
     }
     
-    // Payment endpoints need extra protection
-    if (pathname.includes('/paytr/') || pathname.includes('/payment/')) {
+    // Payment endpoints need extra protection (but not PayTR notifications)
+    if ((pathname.includes('/paytr/') || pathname.includes('/payment/')) && !pathname.includes('/paytr/notification')) {
       if (isRateLimited(`payment_${ip}`, 10, 15 * 60 * 1000)) {
         return new NextResponse(
           JSON.stringify({ 
