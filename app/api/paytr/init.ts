@@ -38,6 +38,8 @@ export async function POST(request: NextRequest) {
     
     const params = new URLSearchParams();
     params.append('merchant_id', PAYTR_MERCHANT_ID);
+    params.append('merchant_key', PAYTR_MERCHANT_KEY); // ✅ PAYTR RESMİ: merchant_key gönderilmeli
+    params.append('merchant_salt', PAYTR_MERCHANT_SALT); // ✅ PAYTR RESMİ: merchant_salt gönderilmeli
     params.append('user_ip', body.user_ip || '127.0.0.1');
     params.append('merchant_oid', sanitizedMerchantOid);
     params.append('email', body.email);
@@ -48,21 +50,35 @@ export async function POST(request: NextRequest) {
     params.append('user_phone', body.user_phone || '05301234567');
     params.append('merchant_ok_url', body.merchant_ok_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/order/${body.merchant_oid}?status=success`);
     params.append('merchant_fail_url', body.merchant_fail_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/order/${body.merchant_oid}?status=failed`);
-    params.append('timeout_limit', '30');
-    params.append('currency', 'TL');
-    params.append('no_installment', '0');
-    params.append('max_installment', '0');
-    params.append('user_basket', JSON.stringify([
-      ['Sipariş', body.amount, 1]
-    ]));
-    params.append('debug_on', PAYTR_TEST_MODE ? '1' : '0');
-    params.append('test_mode', PAYTR_TEST_MODE ? '1' : '0');
-
-    // ✅ DÜZELTME: Hash hesaplama - doğru sıra ve format
+    // ✅ PAYTR RESMİ PARAMETRELERİ
     const testModeValue = PAYTR_TEST_MODE ? '1' : '0';
     const userBasket = JSON.stringify([['Sipariş', paymentAmount, 1]]);
-    const hashStr = `${PAYTR_MERCHANT_ID}${body.user_ip || '127.0.0.1'}${sanitizedMerchantOid}${body.email}${paymentAmount}${userBasket}00TL${testModeValue}${PAYTR_MERCHANT_SALT}`;
-    const hash = crypto.createHmac('sha256', PAYTR_MERCHANT_KEY).update(hashStr).digest('base64');
+    const userBasketBase64 = Buffer.from(userBasket).toString('base64');
+    const noInstallment = '0';
+    const maxInstallment = '0';
+    const currency = 'TL';
+    
+    params.append('timeout_limit', '30');
+    params.append('currency', currency);
+    params.append('no_installment', noInstallment);
+    params.append('max_installment', maxInstallment);
+    params.append('user_basket', userBasketBase64); // ✅ Base64 encoded
+    params.append('debug_on', '1');
+    params.append('test_mode', testModeValue);
+    params.append('lang', 'tr'); // ✅ PAYTR RESMİ: lang parametresi
+
+    // ✅ PAYTR RESMİ HASH FORMÜLÜ (Python kodundan)
+    
+    // ✅ PAYTR RESMİ NODE.JS HASH FORMÜLÜ:
+    // var hashSTR = `${merchant_id}${user_ip}${merchant_oid}${email}${payment_amount}${user_basket}${no_installment}${max_installment}${currency}${test_mode}`;
+    // user_basket BASE64 ENCODED olarak hash'e girer!
+    const hashStr = `${PAYTR_MERCHANT_ID}${body.user_ip || '127.0.0.1'}${sanitizedMerchantOid}${body.email}${paymentAmount}${userBasketBase64}${noInstallment}${maxInstallment}${currency}${testModeValue}`;
+    
+    // ✅ PAYTR RESMİ NODE.JS KODU (app.js'den birebir):
+    // var paytr_token = hashSTR + merchant_salt;
+    // var token = crypto.createHmac('sha256', merchant_key).update(paytr_token).digest('base64');
+    const paytrTokenStr = hashStr + PAYTR_MERCHANT_SALT;
+    const paytrToken = crypto.createHmac('sha256', PAYTR_MERCHANT_KEY).update(paytrTokenStr).digest('base64');
     
     console.log('🔐 Hash hesaplama:');
     console.log(`   Original merchant_oid: ${body.merchant_oid}`);
@@ -70,9 +86,9 @@ export async function POST(request: NextRequest) {
     console.log(`   Test Mode: ${testModeValue}`);
     console.log(`   User Basket: ${userBasket}`);
     console.log(`   Hash String: ${hashStr.substring(0, 100)}...`);
-    console.log(`   Hash: ${hash.substring(0, 20)}...`);
+    console.log(`   PayTR Token: ${paytrToken.substring(0, 20)}...`);
     
-    params.append('hash', hash);
+    params.append('paytr_token', paytrToken);
 
     console.log('📤 PayTR API\'ye gönderilen parametreler:');
     for (const [key, value] of params.entries()) {

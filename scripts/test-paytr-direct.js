@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const PAYTR_MERCHANT_ID = '596379';
 const PAYTR_MERCHANT_KEY = 'srMxKnSgipN1Z1Td';
 const PAYTR_MERCHANT_SALT = 'TzXLtjFSuyDPsi8B';
-const PAYTR_TEST_MODE = false; // LIVE MODU - gerçek test
+const PAYTR_TEST_MODE = true; // TEST MODU - deneme
 const PAYTR_BASE_URL = 'https://www.paytr.com/odeme/api/get-token';
 
 async function testPayTR() {
@@ -31,6 +31,8 @@ async function testPayTR() {
     // PayTR parametrelerini hazırla
     const params = new URLSearchParams();
     params.append('merchant_id', PAYTR_MERCHANT_ID);
+    params.append('merchant_key', PAYTR_MERCHANT_KEY); // ✅ PAYTR RESMİ: merchant_key gönderilmeli
+    params.append('merchant_salt', PAYTR_MERCHANT_SALT); // ✅ PAYTR RESMİ: merchant_salt gönderilmeli
     params.append('user_ip', testOrder.user_ip);
     params.append('merchant_oid', testOrder.merchant_oid);
     params.append('email', testOrder.email);
@@ -45,25 +47,38 @@ async function testPayTR() {
     params.append('currency', 'TL');
     params.append('no_installment', '0');
     params.append('max_installment', '0');
-    params.append('user_basket', JSON.stringify([['Test Ürün', testOrder.amount, 1]]));
-    params.append('debug_on', PAYTR_TEST_MODE ? '1' : '0');
+    params.append('user_basket', Buffer.from(JSON.stringify([['Test Ürün', testOrder.amount, 1]])).toString('base64')); // ✅ Base64
+    params.append('debug_on', '1');
     params.append('test_mode', PAYTR_TEST_MODE ? '1' : '0');
+    params.append('lang', 'tr'); // ✅ PAYTR RESMİ: lang parametresi
 
     // Hash hesaplama - CRITICAL!
     const testModeValue = PAYTR_TEST_MODE ? '1' : '0';
     const userBasket = JSON.stringify([['Test Ürün', testOrder.amount, 1]]);
     
-    // PayTR hash formatı: merchant_id + user_ip + merchant_oid + email + payment_amount + user_basket + no_installment + max_installment + currency + test_mode + merchant_salt
-    const hashStr = `${PAYTR_MERCHANT_ID}${testOrder.user_ip}${testOrder.merchant_oid}${testOrder.email}${testOrder.amount}${userBasket}00TL${testModeValue}${PAYTR_MERCHANT_SALT}`;
-    const hash = crypto.createHmac('sha256', PAYTR_MERCHANT_KEY).update(hashStr).digest('base64');
+    // ✅ PAYTR RESMİ HASH FORMÜLÜ (Python dokümantasyonundan)
+    const noInstallment = '0';
+    const maxInstallment = '0';
+    const currency = 'TL';
+    // ✅ PAYTR RESMİ NODE.JS HASH FORMÜLÜ (app.js'den):
+    // var hashSTR = `${merchant_id}${user_ip}${merchant_oid}${email}${payment_amount}${user_basket}${no_installment}${max_installment}${currency}${test_mode}`;
+    // user_basket BASE64 ENCODED olarak hash'e girer!
+    const userBasketBase64 = Buffer.from(userBasket).toString('base64');
+    const hashStr = `${PAYTR_MERCHANT_ID}${testOrder.user_ip}${testOrder.merchant_oid}${testOrder.email}${testOrder.amount}${userBasketBase64}${noInstallment}${maxInstallment}${currency}${testModeValue}`;
+    
+    // ✅ PAYTR RESMİ NODE.JS KODU (app.js'den birebir):
+    // var paytr_token = hashSTR + merchant_salt;
+    // var token = crypto.createHmac('sha256', merchant_key).update(paytr_token).digest('base64');
+    const paytrTokenStr = hashStr + PAYTR_MERCHANT_SALT;
+    const paytrToken = crypto.createHmac('sha256', PAYTR_MERCHANT_KEY).update(paytrTokenStr).digest('base64');
     
     console.log('🔐 Hash Hesaplama:');
     console.log(`   Test Mode: ${testModeValue}`);
     console.log(`   User Basket: ${userBasket}`);
     console.log(`   Hash String: ${hashStr}`);
-    console.log(`   Hash: ${hash}`);
+    console.log(`   PayTR Token: ${paytrToken}`);
     
-    params.append('hash', hash);
+    params.append('paytr_token', paytrToken);
 
     console.log('\n📤 PayTR\'ye Gönderilen Parametreler:');
     for (const [key, value] of params.entries()) {
