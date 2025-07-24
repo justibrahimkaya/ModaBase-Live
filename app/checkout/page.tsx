@@ -248,6 +248,8 @@ export default function CheckoutPage() {
   const handlePaytrPayment = async () => {
     setIsPlacingOrder(true)
     try {
+      console.log('🚀 PayTR ödeme süreci başlatılıyor...')
+      
       // Önce siparişi oluştur
       const orderData = {
         items: items.map(item => ({
@@ -283,6 +285,8 @@ export default function CheckoutPage() {
         unvan: showInvoiceAddress ? invoice.unvan : null
       }
 
+      console.log('📋 Sipariş oluşturuluyor...', {orderId: 'pending', total: total})
+
       // Siparişi oluştur
       const orderResponse = await fetch('/api/orders', {
         method: 'POST',
@@ -291,36 +295,28 @@ export default function CheckoutPage() {
       })
 
       const orderResult = await orderResponse.json()
+      console.log('📦 Sipariş yanıtı:', orderResult)
       
       if (!orderResult.success) {
+        console.error('❌ Sipariş oluşturulamadı:', orderResult.error)
         throw new Error(orderResult.error || 'Sipariş oluşturulamadı')
       }
 
       const orderId = orderResult.order.id
-
-      // PayTR için sepet bilgilerini hazırla
-      const userBasket = items.map(item => 
-        `${item.product.name}~${item.size || 'Tek Beden'}~${item.color || 'Tek Renk'}~${item.product.price}~${item.quantity}`
-      ).join('|')
+      console.log('✅ Sipariş oluşturuldu:', orderId)
 
       // PayTR token isteği
       const paytrData = {
         merchant_oid: orderId,
-        amount: Math.round(total * 100), // PayTR kuruş cinsinden ister
+        amount: total.toString(), // String olarak gönder
         email: delivery.email,
-        user_ip: '127.0.0.1', // Gerçek IP alınacak
+        user_ip: '127.0.0.1',
         user_name: delivery.name + ' ' + delivery.surname,
         user_address: `${delivery.city}, ${delivery.district}, ${delivery.address}`,
-        user_phone: delivery.phone,
-        user_basket: userBasket,
-        no_installment: '0', // Taksit seçeneği
-        max_installment: '12', // Maksimum taksit
-        currency: 'TL',
-        test_mode: '1', // Test modu
-        merchant_ok_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/order/${orderId}`,
-        merchant_fail_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/order/${orderId}?status=failed`,
-        timeout_limit: '30'
+        user_phone: delivery.phone
       }
+
+      console.log('💳 PayTR token isteniyor...', {orderId, amount: paytrData.amount, email: paytrData.email})
 
       const res = await fetch('/api/paytr/init', {
         method: 'POST',
@@ -328,17 +324,73 @@ export default function CheckoutPage() {
         body: JSON.stringify(paytrData)
       })
 
-      const data = await res.json()
+      console.log('📡 PayTR API yanıt durumu:', res.status, res.statusText)
+
+      // Response'u parse etmeye çalış
+      let data;
+      try {
+        const responseText = await res.text()
+        console.log('📄 PayTR API Ham Yanıt:', responseText)
+        
+        if (!responseText || responseText.trim() === '') {
+          throw new Error('PayTR API boş yanıt döndü')
+        }
+        
+        data = JSON.parse(responseText)
+        console.log('✅ PayTR API JSON parse başarılı:', data)
+        
+      } catch (parseError) {
+        console.error('❌ PayTR API JSON parse hatası:', parseError)
+        throw new Error(`PayTR API yanıtı işlenemiyor. Lütfen daha sonra tekrar deneyin. (Hata: JSON parse)`);
+      }
       
       if (data.success && data.token) {
+        console.log('🎉 PayTR token başarılı:', data.token)
         setPaytrUrl(`${data.paytr_url}?token=${data.token}`)
         setShowPaytrIframe(true)
       } else {
-        throw new Error(data.error || 'PayTR ödeme başlatılamadı')
+        console.error('❌ PayTR token başarısız:', data)
+        
+        // PayTR error mesajlarını user-friendly hale getir
+        let errorMessage = 'PayTR ödeme sistemi geçici olarak kullanılamıyor'
+        
+        if (data.error) {
+          // API'den gelen hata mesajını kontrol et
+          if (data.error.includes('JSON')) {
+            errorMessage = 'Ödeme sistemi geçici olarak kullanılamıyor. Lütfen havale yöntemi ile ödeme yapın.'
+          } else if (data.error.includes('hash')) {
+            errorMessage = 'Güvenlik doğrulaması başarısız. Lütfen sayfayı yenileyip tekrar deneyin.'
+          } else if (data.error.includes('merchant')) {
+            errorMessage = 'Ödeme sistemi yapılandırma hatası. Lütfen havale yöntemi kullanın.'
+          } else {
+            errorMessage = `PayTR Hatası: ${data.error}`
+          }
+        }
+        
+        throw new Error(errorMessage)
       }
     } catch (error) {
-      console.error('PayTR payment error:', error)
-      alert('PayTR ödeme başlatılırken hata oluştu: ' + (error instanceof Error ? error.message : 'Bilinmeyen hata'))
+      console.error('💥 PayTR payment error:', error)
+      
+      // User-friendly error message
+      let userMessage = 'Ödeme sistemi geçici olarak kullanılamıyor. ';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('JSON') || error.message.includes('parse')) {
+          userMessage += 'Lütfen havale yöntemi ile ödeme yapın veya daha sonra tekrar deneyin.';
+        } else if (error.message.includes('fetch')) {
+          userMessage += 'İnternet bağlantınızı kontrol edip tekrar deneyin.';
+        } else {
+          userMessage += error.message;
+        }
+      } else {
+        userMessage += 'Lütfen havale yöntemi ile ödeme yapın.';
+      }
+      
+      // Modern alert yerine daha güzel bir hata gösterimi
+      if (confirm(`${userMessage}\n\nHavale yöntemi ile devam etmek ister misiniz?`)) {
+        setSelectedPaymentMethod('bank-transfer');
+      }
     } finally {
       setIsPlacingOrder(false)
     }
