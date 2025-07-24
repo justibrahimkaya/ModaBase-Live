@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const PAYTR_MERCHANT_ID = '596379';
 const PAYTR_MERCHANT_KEY = 'srMxKnSgipN1Z1Td';
 const PAYTR_MERCHANT_SALT = 'TzXLtjFSuyDPsi8B';
-const PAYTR_TEST_MODE = true; // Test modu
+const PAYTR_TEST_MODE = false; // LIVE MODU - gerçek test
 const PAYTR_BASE_URL = 'https://www.paytr.com/odeme/api/get-token';
 
 async function testPayTR() {
@@ -35,7 +35,7 @@ async function testPayTR() {
     params.append('merchant_oid', testOrder.merchant_oid);
     params.append('email', testOrder.email);
     params.append('payment_amount', testOrder.amount); // ✅ DÜZELTME: payment_amount
-    params.append('paytr_token', ''); // ✅ DÜZELTME: Boş paytr_token
+    // params.append('paytr_token', ''); // PayTR token kaldırıldı
     params.append('user_name', testOrder.user_name);
     params.append('user_address', testOrder.user_address);
     params.append('user_phone', testOrder.user_phone);

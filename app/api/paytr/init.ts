@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     params.append('merchant_oid', body.merchant_oid);
     params.append('email', body.email);
     params.append('payment_amount', paymentAmount); // ✅ DÜZELTME: payment_amount (kuruş)
-    params.append('paytr_token', ''); // ✅ DÜZELTME: Boş paytr_token
+    // params.append('paytr_token', ''); // PayTR token parametresi kaldırıldı
     params.append('user_name', body.user_name || 'Test User');
     params.append('user_address', body.user_address || 'Test Address');
     params.append('user_phone', body.user_phone || '05301234567');
