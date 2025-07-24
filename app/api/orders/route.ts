@@ -106,11 +106,11 @@ export async function POST(request: NextRequest) {
 
   // Transaction ile sipariş oluştur ve stok güncelle
   const order = await prisma.$transaction(async (tx: any) => {
-    // Sipariş oluştur (guest checkout için adres bilgileri doğrudan kullanılır)
+    // ✅ DEĞİŞİKLİK: Sipariş PENDING_APPROVAL status'u ile oluşturuluyor
     const newOrder = await tx.order.create({
       data: {
         userId: userId || undefined,
-        addressId: addressId, // Eğer varsa kullan, yoksa null
+        addressId: addressId,
         invoiceAddressId,
         shippingMethod,
         paymentMethod,
@@ -118,6 +118,7 @@ export async function POST(request: NextRequest) {
         shippingCost,
         note,
         total,
+        status: 'PENDING_APPROVAL', // ← İŞLETME ONAYLAMADAN ÖDEME YOK
         guestName: userId ? undefined : guestName,
         guestSurname: userId ? undefined : guestSurname,
         guestEmail: userId ? undefined : guestEmail,
@@ -161,95 +162,12 @@ export async function POST(request: NextRequest) {
     return newOrder
   })
 
-  // Stok geri getirildiğinde bildirim gönder (iptal durumunda)
-  // Bu kısım sipariş iptal edildiğinde çalışacak
+  // ❌ PDF E-Fatura ve müşteri email gönderimi KALDIRILDI
+  // İşletme onayladıktan sonra gönderilecek
 
-  // PDF E-Fatura oluştur ve e-posta gönder
+  // ✅ SADECE İşletme paneline bildirim gönder
   try {
-    // Şirket bilgileri
-    const companyInfo = {
-              name: 'Modahan İbrahim Kaya - ModaBase E-Ticaret',
-              address: 'Malkoçoğlu Mah. 305/1 Sok. No: 17/A, Sultangazi/İstanbul/Türkiye',
-              phone: '+90 536 297 12 55',
-                    email: 'info@modabase.com.tr',
-      taxNumber: '1234567890',
-      taxOffice: 'İstanbul Vergi Dairesi'
-    };
-
-    // Sipariş bilgilerini tam olarak al
-    const orderWithDetails = await prisma.order.findUnique({
-      where: { id: order.id },
-      include: {
-        items: {
-          include: {
-            product: true
-          }
-        },
-        user: true
-      }
-    });
-
-    if (orderWithDetails) {
-      // PDF E-Fatura oluştur
-      const invoiceData = {
-        order: orderWithDetails,
-        companyInfo
-      };
-
-      const { filePath, fileName } = await InvoiceService.generateInvoicePDF(invoiceData);
-
-      // E-posta gönder
-      const customerEmail = orderWithDetails.user?.email || orderWithDetails.guestEmail;
-      const customerName = orderWithDetails.user?.name || orderWithDetails.guestName || 'Müşteri';
-
-      if (customerEmail) {
-        // E-posta servisini başlat
-        EmailService.initialize({
-          host: process.env.SMTP_HOST || 'smtp.gmail.com',
-          port: parseInt(process.env.SMTP_PORT || '587'),
-          secure: false,
-          auth: {
-            user: process.env.SMTP_USER || 'kavram.triko@gmail.com',
-            pass: process.env.SMTP_PASS || 'yqarfkyevahfnenq'
-          }
-        });
-
-        // E-fatura e-postası gönder
-        await EmailService.sendInvoiceEmail({
-          to: customerEmail,
-          customerName,
-          orderNumber: order.id,
-          invoiceNumber: fileName.replace('.pdf', ''),
-          pdfPath: filePath,
-          totalAmount: order.total
-        });
-
-        // Sipariş onay e-postası gönder
-        await EmailService.sendOrderConfirmation(
-          customerEmail,
-          customerName,
-          order.id,
-          order.total
-        );
-      }
-
-      // Order'a PDF URL'ini kaydet
-      await prisma.order.update({
-        where: { id: order.id },
-        data: {
-          einvoicePdfUrl: `/invoices/${fileName}`,
-          einvoiceStatus: 'SUCCESS'
-        }
-      });
-    }
-  } catch (error) {
-    console.error('E-fatura oluşturma hatası:', error);
-    // Hata durumunda siparişi iptal etme, sadece log
-  }
-
-  // İşletme paneline bildirim gönder
-  try {
-    console.log('📧 İşletme paneline bildirim gönderiliyor...')
+    console.log('📧 İşletmeye yeni sipariş bildirimi gönderiliyor...')
     
     // İşletme hesabını bul
     const business = await prisma.business.findUnique({
@@ -262,16 +180,16 @@ export async function POST(request: NextRequest) {
     });
 
     if (business && business.contactEmail) {
-             // İşletme sahibine yeni sipariş bildirimi gönder
-       EmailService.initialize({
-         host: process.env.SMTP_HOST || 'smtp.gmail.com',
-         port: parseInt(process.env.SMTP_PORT || '587'),
-         secure: false,
-         auth: {
-           user: process.env.SMTP_USER || 'kavram.triko@gmail.com',
-           pass: process.env.SMTP_PASS || 'yqarfkyevahfnenq'
-         }
-       });
+      // Email servisini başlat
+      EmailService.initialize({
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: parseInt(process.env.SMTP_PORT || '587'),
+        secure: false,
+        auth: {
+          user: process.env.SMTP_USER || 'kavram.triko@gmail.com',
+          pass: process.env.SMTP_PASS || 'yqarfkyevahfnenq'
+        }
+      });
 
       const customerName = order.user ? `${order.user.name} ${order.user.surname}` : 
                           order.guestName && order.guestSurname ? `${order.guestName} ${order.guestSurname}` : 
@@ -293,7 +211,7 @@ export async function POST(request: NextRequest) {
         }))
       });
 
-      console.log('✅ İşletme paneline bildirim gönderildi')
+      console.log('✅ İşletmeye sipariş bildirimi gönderildi')
     }
   } catch (notificationError) {
     console.error('❌ İşletme bildirimi hatası:', notificationError)
@@ -303,7 +221,8 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     success: true,
     order: order,
-    message: 'Sipariş başarıyla oluşturuldu ve işletme paneline bildirim gönderildi'
+    message: 'Siparişiniz alınmıştır. İşletme onayından sonra ödeme talimatları gönderilecektir.',
+    status: 'PENDING_APPROVAL'
   })
   
   } catch (error) {

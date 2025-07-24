@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAdminUser } from '@/lib/adminAuth'
 import { EmailService } from '@/lib/emailService'
+import { InvoiceService } from '@/lib/invoiceService'
 
 export const dynamic = 'force-dynamic'
 
@@ -98,7 +99,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     refundAmount,
     newProductId,
     newSize,
-    newColor
+    newColor,
+    // ✅ YENİ: Sipariş onay sistemi
+    orderAction
   } = body
 
   try {
@@ -127,6 +130,19 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     if (adminNotes !== undefined) updateData.adminNotes = adminNotes
     if (shippingCompany !== undefined) updateData.shippingCompany = shippingCompany
     if (shippingTrackingUrl !== undefined) updateData.shippingTrackingUrl = shippingTrackingUrl
+
+    // ✅ YENİ: Sipariş onay/red işlemleri
+    if (orderAction) {
+      if (orderAction === 'APPROVE') {
+        updateData.status = 'APPROVED'
+        updateData.adminNotes = `Sipariş onaylandı - ${adminNotes || 'İşletme onayı'}`
+        console.log('✅ Sipariş onaylandı, ödeme emaili gönderilecek')
+      } else if (orderAction === 'REJECT') {
+        updateData.status = 'REJECTED'
+        updateData.adminNotes = `Sipariş reddedildi - ${reason || adminNotes || 'Belirtilmemiş'}`
+        console.log('❌ Sipariş reddedildi')
+      }
+    }
 
     // Durum değiştiyse ilgili tarihleri güncelle
     if (status === 'SHIPPED') updateData.shippedAt = new Date()
@@ -256,6 +272,97 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
           }
         });
 
+        // ✅ YENİ: Sipariş onaylandığında PDF E-Fatura oluştur ve ödeme emaili gönder
+        if (orderAction === 'APPROVE') {
+          console.log('📧 Sipariş onaylandı, müşteriye email gönderiliyor...')
+          
+          // PDF E-Fatura oluştur
+          try {
+            const companyInfo = {
+              name: 'Modahan İbrahim Kaya - ModaBase E-Ticaret',
+              address: 'Malkoçoğlu Mah. 305/1 Sok. No: 17/A, Sultangazi/İstanbul/Türkiye',
+              phone: '+90 536 297 12 55',
+              email: 'info@modabase.com.tr',
+              taxNumber: '1234567890',
+              taxOffice: 'İstanbul Vergi Dairesi'
+            };
+
+            const invoiceData = {
+              order: updatedOrder,
+              companyInfo
+            };
+
+            const { filePath, fileName } = await InvoiceService.generateInvoicePDF(invoiceData);
+
+            // E-fatura e-postası gönder
+            await EmailService.sendInvoiceEmail({
+              to: customerEmail,
+              customerName,
+              orderNumber: order.id,
+              invoiceNumber: fileName.replace('.pdf', ''),
+              pdfPath: filePath,
+              totalAmount: order.total
+            });
+
+            // Sipariş onay e-postası gönder
+            await EmailService.sendOrderConfirmation(
+              customerEmail,
+              customerName,
+              order.id,
+              order.total
+            );
+
+            // Order'a PDF URL'ini kaydet
+            await prisma.order.update({
+              where: { id: order.id },
+              data: {
+                einvoicePdfUrl: `/invoices/${fileName}`,
+                einvoiceStatus: 'SUCCESS'
+              }
+            });
+
+            console.log('✅ E-fatura oluşturuldu ve müşteriye gönderildi')
+          } catch (invoiceError) {
+            console.error('❌ E-fatura oluşturma hatası:', invoiceError)
+          }
+
+          // Ödeme talimatları gönder
+          await EmailService.sendPaymentInstructions({
+            to: customerEmail,
+            customerName,
+            orderId: order.id,
+            orderNumber: order.id.slice(-8),
+            totalAmount: order.total,
+            paymentMethod: order.paymentMethod || 'Belirtilmemiş',
+            items: order.items.map(item => ({
+              name: item.product.name,
+              quantity: item.quantity,
+              price: item.price
+            }))
+          })
+
+          console.log('✅ Ödeme talimatları gönderildi')
+        }
+
+        // ✅ YENİ: Sipariş reddedildiğinde
+        if (orderAction === 'REJECT') {
+          await EmailService.sendOrderRejection({
+            to: customerEmail,
+            customerName,
+            orderId: order.id,
+            orderNumber: order.id.slice(-8),
+            reason: reason || adminNotes || 'Belirtilmemiş',
+            totalAmount: order.total,
+            items: order.items.map(item => ({
+              name: item.product.name,
+              quantity: item.quantity,
+              price: item.price
+            }))
+          })
+
+          console.log('✅ Sipariş red bildirimi gönderildi')
+        }
+
         // İade onaylandığında
         if (returnAction === 'APPROVE') {
           await EmailService.sendReturnApprovalNotification({
@@ -322,22 +429,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
           })
         }
 
-        // Eğer ödeme henüz yapılmamışsa, ödeme talimatları e-postası gönder
-        if (order.paymentMethod === 'BANK_TRANSFER' && (order.status === 'PENDING' || order.status === 'AWAITING_PAYMENT')) {
-          await EmailService.sendPaymentInstructions({
-            to: customerEmail,
-            customerName,
-            orderId: order.id,
-            orderNumber: order.id.slice(-8),
-            totalAmount: order.total,
-            paymentMethod: order.paymentMethod || 'Belirtilmemiş',
-            items: order.items.map(item => ({
-              name: item.product.name,
-              quantity: item.quantity,
-              price: item.price
-            }))
-          })
-        }
+        // ❌ KALDIRILDI: Eski otomatik ödeme talimatları
+        // Artık sadece onay sonrası gönderiliyor
 
       } catch (emailError) {
         console.error('E-posta gönderme hatası:', emailError)
@@ -345,9 +438,16 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       }
     }
 
+    let message = 'Sipariş başarıyla güncellendi'
+    if (orderAction === 'APPROVE') {
+      message = 'Sipariş onaylandı ve müşteriye ödeme talimatları gönderildi'
+    } else if (orderAction === 'REJECT') {
+      message = 'Sipariş reddedildi ve müşteriye bildirim gönderildi'
+    }
+
     return NextResponse.json({
       success: true,
-      message: 'Sipariş başarıyla güncellendi',
+      message: message,
       order: updatedOrder
     })
 
