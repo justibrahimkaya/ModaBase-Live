@@ -1,6 +1,6 @@
 'use client'
 
-import { RefreshCw, Package, Clock, CheckCircle, AlertTriangle, ArrowLeft, CreditCard, Mail, Phone } from 'lucide-react'
+import { RefreshCw, Package, Clock, CheckCircle, AlertTriangle, CreditCard, Mail, Phone } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
@@ -199,7 +199,7 @@ export default function ReturnPolicyPage() {
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">İade Talebinde Bulunun</h3>
                     <p className="text-gray-700 mb-3">14 gün içinde aşağıdaki yöntemlerle iade talebinde bulunun:</p>
                     <ul className="space-y-1 text-gray-600 text-sm">
-                      <li>• Web sitesinden "Hesabım > Siparişlerim" bölümünden</li>
+                      <li>• Web sitesinden "Hesabım &gt; Siparişlerim" bölümünden</li>
                       <li>• WhatsApp: 0536 297 12 55</li>
                       <li>• E-posta: info@modabase.com.tr</li>
                       <li>• Telefon: 0536 297 12 55</li>
