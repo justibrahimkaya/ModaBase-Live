@@ -712,7 +712,13 @@ export default function AdminProductsPage() {
   }
 
   // Kaydetme işlemi - Next.js 15 chunked upload sistemi
-  const handleSave = async () => {
+  const handleSave = async (e?: React.FormEvent) => {
+    // ✅ CRITICAL FİX: Form submit'i durdur
+    if (e) {
+      e.preventDefault()
+      console.log('✅ preventDefault çağrıldı - sayfa yenilenmeyecek')
+    }
+    
     console.log('🚀 handleSave başlatıldı')
     console.log('📊 Form durumu:', { name: form.name, slug: form.slug, price: form.price, categoryId: form.categoryId })
     
@@ -723,8 +729,30 @@ export default function AdminProductsPage() {
 
     // ULTRA GÜVENLİ imageSlots kontrolü - TRY CATCH ile
     console.log('🔍 ULTRA DEBUG: imageSlots kontrolü')
+    console.log('🖼️ imageSlots state:', imageSlots)
+    console.log('🖼️ imageSlots type:', typeof imageSlots)
+    console.log('🖼️ imageSlots length:', imageSlots?.length || 'undefined')
     
     let safeImageSlots: Array<{ id: number; image: string; loading: boolean; error: string }> = []
+    
+    // ✅ CRITICAL FİX: imageSlots state'ini güvenli şekilde kopyala
+    try {
+      if (imageSlots && Array.isArray(imageSlots) && imageSlots.length > 0) {
+        safeImageSlots = imageSlots.map(slot => ({
+          id: slot?.id || 0,
+          image: slot?.image || '',
+          loading: slot?.loading || false,
+          error: slot?.error || ''
+        }))
+        console.log('✅ imageSlots state\'inden güvenli kopyalama yapıldı:', safeImageSlots.length)
+      } else {
+        console.log('❌ imageSlots state boş veya geçersiz, boş array kullanılıyor')
+        safeImageSlots = []
+      }
+    } catch (imageError) {
+      console.error('❌ imageSlots kopyalama hatası:', imageError)
+      safeImageSlots = []
+    }
     
     try {
       console.log('imageSlots tipi:', typeof imageSlots)
@@ -2259,8 +2287,7 @@ export default function AdminProductsPage() {
                     İptal
                   </button>
                   <button
-                    type="button"
-                    onClick={handleSave}
+                    type="submit"
                     disabled={saving}
                     className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50"
                   >
