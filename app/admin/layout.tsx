@@ -53,6 +53,9 @@ export default function AdminLayout({
     
     const checkAuth = async () => {
       try {
+        console.log('🔍 Auth kontrol ediliyor...');
+        console.log('🍪 Mevcut cookie\'ler:', document.cookie);
+        
         // Cache kontrolü ekle
         const response = await fetch('/api/admin/profile', {
           method: 'GET',
@@ -63,39 +66,48 @@ export default function AdminLayout({
           },
         })
         
+        console.log('📡 Profile API yanıt:', response.status, response.statusText);
+        
         if (!mounted) return
         
         if (response.ok) {
           const userData = await response.json()
+          console.log('✅ Kullanıcı verisi alındı:', userData);
           setAdminUser(userData)
         } else if (response.status === 401) {
+          console.log('❌ 401 Authentication failed, login\'e yönlendiriliyor...');
           // Authentication failed, redirect to login
           router.replace('/admin/business-login')
         } else if (response.status === 429) {
           // Rate limited, wait and retry
-          console.warn('Rate limited, waiting...')
+          console.warn('⚠️ Rate limited, waiting...')
           if (retryCount < maxRetries) {
             retryCount++
             setTimeout(checkAuth, 2000 * retryCount) // Daha uzun bekleme
           } else {
+            console.log('❌ Rate limit max retry, login\'e yönlendiriliyor...');
             router.replace('/admin/business-login')
           }
         } else {
           // Server error, retry
+          console.error('❌ Server error:', response.status);
           throw new Error(`HTTP ${response.status}`)
         }
       } catch (error) {
-        console.error('Auth check failed:', error)
+        console.error('❌ Auth check failed:', error)
         if (mounted) {
           if (retryCount < maxRetries) {
             retryCount++
+            console.log(`🔄 Auth retry ${retryCount}/${maxRetries} in ${1000 * retryCount}ms`);
             setTimeout(checkAuth, 1000 * retryCount) // Exponential backoff
           } else {
+            console.log('❌ Max retry reached, login\'e yönlendiriliyor...');
             router.replace('/admin/business-login')
           }
         }
       } finally {
         if (mounted && (retryCount === 0 || retryCount >= maxRetries)) {
+          console.log('🏁 Auth check tamamlandı, loading false');
           setLoading(false)
         }
       }

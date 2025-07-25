@@ -40,21 +40,35 @@ export default function AdminLoginPage() {
     }
 
     try {
+      console.log('🔐 Admin login başlatılıyor...');
+      
       const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // ✅ Cookie'ler için önemli
         body: JSON.stringify(formData)
       })
 
+      console.log('📡 Login API yanıt:', response.status, response.statusText);
       const data = await response.json()
+      console.log('📋 Login API data:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Giriş yapılamadı')
       }
 
+      console.log('✅ Login başarılı, yönlendiriliyor...');
+      console.log('🍪 Cookie kontrol:', document.cookie);
+
       // Başarılı giriş - cookie'nin set edilmesini bekleyip sonra yönlendir
-      await new Promise(resolve => setTimeout(resolve, 200))
-      window.location.href = '/super-admin'
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      // ✅ Role'e göre doğru sayfaya yönlendir
+      if (data.user?.role === 'SITE_ADMIN') {
+        window.location.href = '/super-admin'
+      } else {
+        window.location.href = '/admin'
+      }
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Bir hata oluştu')

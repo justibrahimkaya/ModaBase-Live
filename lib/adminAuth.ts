@@ -12,10 +12,15 @@ export interface AdminUser {
 
 export async function getAdminUser(request: NextRequest): Promise<AdminUser | null> {
   try {
+    console.log('🔐 Admin auth kontrol ediliyor...');
+    
     // Check for site admin session
     const userCookie = request.cookies.get('session_user')
+    console.log('👤 User cookie:', userCookie?.value ? 'Mevcut' : 'Yok');
+    
     if (userCookie?.value) {
       const userId = userCookie.value
+      console.log('🔍 User ID ile kullanıcı aranıyor:', userId);
       
       const user = await prisma.user.findUnique({
         where: { id: userId },
@@ -29,19 +34,36 @@ export async function getAdminUser(request: NextRequest): Promise<AdminUser | nu
         }
       })
 
+      console.log('👤 Bulunan kullanıcı:', {
+        id: user?.id,
+        email: user?.email,
+        role: user?.role,
+        isActive: user?.isActive
+      });
+
       if (user && user.isActive && user.role === 'ADMIN') {
+        console.log('✅ Site admin yetkisi onaylandı');
         return {
           ...user,
           name: user.name || '',
           surname: user.surname || ''
         }
+      } else {
+        console.log('❌ Site admin yetkisi yok:', {
+          userExists: !!user,
+          isActive: user?.isActive,
+          role: user?.role
+        });
       }
     }
 
     // Check for business admin session
     const businessCookie = request.cookies.get('session_business')
+    console.log('🏢 Business cookie:', businessCookie?.value ? 'Mevcut' : 'Yok');
+    
     if (businessCookie?.value) {
       const businessId = businessCookie.value
+      console.log('🔍 Business ID ile işletme aranıyor:', businessId);
       
       const business = await prisma.business.findUnique({
         where: { id: businessId },
@@ -55,7 +77,15 @@ export async function getAdminUser(request: NextRequest): Promise<AdminUser | nu
         }
       })
 
+      console.log('🏢 Bulunan işletme:', {
+        id: business?.id,
+        email: business?.email,
+        isActive: business?.isActive,
+        adminStatus: business?.adminStatus
+      });
+
       if (business && business.isActive && business.adminStatus === 'APPROVED') {
+        console.log('✅ Business admin yetkisi onaylandı');
         return {
           id: business.id,
           email: business.email,
@@ -64,12 +94,24 @@ export async function getAdminUser(request: NextRequest): Promise<AdminUser | nu
           role: 'BUSINESS_ADMIN',
           isActive: business.isActive
         }
+      } else {
+        console.log('❌ Business admin yetkisi yok:', {
+          businessExists: !!business,
+          isActive: business?.isActive,
+          adminStatus: business?.adminStatus
+        });
       }
     }
 
+    console.log('❌ Hiçbir admin yetkisi bulunamadı');
     return null
   } catch (error) {
-    console.error('Admin auth error:', error)
+    console.error('❌ Admin auth hatası:', error)
+    console.error('❌ Hata detayları:', {
+      message: error instanceof Error ? error.message : 'Bilinmeyen hata',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : 'Bilinmeyen'
+    });
     return null
   }
 }

@@ -1,60 +1,61 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSuperAdminUser } from '@/lib/adminAuth'
-import { prisma } from '@/lib/prisma'
+import { getAdminUser } from '@/lib/adminAuth'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    // First check if it's a super admin
-    const superAdminUser = await getSuperAdminUser(request)
+    console.log('🔍 Admin profile API çağırıldı');
     
-    if (superAdminUser) {
-      return NextResponse.json({
-        id: superAdminUser.id,
-        email: superAdminUser.email,
-        name: superAdminUser.name,
-        surname: superAdminUser.surname,
-        role: 'SITE_ADMIN'
-      })
-    }
-
-    // Check if it's a business admin
-    const businessSessionId = request.cookies.get('session_business')?.value
+    // Unified admin check using getAdminUser
+    const adminUser = await getAdminUser(request)
     
-    if (businessSessionId) {
-      const business = await prisma.business.findUnique({
-        where: { id: businessSessionId },
-        select: {
-          id: true,
-          email: true,
-          contactName: true,
-          contactSurname: true,
-          businessName: true,
-          adminStatus: true,
-          isActive: true
+    if (adminUser) {
+      console.log('✅ Admin kullanıcı bulundu:', {
+        id: adminUser.id,
+        email: adminUser.email,
+        role: adminUser.role
+      });
+      
+      const response = {
+        id: adminUser.id,
+        email: adminUser.email,
+        name: adminUser.name,
+        surname: adminUser.surname,
+        role: adminUser.role === 'ADMIN' ? 'SITE_ADMIN' : adminUser.role
+      };
+      
+      // Business admin ise business name'i de ekle
+      if (adminUser.role === 'BUSINESS_ADMIN') {
+        // Business name'i almak için additional query
+        const { prisma } = await import('@/lib/prisma');
+        const business = await prisma.business.findUnique({
+          where: { id: adminUser.id },
+          select: { businessName: true }
+        });
+        
+        if (business?.businessName) {
+          (response as any).businessName = business.businessName;
         }
-      })
-
-      if (business && business.adminStatus === 'APPROVED' && business.isActive) {
-        return NextResponse.json({
-          id: business.id,
-          email: business.email,
-          name: business.contactName,
-          surname: business.contactSurname,
-          businessName: business.businessName,
-          role: 'BUSINESS_ADMIN'
-        })
       }
+      
+      return NextResponse.json(response);
     }
 
+    console.log('❌ Admin kullanıcı bulunamadı');
+    
     // No valid session found
     return NextResponse.json(
       { error: 'Yetkilendirme gerekli' },
       { status: 401 }
     )
   } catch (error) {
-    console.error('Admin profile error:', error)
+    console.error('❌ Admin profile hatası:', error)
+    console.error('❌ Hata detayları:', {
+      message: error instanceof Error ? error.message : 'Bilinmeyen hata',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    
     return NextResponse.json(
       { error: 'Sunucu hatası' },
       { status: 500 }

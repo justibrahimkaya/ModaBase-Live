@@ -40,20 +40,28 @@ export default function BusinessLoginPage() {
     }
 
     try {
+      console.log('🏢 Business login başlatılıyor...');
+      
       const response = await fetch('/api/admin/business-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // ✅ Cookie'ler için önemli
         body: JSON.stringify(formData)
       })
 
+      console.log('📡 Business login API yanıt:', response.status, response.statusText);
       const data = await response.json()
+      console.log('📋 Business login API data:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Giriş yapılamadı')
       }
 
+      console.log('✅ Business login başarılı, yönlendiriliyor...');
+      console.log('🍪 Cookie kontrol:', document.cookie);
+
       // Başarılı giriş - cookie'nin set edilmesini bekleyip sonra yönlendir
-      await new Promise(resolve => setTimeout(resolve, 200))
+      await new Promise(resolve => setTimeout(resolve, 500))
       window.location.href = '/admin'
 
     } catch (err) {
