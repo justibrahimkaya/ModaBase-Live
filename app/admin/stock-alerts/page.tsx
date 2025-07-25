@@ -138,15 +138,20 @@ export default function StockAlertsPage() {
   })
 
   useEffect(() => {
+    console.log('🎯 Component mount - fetchAlerts başlatılıyor');
     fetchAlerts()
     const interval = setInterval(fetchAlerts, 30000) // Her 30 saniyede bir yenile
     return () => clearInterval(interval)
   }, [])
 
   useEffect(() => {
+    console.log('🔄 alerts değişti:', alerts ? 'Veri var' : 'Veri yok');
     if (alerts) {
+      console.log('📊 calculateStats çağrılıyor...');
       calculateStats()
+      console.log('📁 extractCategories çağrılıyor...');
       extractCategories()
+      console.log('✅ Stats ve categories güncellendi');
     }
   }, [alerts])
 
@@ -168,7 +173,10 @@ export default function StockAlertsPage() {
           outOfStock: data.outOfStockProducts?.length || 0,
           movements: data.recentMovements?.length || 0
         });
+        console.log('📋 Tam veri:', data);
+        console.log('🔧 setAlerts çağrılıyor...');
         setAlerts(data)
+        console.log('✅ setAlerts tamamlandı');
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Bilinmeyen hata' }))
         console.error('❌ API Hatası:', response.status, errorData);
@@ -328,7 +336,10 @@ export default function StockAlertsPage() {
     }
   }
 
+  console.log('🖥️ Render kontrol:', { loading, alerts: !!alerts });
+
   if (loading) {
+    console.log('⏳ Loading state - yükleniyor gösteriliyor');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-4">
@@ -342,6 +353,7 @@ export default function StockAlertsPage() {
 
   // ✅ Eğer veriler hala yüklenmemişse
   if (!alerts) {
+    console.log('❌ Alerts null - hata ekranı gösteriliyor');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-4">
@@ -357,6 +369,8 @@ export default function StockAlertsPage() {
       </div>
     )
   }
+
+  console.log('✅ Normal render - ana sayfa gösteriliyor');
 
   return (
     <div className="space-y-6">
