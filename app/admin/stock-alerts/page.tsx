@@ -152,14 +152,38 @@ export default function StockAlertsPage() {
 
   const fetchAlerts = async () => {
     try {
+      console.log('🚀 Stok uyarıları getiriliyor...');
       setRefreshing(true)
-      const response = await fetch('/api/admin/stock-alerts')
+      
+      const response = await fetch('/api/admin/stock-alerts', {
+        credentials: 'include'
+      })
+      
+      console.log('📡 API yanıt:', response.status, response.statusText);
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('✅ Stok verileri alındı:', {
+          lowStock: data.lowStockProducts?.length || 0,
+          outOfStock: data.outOfStockProducts?.length || 0,
+          movements: data.recentMovements?.length || 0
+        });
         setAlerts(data)
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Bilinmeyen hata' }))
+        console.error('❌ API Hatası:', response.status, errorData);
+        
+        if (response.status === 401) {
+          console.log('🔑 Authentication gerekli, login sayfasına yönlendiriliyor...');
+          window.location.href = '/admin/login';
+          return;
+        }
+        
+        throw new Error(errorData.error || `HTTP ${response.status}`);
       }
     } catch (error) {
-      console.error('Error fetching alerts:', error)
+      console.error('❌ Stok uyarıları fetch hatası:', error)
+      alert(`Stok verileri yüklenemedi: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -310,6 +334,25 @@ export default function StockAlertsPage() {
         <div className="flex flex-col items-center gap-4">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
           <p className="text-gray-600">Stok verileri yükleniyor...</p>
+          <p className="text-sm text-gray-500">Bu işlem birkaç saniye sürebilir</p>
+        </div>
+      </div>
+    )
+  }
+
+  // ✅ Eğer veriler hala yüklenmemişse
+  if (!alerts) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <AlertTriangle className="w-16 h-16 text-orange-500" />
+          <p className="text-gray-600">Stok verileri yüklenemedi</p>
+          <button 
+            onClick={fetchAlerts}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Tekrar Dene
+          </button>
         </div>
       </div>
     )

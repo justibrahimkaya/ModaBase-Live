@@ -134,8 +134,11 @@ export default function AdminInvoicesPage() {
   };
 
   const createInvoice = async (orderId: string) => {
+    console.log('🚀 E-fatura oluşturma başlatıldı:', orderId);
     setCreatingInvoice(orderId);
+    
     try {
+      console.log('📡 API isteği gönderiliyor...');
       const response = await fetch('/api/admin/invoices', {
         method: 'POST',
         headers: {
@@ -145,28 +148,46 @@ export default function AdminInvoicesPage() {
         body: JSON.stringify({ orderId })
       });
 
+      console.log('📥 API yanıt alındı:', response.status, response.statusText);
+
       if (!response.ok) {
-        throw new Error('E-fatura oluşturulamadı');
+        const errorData = await response.json();
+        console.error('❌ API Hatası:', errorData);
+        throw new Error(errorData.error || 'E-fatura oluşturulamadı');
       }
 
-      await response.json();
-      // Success notification would go here
+      const result = await response.json();
+      console.log('✅ E-fatura başarıyla oluşturuldu:', result);
+      
+      // Success notification
+      alert(`✅ E-fatura başarıyla oluşturuldu!\nDosya: ${result.fileName}\nSipariş: #${result.orderNumber}`);
+      
       fetchInvoices(); // Refresh list
     } catch (error) {
-      console.error('E-fatura oluşturma hatası:', error);
-      // Error notification would go here
+      console.error('❌ E-fatura oluşturma hatası:', error);
+      alert(`❌ E-fatura oluşturma hatası: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
     } finally {
       setCreatingInvoice(null);
     }
   };
 
   const downloadInvoice = (pdfUrl: string, orderId: string) => {
-    const link = document.createElement('a');
-    link.href = pdfUrl;
-    link.download = `fatura-${orderId}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    console.log('📥 Fatura indiriliyor:', { pdfUrl, orderId });
+    
+    try {
+      const link = document.createElement('a');
+      link.href = pdfUrl;
+      link.download = `fatura-${orderId.slice(-8)}.pdf`;
+      link.target = '_blank'; // ✅ Yeni sekmede aç
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      console.log('✅ Fatura indirme işlemi başlatıldı');
+    } catch (error) {
+      console.error('❌ Fatura indirme hatası:', error);
+      alert('Fatura indirilemedi. Lütfen tekrar deneyin.');
+    }
   };
 
   // Export all invoices to CSV

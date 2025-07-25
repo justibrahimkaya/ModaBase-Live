@@ -37,18 +37,24 @@ export async function GET(request: NextRequest) {
 // POST: Manuel e-fatura oluştur
 export async function POST(request: NextRequest) {
   try {
+    console.log('🏭 Manuel e-fatura oluşturma başlatıldı...');
+    
     const adminUser = await getAdminUser(request);
     if (!adminUser) {
+      console.log('❌ Yetkisiz erişim');
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
     }
 
     const { orderId } = await request.json();
+    console.log('📋 Order ID:', orderId);
 
     if (!orderId) {
+      console.log('❌ Sipariş ID eksik');
       return NextResponse.json({ error: 'Sipariş ID gerekli' }, { status: 400 });
     }
 
     // Siparişi bul
+    console.log('🔍 Sipariş aranıyor...');
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: {
@@ -57,13 +63,22 @@ export async function POST(request: NextRequest) {
             product: true
           }
         },
-        user: true
+        user: true,
+        address: true // ✅ Address'i de dahil et
       }
     });
 
     if (!order) {
+      console.log('❌ Sipariş bulunamadı:', orderId);
       return NextResponse.json({ error: 'Sipariş bulunamadı' }, { status: 404 });
     }
+
+    console.log('✅ Sipariş bulundu:', {
+      id: order.id,
+      total: order.total,
+      itemCount: order.items.length,
+      customerName: order.user?.name || order.guestName
+    });
 
     // Şirket bilgileri
     const companyInfo = {
@@ -76,12 +91,14 @@ export async function POST(request: NextRequest) {
     };
 
     // PDF E-Fatura oluştur
+    console.log('📄 PDF fatura oluşturuluyor...');
     const invoiceData = {
       order,
       companyInfo
     };
 
     const { filePath, fileName } = await InvoiceService.generateInvoicePDF(invoiceData);
+    console.log('✅ PDF oluşturuldu:', fileName);
 
     // E-posta gönder
     const customerEmail = order.user?.email || order.guestEmail;
@@ -119,10 +136,15 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    console.log('🎉 E-fatura işlemi tamamlandı:', fileName);
+    
     return NextResponse.json({ 
       success: true, 
       message: 'E-fatura başarıyla oluşturuldu',
-      fileName 
+      fileName,
+      filePath: `/invoices/${fileName}`,
+      orderId: order.id,
+      orderNumber: order.id.slice(-8)
     });
 
   } catch (error) {

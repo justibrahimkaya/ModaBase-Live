@@ -912,7 +912,7 @@ export class EmailService {
       const mailOptions = {
         from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
         to: data.to,
-        subject: `ModaBase - Sipariş Reddedildi #${data.orderNumber}`,
+        subject: `❌ Sipariş İptal Edildi - ModaBase #${data.orderNumber}`,
         html: this.generateOrderRejectionHTML(data)
       };
 
@@ -974,7 +974,7 @@ export class EmailService {
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: #dc3545; color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .header { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
           .content { padding: 30px 20px; background: white; }
           .order-info { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #dc3545; }
           .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
@@ -985,7 +985,8 @@ export class EmailService {
       <body>
         <div class="container">
           <div class="header">
-            <h1 style="margin: 0;">❌ Sipariş Reddedildi</h1>
+            <div style="font-size: 60px; margin-bottom: 15px;">❌</div>
+            <h1 style="margin: 0;">Sipariş İptal Edildi</h1>
             <p style="margin: 10px 0 0 0; opacity: 0.9;">Sipariş #${data.orderNumber}</p>
           </div>
           
@@ -1016,6 +1017,13 @@ export class EmailService {
             </table>
             
             <p>Eğer bu karar hakkında sorularınız varsa, lütfen bizimle iletişime geçin.</p>
+            
+            <p style="text-align: center; margin: 30px 0;">
+              <a href="mailto:info@modabase.com.tr" 
+                 style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
+                📞 Müşteri Hizmetleri
+              </a>
+            </p>
             
             <p>Teşekkürler,<br>
             <strong>ModaBase Ekibi</strong></p>
@@ -1087,7 +1095,45 @@ export class EmailService {
     }
   }
 
-  // Ödeme talimatları e-postası gönderme (müşteriye)
+  // ✅ YENİ: Sipariş onayı + ödeme talimatları (tek mail)
+  static async sendOrderApprovalWithPaymentInstructions(data: {
+    to: string;
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    totalAmount: number;
+    paymentMethod: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+    invoicePdfPath?: string | undefined;
+  }): Promise<boolean> {
+    try {
+      const mailOptions: any = {
+        from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
+        to: data.to,
+        subject: `✅ Siparişiniz Onaylandı! Ödeme Bilgileri - #${data.orderNumber}`,
+        html: this.generateOrderApprovalWithPaymentHTML(data)
+      };
+
+      // E-fatura PDF'i varsa attach et
+      if (data.invoicePdfPath) {
+        mailOptions.attachments = [
+          {
+            filename: `e-fatura-${data.orderNumber}.pdf`,
+            path: data.invoicePdfPath
+          }
+        ];
+      }
+
+      await this.transporter.sendMail(mailOptions);
+      console.log('✅ Sipariş onayı + ödeme talimatları gönderildi:', data.to);
+      return true;
+    } catch (error) {
+      console.error('❌ Sipariş onayı + ödeme talimatları gönderme hatası:', error);
+      return false;
+    }
+  }
+
+  // Ödeme talimatları e-postası gönderme (müşteriye) - ESKİ VERSİYON
   static async sendPaymentInstructions(data: {
     to: string;
     customerName: string;
@@ -1111,6 +1157,130 @@ export class EmailService {
       console.error('Ödeme talimatları e-postası gönderme hatası:', error);
       return false;
     }
+  }
+
+  // ✅ YENİ: Sipariş onayı + ödeme talimatları HTML template
+  private static generateOrderApprovalWithPaymentHTML(data: {
+    customerName: string;
+    orderId: string;
+    orderNumber: string;
+    totalAmount: number;
+    paymentMethod: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+  }): string {
+    const itemsHTML = data.items.map(item => `
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #eee;">${item.name}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">${item.price.toFixed(2)} ₺</td>
+      </tr>
+    `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Siparişiniz Onaylandı - ModaBase</title>
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
+          .container { max-width: 650px; margin: 0 auto; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+          .header { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 40px 30px; text-align: center; }
+          .content { padding: 40px 30px; }
+          .approval-banner { background: #d4edda; border: 1px solid #c3e6cb; padding: 20px; border-radius: 8px; margin: 25px 0; text-align: center; }
+          .order-info { background: #f8f9fa; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 5px solid #28a745; }
+          .payment-section { background: #fff3cd; border: 1px solid #ffeaa7; padding: 25px; border-radius: 8px; margin: 25px 0; }
+          .items-table { width: 100%; border-collapse: collapse; margin: 25px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+          .items-table th { background: #28a745; color: white; padding: 15px; text-align: left; font-weight: bold; }
+          .items-table tr:nth-child(even) { background: #f8f9fa; }
+          .footer { background: #f8f9fa; padding: 30px; text-align: center; font-size: 14px; color: #666; }
+          .success-icon { font-size: 60px; margin-bottom: 15px; }
+          .cta-button { display: inline-block; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 20px 0; }
+          .bank-info { background: #e3f2fd; border: 1px solid #bbdefb; padding: 20px; border-radius: 8px; margin: 15px 0; }
+          .total-amount { font-size: 24px; font-weight: bold; color: #28a745; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="success-icon">🎉</div>
+            <h1 style="margin: 0; font-size: 28px;">Siparişiniz Onaylandı!</h1>
+            <p style="margin: 15px 0 0 0; opacity: 0.9; font-size: 18px;">Sipariş #${data.orderNumber}</p>
+          </div>
+          
+          <div class="content">
+            <h2>Merhaba ${data.customerName},</h2>
+            
+            <div class="approval-banner">
+              <h3 style="margin: 0 0 10px 0; color: #155724;">✅ Sipariş Başarıyla Onaylandı!</h3>
+              <p style="margin: 0; color: #155724;">Siparişiniz hazırlanmaya başlanacak ve en kısa sürede kargoya verilecektir.</p>
+            </div>
+            
+            <div class="order-info">
+              <h3 style="margin: 0 0 20px 0; color: #28a745;">📋 Sipariş Detayları</h3>
+              <p><strong>Sipariş No:</strong> ${data.orderNumber}</p>
+              <p><strong>Toplam Tutar:</strong> <span class="total-amount">${data.totalAmount.toFixed(2)} ₺</span></p>
+              <p><strong>Ödeme Yöntemi:</strong> ${data.paymentMethod}</p>
+              <p><strong>Durum:</strong> <span style="color: #28a745; font-weight: bold;">Onaylandı</span></p>
+            </div>
+            
+            <h3 style="color: #333;">🛍️ Sipariş İçeriği:</h3>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Ürün</th>
+                  <th style="text-align: center;">Adet</th>
+                  <th style="text-align: right;">Fiyat</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHTML}
+                <tr style="background: #28a745; color: white; font-weight: bold;">
+                  <td style="padding: 15px;">Toplam</td>
+                  <td style="padding: 15px; text-align: center;">-</td>
+                  <td style="padding: 15px; text-align: right;">${data.totalAmount.toFixed(2)} ₺</td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <div class="payment-section">
+              <h3 style="margin: 0 0 20px 0; color: #856404;">💳 Ödeme Bilgileri</h3>
+              <p style="margin-bottom: 20px; color: #856404;"><strong>Ödeme yapmak için aşağıdaki bilgileri kullanabilirsiniz:</strong></p>
+              
+              <div class="bank-info">
+                <h4 style="margin: 0 0 15px 0; color: #1976d2;">🏦 Havale/EFT Bilgileri</h4>
+                <p><strong>Banka:</strong> Garanti BBVA</p>
+                <p><strong>Hesap Sahibi:</strong> Modahan İbrahim Kaya</p>
+                <p><strong>IBAN:</strong> TR64 0006 2000 4560 0006 2986 57</p>
+                <p><strong>Açıklama:</strong> ModaBase Sipariş #${data.orderNumber}</p>
+              </div>
+              
+              <p style="margin-top: 20px; color: #856404;"><strong>⚠️ Önemli:</strong> Havale/EFT açıklama kısmına mutlaka sipariş numaranızı yazınız.</p>
+            </div>
+            
+            <p style="margin-top: 30px;">
+              <a href="${process.env.NEXT_PUBLIC_APP_URL}/order/${data.orderId}" class="cta-button">
+                📱 Siparişimi Takip Et
+              </a>
+            </p>
+            
+            <p style="margin-top: 30px;">Ödemeniz onaylandıktan sonra siparişiniz hazırlanmaya başlanacak ve kargo bilgileri size e-posta ile gönderilecektir.</p>
+            
+            <p>Herhangi bir sorunuz varsa bizimle iletişime geçmekten çekinmeyin.</p>
+            
+            <p style="margin-top: 30px;">Teşekkürler,<br>
+            <strong>ModaBase Ekibi</strong></p>
+          </div>
+          
+          <div class="footer">
+            <p>📧 Bu e-posta ModaBase e-ticaret sistemi tarafından otomatik olarak gönderilmiştir.</p>
+            <p>📞 İletişim: info@modabase.com.tr | +90 536 297 12 55</p>
+            <p>© 2024 ModaBase. Tüm hakları saklıdır.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
   }
 
   private static generateOrderApprovalHTML(data: {
@@ -2342,7 +2512,7 @@ export class EmailService {
       const mailOptions = {
         from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
         to: data.to,
-        subject: `🚚 Siparişiniz Kargoya Verildi - #${data.orderNumber}`,
+        subject: `🚚 Kargo Yolda! Takip No: ${data.trackingNumber} - #${data.orderNumber}`,
         html: this.generateShippingNotificationHTML(data)
       };
 
@@ -2368,7 +2538,7 @@ export class EmailService {
       const mailOptions = {
         from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
         to: data.to,
-        subject: `✅ Siparişiniz Teslim Edildi - #${data.orderNumber}`,
+        subject: `🎉 Teslim Edildi! Teşekkürler - ModaBase #${data.orderNumber}`,
         html: this.generateDeliveryNotificationHTML(data)
       };
 
@@ -2586,9 +2756,13 @@ export class EmailService {
             </div>
             
             <p style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/profile/orders" 
+                 style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #212529; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 0 10px;">
+                ⭐ Değerlendir
+              </a>
               <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/products" 
-                 style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
-                Yeni Ürünleri Keşfet
+                 style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 0 10px;">
+                🛍️ Tekrar Alışveriş
               </a>
             </p>
           </div>

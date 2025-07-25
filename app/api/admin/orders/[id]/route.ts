@@ -272,9 +272,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
           }
         });
 
-        // ✅ YENİ: Sipariş onaylandığında PDF E-Fatura oluştur ve ödeme emaili gönder
+        // ✅ YENİ: Sipariş onaylandığında tek email gönder (onay + ödeme bilgileri)
         if (orderAction === 'APPROVE') {
-          console.log('📧 Sipariş onaylandı, müşteriye email gönderiliyor...')
+          console.log('📧 Sipariş onaylandı, müşteriye tek email gönderiliyor...')
+          
+          let invoicePdfPath: string | undefined;
           
           // PDF E-Fatura oluştur
           try {
@@ -293,24 +295,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
             };
 
             const { filePath, fileName } = await InvoiceService.generateInvoicePDF(invoiceData);
-
-            // E-fatura e-postası gönder
-            await EmailService.sendInvoiceEmail({
-              to: customerEmail,
-              customerName,
-              orderNumber: order.id,
-              invoiceNumber: fileName.replace('.pdf', ''),
-              pdfPath: filePath,
-              totalAmount: order.total
-            });
-
-            // Sipariş onay e-postası gönder
-            await EmailService.sendOrderConfirmation(
-              customerEmail,
-              customerName,
-              order.id,
-              order.total
-            );
+            invoicePdfPath = filePath;
 
             // Order'a PDF URL'ini kaydet
             await prisma.order.update({
@@ -321,27 +306,28 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
               }
             });
 
-            console.log('✅ E-fatura oluşturuldu ve müşteriye gönderildi')
+            console.log('✅ E-fatura oluşturuldu')
           } catch (invoiceError) {
             console.error('❌ E-fatura oluşturma hatası:', invoiceError)
           }
 
-          // Ödeme talimatları gönder
-          await EmailService.sendPaymentInstructions({
+          // ✅ TEK EMAIL: Sipariş onayı + ödeme talimatları + e-fatura
+          await EmailService.sendOrderApprovalWithPaymentInstructions({
             to: customerEmail,
             customerName,
             orderId: order.id,
             orderNumber: order.id.slice(-8),
             totalAmount: order.total,
-            paymentMethod: order.paymentMethod || 'Belirtilmemiş',
+            paymentMethod: order.paymentMethod || 'Havale/EFT',
             items: order.items.map(item => ({
               name: item.product.name,
               quantity: item.quantity,
               price: item.price
-            }))
+            })),
+            invoicePdfPath
           })
 
-          console.log('✅ Ödeme talimatları gönderildi')
+          console.log('✅ Sipariş onayı + ödeme talimatları tek mailde gönderildi')
         }
 
         // ✅ YENİ: Sipariş reddedildiğinde
