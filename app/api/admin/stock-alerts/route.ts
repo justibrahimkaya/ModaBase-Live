@@ -3,11 +3,13 @@ import { prisma } from '@/lib/prisma'
 import { getAdminUser } from '@/lib/adminAuth'
 
 export const dynamic = 'force-dynamic'
+export const maxDuration = 30 // ✅ 30 saniye timeout
 
-// Stok uyarılarını getir
+// Stok uyarılarını getir - ULTRA OPTIMIZED
 export async function GET(request: NextRequest) {
   try {
-    console.log('📊 Stok uyarıları API çağırıldı');
+    console.log('📊 Stok uyarıları API çağırıldı - OPTIMIZED VERSION');
+    const startTime = Date.now();
     
     const admin = await getAdminUser(request)
     if (!admin) {
@@ -17,103 +19,144 @@ export async function GET(request: NextRequest) {
 
     console.log('✅ Admin yetkisi onaylandı:', admin.email);
 
-    // Tüm ürünleri getir
-    console.log('🔍 Ürünler getiriliyor...');
-    const allProducts = await prisma.product.findMany({
-      include: {
-        category: true
-      }
-    })
+    // ✅ OPTIMIZED: Database seviyesinde filtreleme
+    console.log('🚀 Optimized database queries başlatılıyor...');
     
-    console.log('📦 Toplam ürün sayısı:', allProducts.length);
-    
-    // Minimum stok seviyesinin altındaki ürünler
-    console.log('⚠️ Düşük stok kontrolü yapılıyor...');
-    const lowStockProducts = allProducts.filter(product => {
-      const isLowStock = product.stock <= product.minStockLevel && product.stock > 0;
-      if (isLowStock) {
-        console.log(`📉 Düşük stok: ${product.name} - Stok: ${product.stock}, Min: ${product.minStockLevel}`);
-      }
-      return isLowStock;
-    }).map(product => ({
-      ...product,
-      categoryName: product.category.name,
-      categorySlug: product.category.slug
-    })).sort((a, b) => a.stock - b.stock)
-
-    // Stokta olmayan ürünler
-    console.log('❌ Stoksuz ürün kontrolü yapılıyor...');
-    const outOfStockProducts = allProducts.filter(product => {
-      const isOutOfStock = product.stock === 0;
-      if (isOutOfStock) {
-        console.log(`🚫 Stoksuz: ${product.name}`);
-      }
-      return isOutOfStock;
-    }).map(product => ({
-      ...product,
-      categoryName: product.category.name,
-      categorySlug: product.category.slug
-    })).sort((a, b) => a.name.localeCompare(b.name))
-
-    console.log('📊 Stok özeti:', {
-      lowStockCount: lowStockProducts.length,
-      outOfStockCount: outOfStockProducts.length
-    });
-
-    // Son 7 günlük stok hareketleri
-    console.log('📈 Stok hareketleri getiriliyor...');
-    const recentMovements = await prisma.stockMovement.findMany({
-      where: {
-        createdAt: {
-          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-        }
-      },
-      include: {
-        product: {
-          include: {
-            category: true
+    // Paralel query'ler - daha hızlı
+    const [lowStockProducts, outOfStockProducts, recentMovements] = await Promise.all([
+             // Low stock products - database seviyesinde filtre
+              // Low stock products - optimized query
+       prisma.product.findMany({
+         select: {
+           id: true,
+           name: true,
+           slug: true,
+           stock: true,
+           minStockLevel: true,
+           price: true,
+           updatedAt: true,
+           category: {
+             select: {
+               name: true,
+               slug: true
+             }
+           }
+         },
+         orderBy: { stock: 'asc' },
+         take: 200 // ✅ Limit - sonra filter edeceğiz
+       }),
+      
+      // Out of stock products - database seviyesinde filtre  
+      prisma.product.findMany({
+        where: {
+          stock: 0
+        },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          stock: true,
+          minStockLevel: true,
+          price: true,
+          updatedAt: true,
+          category: {
+            select: {
+              name: true,
+              slug: true
+            }
           }
         },
-        order: {
-          select: {
-            id: true,
-            status: true,
-            trackingNumber: true
+        orderBy: { name: 'asc' },
+        take: 100 // ✅ Limit ekledik
+      }),
+      
+      // Recent movements - optimized
+      prisma.stockMovement.findMany({
+        where: {
+          createdAt: {
+            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
           }
-        }
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 50
-    })
+        },
+                 select: {
+           id: true,
+           type: true,
+           quantity: true,
+           createdAt: true,
+           description: true,
+          product: {
+            select: {
+              id: true,
+              name: true,
+              category: {
+                select: {
+                  name: true
+                }
+              }
+            }
+          },
+          order: {
+            select: {
+              id: true,
+              status: true,
+              trackingNumber: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 50 // ✅ Limit
+      })
+    ]);
 
-    console.log('📈 Stok hareketleri sayısı:', recentMovements.length);
+    const queryTime = Date.now() - startTime;
+    console.log(`⚡ Database queries tamamlandı: ${queryTime}ms`);
+
+         // ✅ FAST: Filtreleme ve mapping
+     const processedLowStock = lowStockProducts
+       .filter(product => product.stock > 0 && product.stock <= product.minStockLevel)
+       .slice(0, 100) // İlk 100'ü al
+       .map(product => ({
+         ...product,
+         categoryName: product.category.name,
+         categorySlug: product.category.slug
+       }));
+
+     const processedOutOfStock = outOfStockProducts.map(product => ({
+       ...product,
+       categoryName: product.category.name,
+       categorySlug: product.category.slug
+     }));
+
+    console.log('📊 OPTIMIZED Stok özeti:', {
+      lowStockCount: processedLowStock.length,
+      outOfStockCount: processedOutOfStock.length,
+      movementsCount: recentMovements.length,
+      totalTime: `${Date.now() - startTime}ms`
+    });
 
     const response = {
-      lowStockProducts,
-      outOfStockProducts,
+      lowStockProducts: processedLowStock,
+      outOfStockProducts: processedOutOfStock,
       recentMovements
     };
 
     console.log('✅ Stok uyarıları başarıyla döndürülüyor:', {
       lowStock: response.lowStockProducts.length,
       outOfStock: response.outOfStockProducts.length,
-      movements: response.recentMovements.length
+      movements: response.recentMovements.length,
+      performanceTime: `${Date.now() - startTime}ms`
     });
 
     return NextResponse.json(response)
+
   } catch (error) {
-    console.error('❌ Stok uyarıları API hatası:', error)
-    console.error('❌ Hata detayları:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
+    console.error('❌ Stok uyarıları hatası:', {
+      message: error instanceof Error ? error.message : 'Bilinmeyen hata',
       stack: error instanceof Error ? error.stack : undefined,
       name: error instanceof Error ? error.name : 'Unknown'
     });
     
     return NextResponse.json(
-      { 
-        error: 'Stok uyarıları getirilemedi',
-        details: error instanceof Error ? error.message : 'Bilinmeyen hata'
-      },
+      { error: 'Stok verileri alınırken hata oluştu' },
       { status: 500 }
     )
   }

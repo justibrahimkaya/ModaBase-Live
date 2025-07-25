@@ -160,9 +160,16 @@ export default function StockAlertsPage() {
       console.log('🚀 Stok uyarıları getiriliyor...');
       setRefreshing(true)
       
+      // ✅ TIMEOUT: 30 saniye timeout ekle
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 saniye
+      
       const response = await fetch('/api/admin/stock-alerts', {
-        credentials: 'include'
+        credentials: 'include',
+        signal: controller.signal
       })
+      
+      clearTimeout(timeoutId); // ✅ Başarılı ise timeout'u temizle
       
       console.log('📡 API yanıt:', response.status, response.statusText);
       
