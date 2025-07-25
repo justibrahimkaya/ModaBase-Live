@@ -103,16 +103,22 @@ export default function Footer() {
             <p className="text-gray-400 text-xs sm:text-sm text-center md:text-left">
               © 2024 ModaBase. Tüm hakları saklıdır.
             </p>
-            {/* Mobile-optimized legal links */}
-            <div className="flex flex-wrap justify-center md:justify-end gap-x-4 gap-y-2 sm:gap-x-6">
-              <a href="#" className="text-gray-400 hover:text-white text-xs sm:text-sm transition-colors hover:underline">
+            {/* Mobile-optimized legal links - PayTR Uyumlu */}
+            <div className="flex flex-wrap justify-center md:justify-end gap-x-3 gap-y-2 sm:gap-x-4">
+              <a href="/privacy" className="text-gray-400 hover:text-white text-xs sm:text-sm transition-colors hover:underline">
                 Gizlilik Politikası
               </a>
-              <a href="#" className="text-gray-400 hover:text-white text-xs sm:text-sm transition-colors hover:underline">
+              <a href="/terms" className="text-gray-400 hover:text-white text-xs sm:text-sm transition-colors hover:underline">
                 Kullanım Şartları
               </a>
-              <a href="#" className="text-gray-400 hover:text-white text-xs sm:text-sm transition-colors hover:underline">
-                KVKK
+              <a href="/mesafeli-satis-sozlesmesi" className="text-gray-400 hover:text-white text-xs sm:text-sm transition-colors hover:underline">
+                Mesafeli Satış Sözleşmesi
+              </a>
+              <a href="/iptal-iade-politikasi" className="text-gray-400 hover:text-white text-xs sm:text-sm transition-colors hover:underline">
+                İptal-İade Politikası
+              </a>
+              <a href="/teslimat-bilgileri" className="text-gray-400 hover:text-white text-xs sm:text-sm transition-colors hover:underline">
+                Teslimat Bilgileri
               </a>
             </div>
           </div>
