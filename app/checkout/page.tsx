@@ -69,6 +69,16 @@ export default function CheckoutPage() {
     transferDate: '',
     transferNote: ''
   })
+  
+  // ✅ Sözleşme kabul durumları - PayTR Uyumluluğu için ZORUNLU
+  const [agreements, setAgreements] = useState({
+    distanceSales: false,
+    returnPolicy: false,
+    deliveryInfo: false,
+    termsConditions: false
+  })
+  const [agreementErrors, setAgreementErrors] = useState<string[]>([])
+  
   const router = useRouter();
 
   useEffect(() => {
@@ -89,6 +99,39 @@ export default function CheckoutPage() {
   }
   if (items.length === 0) {
     return <div className="min-h-screen flex items-center justify-center text-lg">Yönlendiriliyor...</div>;
+  }
+
+  // ✅ Sözleşme değişikliklerini handle et
+  const handleAgreementChange = (key: keyof typeof agreements) => {
+    setAgreements(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }))
+    // Hata varsa temizle
+    if (agreementErrors.length > 0) {
+      setAgreementErrors([])
+    }
+  }
+
+  // ✅ Sözleşmeleri validate et
+  const validateAgreements = () => {
+    const errors: string[] = []
+    
+    if (!agreements.distanceSales) {
+      errors.push('Mesafeli Satış Sözleşmesini kabul etmeniz zorunludur')
+    }
+    if (!agreements.returnPolicy) {
+      errors.push('İptal-İade Politikasını kabul etmeniz zorunludur')
+    }
+    if (!agreements.deliveryInfo) {
+      errors.push('Teslimat Bilgilerini kabul etmeniz zorunludur')
+    }
+    if (!agreements.termsConditions) {
+      errors.push('Kullanım Şartlarını kabul etmeniz zorunludur')
+    }
+    
+    setAgreementErrors(errors)
+    return errors.length === 0
   }
 
   // Kargo ücretini hesapla
@@ -244,6 +287,12 @@ export default function CheckoutPage() {
 
   // PayTR ile ödeme başlat
   const handlePaytrPayment = async () => {
+    // ✅ ZORUNLU: Sözleşmeleri kontrol et
+    if (!validateAgreements()) {
+      alert('Lütfen tüm sözleşmeleri okuyup kabul edin!')
+      return
+    }
+    
     setIsPlacingOrder(true)
     try {
       console.log('🚀 PayTR ödeme süreci başlatılıyor...')
@@ -418,6 +467,12 @@ export default function CheckoutPage() {
 
   // Havale ile ödeme başlat
   const handleBankTransferPayment = async () => {
+    // ✅ ZORUNLU: Sözleşmeleri kontrol et
+    if (!validateAgreements()) {
+      alert('Lütfen tüm sözleşmeleri okuyup kabul edin!')
+      return
+    }
+    
     setIsPlacingOrder(true)
     try {
       // Önce siparişi oluştur
@@ -1090,14 +1145,98 @@ export default function CheckoutPage() {
                   <span className="font-bold text-lg text-primary-600">₺{total.toFixed(2)}</span>
                 </div>
               </div>
+              
+              {/* ✅ ZORUNLU: PayTR Uyumluluğu İçin Sözleşme Kabulleri */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6">
+                <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
+                  <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                  Sözleşme Kabulleri (Zorunlu)
+                </h3>
+                <div className="space-y-3">
+                  <label className="flex items-start space-x-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={agreements.distanceSales}
+                      onChange={() => handleAgreementChange('distanceSales')}
+                      className="mt-0.5 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    />
+                    <span className="text-sm text-gray-700">
+                      <a href="/mesafeli-satis-sozlesmesi" target="_blank" className="text-primary-600 hover:underline font-medium">
+                        Mesafeli Satış Sözleşmesini
+                      </a> okudum ve kabul ediyorum
+                    </span>
+                  </label>
+                  
+                  <label className="flex items-start space-x-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={agreements.returnPolicy}
+                      onChange={() => handleAgreementChange('returnPolicy')}
+                      className="mt-0.5 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    />
+                    <span className="text-sm text-gray-700">
+                      <a href="/iptal-iade-politikasi" target="_blank" className="text-primary-600 hover:underline font-medium">
+                        İptal-İade Politikasını
+                      </a> okudum ve kabul ediyorum
+                    </span>
+                  </label>
+                  
+                  <label className="flex items-start space-x-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={agreements.deliveryInfo}
+                      onChange={() => handleAgreementChange('deliveryInfo')}
+                      className="mt-0.5 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    />
+                    <span className="text-sm text-gray-700">
+                      <a href="/teslimat-bilgileri" target="_blank" className="text-primary-600 hover:underline font-medium">
+                        Teslimat Bilgilerini
+                      </a> okudum ve kabul ediyorum
+                    </span>
+                  </label>
+                  
+                  <label className="flex items-start space-x-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={agreements.termsConditions}
+                      onChange={() => handleAgreementChange('termsConditions')}
+                      className="mt-0.5 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    />
+                    <span className="text-sm text-gray-700">
+                      <a href="/terms" target="_blank" className="text-primary-600 hover:underline font-medium">
+                        Kullanım Şartlarını
+                      </a> okudum ve kabul ediyorum
+                    </span>
+                  </label>
+                </div>
+                
+                {/* Hata mesajları */}
+                {agreementErrors.length > 0 && (
+                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <ul className="text-sm text-red-700 space-y-1">
+                      {agreementErrors.map((error, index) => (
+                        <li key={index} className="flex items-start">
+                          <span className="text-red-500 mr-2">•</span>
+                          {error}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              
               {/* Siparişi Tamamla */}
               <div className="flex justify-between mt-6">
                 <button type="button" onClick={() => setStep(1)} className="btn-secondary px-8 py-3 text-lg">Geri</button>
                 <button
                   type="button"
                   onClick={selectedPaymentMethod === 'paytr' ? handlePaytrPayment : handleBankTransferPayment}
-                  className="btn-primary px-8 py-3 text-lg flex items-center justify-center"
-                  disabled={isPlacingOrder}
+                  className={`px-8 py-3 text-lg flex items-center justify-center rounded-lg font-semibold transition-all ${
+                    isPlacingOrder || !Object.values(agreements).every(Boolean)
+                      ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                      : 'btn-primary hover:scale-105'
+                  }`}
+                  disabled={isPlacingOrder || !Object.values(agreements).every(Boolean)}
                 >
                   {isPlacingOrder ? (
                     <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></span>
