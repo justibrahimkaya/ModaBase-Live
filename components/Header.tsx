@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ShoppingCart, User, Menu, X, LogOut, Sparkles, Crown, Bell } from 'lucide-react'
+import { ShoppingCart, User, Menu, LogOut, Sparkles, Crown, Bell } from 'lucide-react'
 import { useCart } from './CartContext'
 
 export default function Header() {
@@ -107,151 +107,109 @@ export default function Header() {
 
   return (
     <>
-      {/* Floating Header - Mobile optimized */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/80 border-b border-white/20 shadow-2xl mobile-header">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16 sm:h-20">
+      {/* Header - Ultra Professional Mobile Optimization */}
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-sm">
+        <div className="max-w-7xl mx-auto">
+          {/* Main Header */}
+          <div className="flex items-center justify-between h-16 sm:h-18 lg:h-20 px-3 sm:px-4 lg:px-6">
+            {/* Mobile Menu Button */}
+            <button
+              className="lg:hidden p-2 rounded-xl hover:bg-gray-50 transition-colors touch-manipulation"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Menüyü aç/kapat"
+            >
+              <Menu className="h-6 w-6 text-gray-700" />
+            </button>
             
-            {/* Logo - Mobile optimized */}
+            {/* Logo - Mobile Optimized */}
             <div className="flex-shrink-0">
-              <a href="/" className="flex items-center space-x-2 sm:space-x-3 group">
-                <div className="relative">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
-                    <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                  </div>
-                  <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full animate-pulse"></div>
-                </div>
-                <div className="hidden sm:block">
-                  <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                    ModaBase
-                  </h1>
-                  <p className="text-xs text-gray-500 font-medium">Ücretsiz Üyelik</p>
-                </div>
-                {/* Mobile logo text */}
-                <div className="block sm:hidden">
-                  <h1 className="text-lg font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                    ModaBase
-                  </h1>
-                </div>
+              <a href="/" className="block">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  ModaBase
+                </h1>
               </a>
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-2">
-              {[
-                { name: 'Ana Sayfa', href: '/', gradient: 'from-blue-500 to-purple-600' },
-                { name: 'Kadın', href: '/products?category=kadin', gradient: 'from-pink-500 to-rose-600' },
-                { name: 'Erkek', href: '/products?category=erkek', gradient: 'from-cyan-500 to-blue-600' },
-                { name: 'Çocuk', href: '/products?category=cocuk', gradient: 'from-yellow-500 to-orange-600' },
-                { name: 'Aksesuar', href: '/products?category=aksesuar', gradient: 'from-purple-500 to-pink-600' },
-                { name: 'Blog', href: '/blog', gradient: 'from-indigo-500 to-purple-600' },
-                { name: 'İndirimler', href: '/products?discount=true', gradient: 'from-red-500 to-pink-600' },
-              ].map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="relative px-4 py-2 rounded-xl font-medium text-gray-700 hover:text-white transition-all duration-300 group overflow-hidden"
-                >
-                  <div className={`absolute inset-0 bg-gradient-to-r ${item.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl`}></div>
-                  <div className="absolute inset-0 bg-white/20 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                  <span className="relative z-10">{item.name}</span>
-                </a>
-              ))}
-              
-              {/* Business Admin Panel - IN NAVIGATION */}
-              {!adminLoading && adminInfo && adminInfo.role === 'BUSINESS_ADMIN' && (
-                <div className="border-l border-gray-300 ml-4 pl-4">
+            <nav className="hidden lg:flex items-center space-x-8 flex-1 justify-center">
+              <a href="/" className="nav-link">Ana Sayfa</a>
+              <a href="/products" className="nav-link">Ürünler</a>
+              <a href="/blog" className="nav-link">Blog</a>
+              <a href="#" className="nav-link">Kampanyalar</a>
+              <a href="#" className="nav-link">İletişim</a>
+            </nav>
+
+            {/* Right Side Actions - Mobile Optimized */}
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              {/* Admin Panel Links - Desktop Only */}
+              {!adminLoading && !adminInfo && (
+                <div className="hidden lg:flex items-center space-x-2">
                   <a
-                    href="/admin"
-                    className="relative px-4 py-2 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                    href="/super-admin/login"
+                    className="admin-link admin-link-site"
+                    title="Site Yöneticisi Girişi"
                   >
-                    <span className="relative z-10 flex items-center space-x-2">
-                      <span>🏪</span>
-                      <span>İŞLETME PANELİM</span>
-                    </span>
+                    <Crown className="h-4 w-4" />
+                    <span>ModaBase</span>
+                  </a>
+                  <a
+                    href="/admin/business-login"
+                    className="admin-link admin-link-business"
+                    title="İşletme Girişi"
+                  >
+                    <span>🏪</span>
+                    <span>İşletme</span>
                   </a>
                 </div>
               )}
-            </nav>
 
-
-
-            {/* Right side actions - Mobile optimized */}
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              {/* Site Admin ONLY - Desktop only */}
-              {!adminLoading && adminInfo && (adminInfo.role === 'ADMIN' || adminInfo.role === 'SITE_ADMIN') && (
-                <div className="hidden lg:block mr-2">
-                  <a
-                    href="/super-admin"
-                    className="group relative px-4 py-2.5 rounded-xl transition-all duration-300 hover:scale-105 border-2 border-red-300 bg-gradient-to-r from-red-100 to-pink-100 hover:from-red-600 hover:to-pink-600 shadow-lg"
-                    title="Site Yöneticisi Dashboard"
-                  >
-                    <div className="relative z-10 flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-pink-600 rounded-lg flex items-center justify-center shadow-lg">
-                        <Crown className="h-4 w-4 text-white" />
+              {/* Admin Info - Mobile Optimized */}
+              {adminInfo && (
+                <div className="hidden sm:block">
+                  <a href={adminInfo.role === 'SITE_ADMIN' ? '/super-admin' : '/admin'} 
+                     className="flex items-center space-x-2 px-3 py-2 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 hover:from-green-100 hover:to-emerald-100 transition-all">
+                    <div className="w-6 h-6 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+                      {adminInfo.role === 'SITE_ADMIN' ? (
+                        <Crown className="h-3 w-3 text-white" />
+                      ) : (
+                        <span className="text-xs text-white">🏪</span>
+                      )}
+                    </div>
+                    <div className="hidden lg:block">
+                      <div className="text-sm font-medium text-green-800">
+                        {adminInfo.role === 'SITE_ADMIN' ? 'Site Admin' : adminInfo.businessName || 'İşletme'}
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-bold text-red-700 group-hover:text-white transition-colors">
-                          🚀 MODABASE
-                        </span>
-                        <span className="text-xs text-red-600 group-hover:text-red-200 transition-colors">
-                          {adminInfo.name || adminInfo.email}
-                        </span>
-                      </div>
+                      <div className="text-xs text-green-600">{adminInfo.email}</div>
                     </div>
                   </a>
                 </div>
               )}
-              
-              {/* Admin Loading Indicator */}
-              {adminLoading && (
-                <div className="hidden lg:block mr-2">
-                  <div className="animate-pulse">
-                    <div className="w-32 h-8 bg-gray-200 rounded-lg"></div>
-                  </div>
-                </div>
-              )}
-              
-              {/* Separate Admin Login Buttons - Desktop */}
-              {!adminLoading && !adminInfo && (
-                <div className="hidden lg:flex items-center space-x-2 mr-2">
-                  {/* Site Admin Login */}
-                  <a
-                    href="/super-admin/login"
-                    className="group relative px-3 py-2 rounded-lg transition-all duration-300 hover:scale-105 border border-red-200 bg-red-50 hover:bg-red-600 text-red-700 hover:text-white"
-                    title="Site Yöneticisi Girişi"
-                  >
-                    <span className="relative z-10 flex items-center space-x-1 text-sm font-semibold">
-                      <Crown className="h-4 w-4" />
-                      <span>ModaBase</span>
-                    </span>
-                  </a>
-                  
-                  {/* Business Admin Login */}
-                  <a
-                    href="/admin/business-login"
-                    className="group relative px-3 py-2 rounded-lg transition-all duration-300 hover:scale-105 border border-green-200 bg-green-50 hover:bg-green-600 text-green-700 hover:text-white"
-                    title="İşletme Girişi"
-                  >
-                    <span className="relative z-10 flex items-center space-x-1 text-sm font-semibold">
-                      <span>🏪</span>
-                      <span>İşletme Girişi</span>
-                    </span>
-                  </a>
-                </div>
-              )}
 
-              {/* User Menu - Mobile optimized */}
+              {/* Cart Button - Mobile Optimized */}
+              <a
+                href="/cart"
+                className="relative p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 hover:from-purple-100 hover:to-pink-100 transition-all duration-300 touch-manipulation group"
+                aria-label="Sepet"
+              >
+                <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 group-hover:scale-110 transition-transform" />
+                {getCount() > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 sm:h-6 sm:w-6 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                    {getCount()}
+                  </span>
+                )}
+              </a>
+
+              {/* User Menu - Mobile Optimized */}
               <div className="relative user-menu">
                 <button 
-                  className="relative p-2 sm:p-3 rounded-xl sm:rounded-2xl backdrop-blur-sm bg-white/20 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-white/30 group"
+                  className="relative p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-gray-50 to-slate-50 border border-gray-200 hover:from-gray-100 hover:to-slate-100 transition-all duration-300 touch-manipulation group"
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   aria-label="Kullanıcı menüsü"
                 >
                   {user ? (
                     <div className="flex items-center space-x-2">
                       {user.image ? (
-                        <img src={user.image} alt={user.name} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full" />
+                        <img src={user.image} alt={user.name} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover" />
                       ) : (
                         <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
                           <span className="text-xs sm:text-sm text-white font-bold">
@@ -259,46 +217,52 @@ export default function Header() {
                           </span>
                         </div>
                       )}
-                      <span className="hidden sm:block text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                      <span className="hidden sm:block text-sm font-medium text-gray-700 group-hover:text-gray-900 max-w-20 truncate">
                         {user.name}
                       </span>
                     </div>
                   ) : (
-                    <User className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700 group-hover:text-gray-900" />
+                    <User className="h-5 w-5 sm:h-6 sm:w-6 text-gray-700 group-hover:text-gray-900" />
                   )}
                 </button>
 
-                {/* User dropdown - Mobile optimized */}
+                {/* User Dropdown - Mobile Optimized */}
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 sm:w-64 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 py-2 z-50">
+                  <div className="absolute right-0 mt-2 w-64 sm:w-72 bg-white/98 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-100 py-2 z-50 max-h-96 overflow-y-auto">
                     {user ? (
                       <>
                         <div className="px-4 py-3 border-b border-gray-100">
-                          <p className="text-sm font-medium text-gray-900">{user.name} {user.surname}</p>
-                          <p className="text-xs text-gray-500">{user.email}</p>
+                          <p className="text-sm font-semibold text-gray-900 truncate">{user.name} {user.surname}</p>
+                          <p className="text-xs text-gray-500 truncate">{user.email}</p>
                         </div>
-                        <a href="/profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                          <User className="h-4 w-4 mr-3" />
+                        <a href="/profile" className="mobile-menu-item">
+                          <User className="h-4 w-4" />
                           Profilim
                         </a>
-                        <a href="/profile/orders" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                          <Bell className="h-4 w-4 mr-3" />
+                        <a href="/profile/orders" className="mobile-menu-item">
+                          <Bell className="h-4 w-4" />
                           Siparişlerim
+                        </a>
+                        <a href="/profile/favorites" className="mobile-menu-item">
+                          <Sparkles className="h-4 w-4" />
+                          Favorilerim
                         </a>
                         <button 
                           onClick={handleLogout}
-                          className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          className="mobile-menu-item text-red-600 hover:bg-red-50 w-full"
                         >
-                          <LogOut className="h-4 w-4 mr-3" />
+                          <LogOut className="h-4 w-4" />
                           Çıkış Yap
                         </button>
                       </>
                     ) : (
                       <>
-                        <a href="/login" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                        <a href="/login" className="mobile-menu-item">
+                          <User className="h-4 w-4" />
                           Giriş Yap
                         </a>
-                        <a href="/register" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                        <a href="/register" className="mobile-menu-item">
+                          <Crown className="h-4 w-4" />
                           Kayıt Ol
                         </a>
                       </>
@@ -306,183 +270,70 @@ export default function Header() {
                   </div>
                 )}
               </div>
-              
-              {/* Cart - Mobile optimized */}
-              <div className="relative">
-                <button 
-                  className="relative p-2 sm:p-3 rounded-xl sm:rounded-2xl backdrop-blur-sm bg-white/20 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-white/30 group"
-                  onClick={() => window.location.href = '/cart'}
-                  aria-label="Sepet"
-                >
-                  <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700 group-hover:text-gray-900" />
-                  {getCount() > 0 && (
-                    <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-red-500 to-pink-600 text-white text-xs rounded-full flex items-center justify-center shadow-lg animate-bounce">
-                      {getCount()}
-                    </div>
-                  )}
-                </button>
-              </div>
-              
-              {/* Mobile menu button */}
-              <button
-                className="lg:hidden p-2 sm:p-3 rounded-xl sm:rounded-2xl backdrop-blur-sm bg-white/20 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-white/30 group"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                aria-label="Menü"
-              >
-                {isMenuOpen ? (
-                  <X className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700 group-hover:text-gray-900" />
-                ) : (
-                  <Menu className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700 group-hover:text-gray-900" />
-                )}
-              </button>
             </div>
           </div>
-
-          {/* Mobile Navigation - Improved overflow handling */}
-          {isMenuOpen && (
-            <div className="lg:hidden border-t border-white/20 backdrop-blur-xl bg-white/90 mobile-safe-bottom">
-              <div className="px-4 py-4 space-y-2 max-h-screen overflow-y-auto">
-
-
-                {/* Mobile Navigation Links */}
-                {[
-                  { name: 'Ana Sayfa', href: '/', gradient: 'from-blue-500 to-purple-600' },
-                  { name: 'Kadın', href: '/products?category=kadin', gradient: 'from-pink-500 to-rose-600' },
-                  { name: 'Erkek', href: '/products?category=erkek', gradient: 'from-cyan-500 to-blue-600' },
-                  { name: 'Çocuk', href: '/products?category=cocuk', gradient: 'from-yellow-500 to-orange-600' },
-                  { name: 'Aksesuar', href: '/products?category=aksesuar', gradient: 'from-purple-500 to-pink-600' },
-                  { name: 'İndirimler', href: '/products?discount=true', gradient: 'from-red-500 to-pink-600' },
-                ].map((item) => (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="block px-4 py-3 rounded-xl font-medium text-gray-700 hover:text-white transition-all duration-300 relative group overflow-hidden"
-                    style={{ minHeight: '48px' }}
-                  >
-                    <div className={`absolute inset-0 bg-gradient-to-r ${item.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl`}></div>
-                    <div className="absolute inset-0 bg-white/20 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                    <span className="relative z-10 flex items-center h-full">{item.name}</span>
-                  </a>
-                ))}
-                
-                {/* Site Admin ONLY - Mobile */}
-                {!adminLoading && adminInfo && (adminInfo.role === 'ADMIN' || adminInfo.role === 'SITE_ADMIN') && (
-                  <div className="mt-4 pt-4 border-t-2 border-red-200">
-                    <a
-                      href="/super-admin"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center px-4 py-3 rounded-xl transition-all duration-300 relative group overflow-hidden bg-gradient-to-r from-red-500/10 to-pink-500/10 border-2 border-red-300"
-                      style={{ minHeight: '48px' }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                      <div className="relative z-10 flex items-center space-x-3 w-full">
-                        <div className="w-10 h-10 bg-gradient-to-r from-red-600 to-pink-600 rounded-lg flex items-center justify-center shadow-lg">
-                          <Crown className="h-5 w-5 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-bold text-red-700 group-hover:text-white transition-colors text-base">
-                            🚀 MODABASE
-                          </div>
-                          <div className="text-xs text-red-600 group-hover:text-red-200 transition-colors">
-                            {adminInfo.name || adminInfo.email} • Tam Yetki
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-                  </div>
-                )}
-
-                {/* Business Admin ONLY - Mobile */}
-                {!adminLoading && adminInfo && adminInfo.role === 'BUSINESS_ADMIN' && (
-                  <div className="mt-4 pt-4 border-t-2 border-green-200">
-                    <a
-                      href="/admin"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center px-4 py-3 rounded-xl transition-all duration-300 relative group overflow-hidden bg-gradient-to-r from-emerald-500/10 to-green-500/10 border-2 border-emerald-300"
-                      style={{ minHeight: '48px' }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                      <div className="relative z-10 flex items-center space-x-3 w-full">
-                        <div className="w-10 h-10 bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
-                          <span className="text-white text-lg">🏪</span>
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-bold text-emerald-700 group-hover:text-white transition-colors text-base">
-                            İŞLETME PANELİM
-                          </div>
-                          <div className="text-xs text-emerald-600 group-hover:text-emerald-200 transition-colors">
-                            {adminInfo.name || adminInfo.email} • Mağaza Yönetimi
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-                  </div>
-                )}
-
-                {/* Separate Admin Login Buttons - Mobile */}
-                {!adminLoading && !adminInfo && (
-                  <div className="mt-4 pt-4 border-t border-gray-200 space-y-3">
-                    {/* Site Admin Login - Mobile */}
-                    <a
-                      href="/super-admin"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center px-4 py-3 rounded-lg transition-all duration-300 bg-red-50 hover:bg-red-600 text-red-700 hover:text-white border border-red-200"
-                      style={{ minHeight: '48px' }}
-                    >
-                      <div className="relative z-10 flex items-center space-x-3 w-full">
-                        <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-                          <Crown className="h-4 w-4 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-semibold text-sm">
-                            ModaBase Girişi
-                          </div>
-                          <div className="text-xs opacity-75">
-                            Tüm sistemi yönetmek için
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-                    
-                    {/* Business Admin Login - Mobile */}
-                    <a
-                      href="/admin/business-login"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center px-4 py-3 rounded-lg transition-all duration-300 bg-green-50 hover:bg-green-600 text-green-700 hover:text-white border border-green-200"
-                      style={{ minHeight: '48px' }}
-                    >
-                      <div className="relative z-10 flex items-center space-x-3 w-full">
-                        <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                          <span className="text-white text-sm">🏪</span>
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-semibold text-sm">
-                            İşletme Girişi
-                          </div>
-                          <div className="text-xs opacity-75">
-                            Mağazanızı yönetmek için
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
+
+        {/* Mobile Navigation Menu */}
+        {isMenuOpen && (
+          <div className="lg:hidden bg-white/98 backdrop-blur-xl border-t border-gray-100 shadow-lg">
+            <div className="px-4 py-4 space-y-2">
+              <a href="/" className="mobile-nav-item" onClick={() => setIsMenuOpen(false)}>
+                Ana Sayfa
+              </a>
+              <a href="/products" className="mobile-nav-item" onClick={() => setIsMenuOpen(false)}>
+                Ürünler
+              </a>
+              <a href="/blog" className="mobile-nav-item" onClick={() => setIsMenuOpen(false)}>
+                Blog
+              </a>
+              <a href="#" className="mobile-nav-item" onClick={() => setIsMenuOpen(false)}>
+                Kampanyalar
+              </a>
+              <a href="#" className="mobile-nav-item" onClick={() => setIsMenuOpen(false)}>
+                İletişim
+              </a>
+              
+              {/* Mobile Admin Links */}
+              {!adminLoading && !adminInfo && (
+                <div className="pt-3 mt-3 border-t border-gray-100 space-y-2">
+                  <a href="/super-admin/login" className="mobile-nav-item text-red-600" onClick={() => setIsMenuOpen(false)}>
+                    <Crown className="h-4 w-4" />
+                    Site Admin
+                  </a>
+                  <a href="/admin/business-login" className="mobile-nav-item text-green-600" onClick={() => setIsMenuOpen(false)}>
+                    <span>🏪</span>
+                    İşletme Girişi
+                  </a>
+                </div>
+              )}
+              
+              {adminInfo && (
+                <div className="pt-3 mt-3 border-t border-gray-100">
+                  <a href={adminInfo.role === 'SITE_ADMIN' ? '/super-admin' : '/admin'} 
+                     className="mobile-nav-item text-green-600" 
+                     onClick={() => setIsMenuOpen(false)}>
+                    {adminInfo.role === 'SITE_ADMIN' ? (
+                      <Crown className="h-4 w-4" />
+                    ) : (
+                      <span>🏪</span>
+                    )}
+                    {adminInfo.role === 'SITE_ADMIN' ? 'Site Admin Panel' : `${adminInfo.businessName || 'İşletme'} Panel`}
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Overlay */}
       {isMenuOpen && (
         <div 
-          className="lg:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setIsMenuOpen(false)}
         />
       )}
-
-
     </>
   )
 }
