@@ -95,10 +95,9 @@ export function middleware(request: NextRequest) {
 
   // 🔧 SSR Hydration için business hesabı headers ekle
   if (businessCookie) {
-    const response = NextResponse.next()
     response.headers.set('X-Business-Account', 'true')
     response.headers.set('X-Viewing-As-Customer', hasCustomerMode ? 'true' : 'false')
-    return response
+    // Continue with middleware logic - no early return!
   }
   
   // 🛡️ Business hesabı varsa profile sayfalarına HİÇBİR ZAMAN erişim yok
