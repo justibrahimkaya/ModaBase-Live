@@ -17,7 +17,7 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://www.modabase.com.tr/sitemap.xml',
-    host: 'https://www.modabase.com.tr',
+    sitemap: 'https://modabase.com.tr/sitemap.xml',
+    host: 'https://modabase.com.tr',
   }
-} 
+}
