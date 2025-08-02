@@ -11,12 +11,16 @@ export default function Header() {
   const [adminInfo, setAdminInfo] = useState<any>(null)
   const [adminLoading, setAdminLoading] = useState(true)
   const [showCartCount, setShowCartCount] = useState(false) // ✅ Cart badge kontrolü
+  const [isHydrated, setIsHydrated] = useState(false) // 🔧 SSR hydration fix
 
   const { getCount } = useCart()
 
   useEffect(() => {
     // Client-side kontrolü ekle - SSR safety
     if (typeof window === 'undefined') return
+    
+    // 🔧 Hydration complete - SSR safe olduğunu işaretle
+    setIsHydrated(true)
     
     // ✅ Cart badge'ini hydration sonrası göster
     setShowCartCount(true)
@@ -106,7 +110,7 @@ export default function Header() {
           return
         }
 
-        // 🛡️ Business cookie kontrolü - business hesabı varsa /api/profile çağırma
+        // 🛡️ SSR-SAFE: Browser check
         if (typeof window === 'undefined') return
         
         // 🛡️ Sadece normal kullanıcılar için profile çağrısı yap
@@ -277,9 +281,9 @@ export default function Header() {
                 )}
               </a>
 
-              {/* User Menu - Mobile Optimized - Business hesabı yoksa göster */}
-              {!adminInfo && (
-                <div className="relative user-menu">
+                              {/* User Menu - Mobile Optimized - Business hesabı yoksa göster */}
+                {!adminInfo && isHydrated && (
+                  <div className="relative user-menu">
                 <button 
                   className="relative p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-gray-50 to-slate-50 border border-gray-200 hover:from-gray-100 hover:to-slate-100 transition-all duration-300 touch-manipulation group"
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
