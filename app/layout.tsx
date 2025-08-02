@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     images: ['/twitter-image.jpg'],
   },
   verification: {
-    google: 'your-google-verification-code',
+    google: 'tUYCoHd7hb1xR8MTLzvYAOZXgPtlO5TAIV-jkM3x6-E',
     yandex: 'your-yandex-verification-code',
     yahoo: 'your-yahoo-verification-code',
   },
