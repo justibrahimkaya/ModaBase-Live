@@ -305,16 +305,16 @@ export default function AdvancedSEOGenerator({
       checks.push({ name: 'Structured Data', status: 'warning' });
     }
 
-    // Images kontrolü
-    if (images.length > 0) {
+    // Images kontrolü - Güvenli kontrol
+    if (images && Array.isArray(images) && images.length > 0) {
       score += 10;
       checks.push({ name: 'Product Images', status: 'success' });
     } else {
       checks.push({ name: 'Product Images', status: 'error' });
     }
 
-    // Description kontrolü
-    if (description && description.length > 100) {
+    // Description kontrolü - Güvenli kontrol
+    if (description && typeof description === 'string' && description.length > 100) {
       score += 15;
       checks.push({ name: 'Product Description', status: 'success' });
     } else {
@@ -335,7 +335,7 @@ export default function AdvancedSEOGenerator({
         "name": seoData.brand
       },
       "category": category,
-      "image": images,
+      "image": images && Array.isArray(images) ? images : [],
       "offers": {
         "@type": "Offer",
         "price": price,

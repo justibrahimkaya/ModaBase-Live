@@ -46,6 +46,47 @@ interface Product {
   variants?: ProductVariant[]
   createdAt?: string
   updatedAt?: string
+  // SEO Alanları
+  metaTitle?: string
+  metaDescription?: string
+  keywords?: string
+  altText?: string
+  // Gelişmiş SEO
+  brand?: string
+  sku?: string
+  gtin?: string
+  mpn?: string
+  condition?: string
+  availability?: string
+  material?: string
+  color?: string
+  size?: string
+  weight?: string
+  dimensions?: string
+  warranty?: string
+  countryOfOrigin?: string
+  // Sosyal Medya
+  ogTitle?: string
+  ogDescription?: string
+  ogImage?: string
+  ogType?: string
+  twitterCard?: string
+  twitterTitle?: string
+  twitterDescription?: string
+  twitterImage?: string
+  // Yapılandırılmış Veri
+  structuredData?: string
+  canonicalUrl?: string
+  hreflang?: string
+  // Analitik
+  googleAnalyticsId?: string
+  googleTagManagerId?: string
+  facebookPixelId?: string
+  // Arama Motoru
+  robotsMeta?: string
+  sitemapPriority?: number
+  changeFrequency?: string
+  lastModified?: string
 }
 
 interface ProductVariant {
@@ -558,7 +599,48 @@ export default function AdminProductsPage() {
         minStockLevel: product.minStockLevel?.toString() || '5',
         maxStockLevel: product.maxStockLevel?.toString() || '',
         categoryId: product.categoryId,
-        variants: product.variants || []
+        variants: product.variants || [],
+        // SEO alanları - Düzenleme modunda mevcut verileri yükle
+        metaTitle: product.metaTitle || '',
+        metaDescription: product.metaDescription || '',
+        keywords: product.keywords || '',
+        altText: product.altText || '',
+        // Gelişmiş SEO alanları
+        brand: product.brand || 'ModaBase',
+        sku: product.sku || '',
+        gtin: product.gtin || '',
+        mpn: product.mpn || '',
+        condition: product.condition || 'new',
+        availability: product.availability || 'in_stock',
+        material: product.material || '',
+        color: product.color || '',
+        size: product.size || '',
+        weight: product.weight || '',
+        dimensions: product.dimensions || '',
+        warranty: product.warranty || '',
+        countryOfOrigin: product.countryOfOrigin || 'Türkiye',
+        // Sosyal medya
+        ogTitle: product.ogTitle || '',
+        ogDescription: product.ogDescription || '',
+        ogImage: product.ogImage || '',
+        ogType: product.ogType || 'product',
+        twitterCard: product.twitterCard || 'summary_large_image',
+        twitterTitle: product.twitterTitle || '',
+        twitterDescription: product.twitterDescription || '',
+        twitterImage: product.twitterImage || '',
+        // Yapılandırılmış veri
+        structuredData: product.structuredData || '',
+        canonicalUrl: product.canonicalUrl || '',
+        hreflang: product.hreflang || 'tr-TR',
+        // Analitik
+        googleAnalyticsId: product.googleAnalyticsId || '',
+        googleTagManagerId: product.googleTagManagerId || '',
+        facebookPixelId: product.facebookPixelId || '',
+        // Arama motoru
+        robotsMeta: product.robotsMeta || 'index,follow',
+        sitemapPriority: product.sitemapPriority || 0.8,
+        changeFrequency: product.changeFrequency || 'weekly',
+        lastModified: product.lastModified || new Date().toISOString()
       })
       
       // ✨ FIX: Mevcut ürün resimlerini imageSlots'a yükle
@@ -1376,7 +1458,7 @@ export default function AdminProductsPage() {
                 </div>
               </div>
               <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-blue-200 via-purple-200 to-pink-200 bg-clip-text text-transparent">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
                   Ürün Yönetimi
                 </h1>
                 <p className="text-lg text-gray-300 mt-1">
@@ -1765,8 +1847,8 @@ export default function AdminProductsPage() {
                     category={categories.find(cat => cat.id === form.categoryId)?.name || ''}
                     brand="ModaBase"
                     {...(parseFloat(form.price) > 0 && { price: parseFloat(form.price) })}
-                    {...(form.description && { description: form.description })}
-                    images={form.images}
+                    description={form.description || ''}
+                    images={Array.isArray(form.images) ? form.images : []}
                     onSEOGenerated={handleSEOGenerated}
                   />
 
