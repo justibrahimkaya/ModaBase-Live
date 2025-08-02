@@ -247,6 +247,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           connect-src 'self' https://www.google-analytics.com;
         " />
         
+        {/* Google Analytics (GA4) - Required in HEAD for Search Console verification */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-VL9KCLBV3R"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-VL9KCLBV3R');
+            `,
+          }}
+        />
+        
       </head>
       <body className={`${inter.className} antialiased bg-white text-gray-900`}>
         {/* Google Tag Manager (noscript) */}
@@ -258,20 +271,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             style={{display: 'none', visibility: 'hidden'}}
           />
         </noscript>
-        
-        {/* Google tag (gtag.js) */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-VL9KCLBV3R"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-
-              gtag('config', 'G-VL9KCLBV3R');
-            `,
-          }}
-        />
         
         {/* Skip to main content for accessibility */}
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50">
