@@ -5,8 +5,11 @@ import { MessageCircle } from 'lucide-react'
 
 // Mobil cihaz kontrolü - SSR Safe
 const isMobile = () => {
-  if (typeof window === 'undefined' || typeof navigator === 'undefined') return false
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768
+  try {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768
+  } catch {
+    return false // SSR'da false döner
+  }
 }
 
 interface WhatsAppButtonProps {
@@ -45,8 +48,7 @@ export default function WhatsAppButton({
   useEffect(() => {
     const fetchWhatsAppNumbers = async () => {
       try {
-        // 🛡️ Client-side safety check
-        if (typeof window === 'undefined') return
+        // 🔧 REACT OFFICIAL: useEffect zaten client-side'da çalışır
         
         const response = await fetch('/api/whatsapp', {
           method: 'GET',

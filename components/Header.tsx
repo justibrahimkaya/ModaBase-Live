@@ -16,8 +16,8 @@ export default function Header() {
   const { getCount } = useCart()
 
   useEffect(() => {
-    // Client-side kontrolü ekle - SSR safety
-    if (typeof window === 'undefined') return
+    // 🔧 REACT OFFICIAL: useEffect otomatik olarak client-side'da çalışır
+    // typeof window kontrolü HYDRATION MISMATCH'e sebep oluyor!
     
     // 🔧 Hydration complete - SSR safe olduğunu işaretle
     setIsHydrated(true)

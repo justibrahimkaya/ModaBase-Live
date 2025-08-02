@@ -48,12 +48,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null)
   const [isHydrated, setIsHydrated] = useState(false) // ✅ Hydration kontrolü
 
-  // Yardımcı: Kullanıcı girişli mi?
+  // Yardımcı: Kullanıcı girişli mi? - SSR SAFE
   const isLoggedIn = () => {
-    if (typeof window !== 'undefined') {
+    // 🔧 REACT OFFICIAL: useEffect içinde kullan, render'da değil
+    try {
       return !!window.localStorage.getItem('session_user')
+    } catch {
+      return false // SSR'da false döner
     }
-    return false
   }
 
   // ✅ Hydration sonrası state'i güncelle
@@ -73,11 +75,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // İlk yüklemede sepeti yükle
   useEffect(() => {
-    // SSR Safety: window kontrolü ekle
-    if (typeof window === 'undefined') {
-      setLoading(false)
-      return
-    }
+    // 🔧 REACT OFFICIAL: useEffect zaten client-side'da çalışır
+    // typeof window kontrolü HYDRATION MISMATCH'e sebep oluyor!
 
     const loadCart = async () => {
       try {
@@ -96,7 +95,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           }
         } else {
           // Girişsiz ise localStorage'dan çek - SSR Safe
-          if (typeof window !== 'undefined' && window.localStorage) {
+          try {
             const localCart = window.localStorage.getItem('cart')
             if (localCart) {
               let parsed = []
@@ -114,6 +113,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
               }
               setItems(valid)
             }
+          } catch (localStorageError) {
+            // SSR'da localStorage yok, sessizce devam et
+            console.log('localStorage not available (SSR)')
           }
         }
       } catch (error) {
@@ -183,12 +185,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
           let newCart
           if (idx > -1) {
             newCart = [...prev]
-            if (newCart[idx]) {
-              newCart[idx].quantity += item.quantity
+            const existingItem = newCart[idx]
+            if (existingItem) {
+              existingItem.quantity += item.quantity
               // Stok kontrolü
-              const stockValidation = validateStock(newCart[idx].quantity)
+              const stockValidation = validateStock(existingItem.quantity)
               if (!stockValidation.valid) {
-                newCart[idx].quantity = 10 // Maksimum stok
+                existingItem.quantity = 10 // Maksimum stok
               }
             }
           } else {
