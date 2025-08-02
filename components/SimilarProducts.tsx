@@ -21,7 +21,7 @@ interface SimilarProductsProps {
 }
 
 export default function SimilarProducts({ products }: SimilarProductsProps) {
-  if (products.length === 0) {
+  if (!products || !Array.isArray(products) || products.length === 0) {
     return null
   }
 

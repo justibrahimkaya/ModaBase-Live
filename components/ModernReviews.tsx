@@ -437,7 +437,7 @@ export default function ModernReviews({ productId, initialReviews = [], initialS
                   )}
 
                   {/* Review Images */}
-                  {review.images && review.images.length > 0 && (
+                  {review.images && Array.isArray(review.images) && review.images.length > 0 && (
                     <div className="flex space-x-2 mb-3">
                       {review.images.map((image, index) => (
                         <img

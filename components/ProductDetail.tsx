@@ -220,13 +220,13 @@ export default function ProductDetail({ product, variants, averageRating, simila
               }))}
               initialStats={{
                 averageRating: averageRating,
-                totalReviews: product.reviews.length,
+                totalReviews: (product.reviews && Array.isArray(product.reviews)) ? product.reviews.length : 0,
                 ratingDistribution: {
-                  5: product.reviews.filter(r => r.rating === 5).length,
-                  4: product.reviews.filter(r => r.rating === 4).length,
-                  3: product.reviews.filter(r => r.rating === 3).length,
-                  2: product.reviews.filter(r => r.rating === 2).length,
-                  1: product.reviews.filter(r => r.rating === 1).length
+                  5: (product.reviews && Array.isArray(product.reviews)) ? product.reviews.filter(r => r.rating === 5).length : 0,
+                  4: (product.reviews && Array.isArray(product.reviews)) ? product.reviews.filter(r => r.rating === 4).length : 0,
+                  3: (product.reviews && Array.isArray(product.reviews)) ? product.reviews.filter(r => r.rating === 3).length : 0,
+                  2: (product.reviews && Array.isArray(product.reviews)) ? product.reviews.filter(r => r.rating === 2).length : 0,
+                  1: (product.reviews && Array.isArray(product.reviews)) ? product.reviews.filter(r => r.rating === 1).length : 0
                 }
               }}
             />

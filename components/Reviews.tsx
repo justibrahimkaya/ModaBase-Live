@@ -30,21 +30,24 @@ export default function Reviews({ reviews }: ReviewsProps) {
     )
   }
 
+  // Güvenli reviews kontrolü
+  const safeReviews = reviews && Array.isArray(reviews) ? reviews : []
+
   // Ortalama rating hesapla
-  const averageRating = reviews.length > 0
-    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+  const averageRating = safeReviews.length > 0
+    ? safeReviews.reduce((sum, review) => sum + review.rating, 0) / safeReviews.length
     : 0
 
   // Rating dağılımını hesapla
   const ratingDistribution = {
-    5: reviews.filter(r => r.rating === 5).length,
-    4: reviews.filter(r => r.rating === 4).length,
-    3: reviews.filter(r => r.rating === 3).length,
-    2: reviews.filter(r => r.rating === 2).length,
-    1: reviews.filter(r => r.rating === 1).length
+    5: safeReviews.filter(r => r.rating === 5).length,
+    4: safeReviews.filter(r => r.rating === 4).length,
+    3: safeReviews.filter(r => r.rating === 3).length,
+    2: safeReviews.filter(r => r.rating === 2).length,
+    1: safeReviews.filter(r => r.rating === 1).length
   }
 
-  const displayedReviews = showAllReviews ? reviews : reviews.slice(0, 3)
+  const displayedReviews = showAllReviews ? safeReviews : safeReviews.slice(0, 3)
 
   return (
     <section id="reviews" className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -72,7 +75,7 @@ export default function Reviews({ reviews }: ReviewsProps) {
               />
             ))}
           </div>
-          <p className="text-sm text-gray-600">{reviews.length} değerlendirme</p>
+                      <p className="text-sm text-gray-600">{safeReviews.length} değerlendirme</p>
         </div>
 
         {/* Rating Distribution */}
@@ -80,7 +83,7 @@ export default function Reviews({ reviews }: ReviewsProps) {
           <div className="space-y-2">
             {[5, 4, 3, 2, 1].map((rating) => {
               const count = ratingDistribution[rating as keyof typeof ratingDistribution]
-              const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0
+              const percentage = safeReviews.length > 0 ? (count / safeReviews.length) * 100 : 0
               
               return (
                 <div key={rating} className="flex items-center space-x-2">
@@ -103,7 +106,7 @@ export default function Reviews({ reviews }: ReviewsProps) {
       </div>
 
       {/* Reviews List */}
-      {reviews.length > 0 ? (
+      {safeReviews.length > 0 ? (
         <div className="space-y-6">
           {displayedReviews.map((review) => (
             <div key={review.id} className="border-b border-gray-200 pb-6 last:border-b-0">
@@ -168,13 +171,13 @@ export default function Reviews({ reviews }: ReviewsProps) {
       )}
 
       {/* Show More Button */}
-      {!showAllReviews && reviews.length > 3 && (
+      {!showAllReviews && safeReviews.length > 3 && (
         <div className="text-center mt-6">
           <button
             onClick={() => setShowAllReviews(true)}
             className="text-primary-600 hover:text-primary-700 font-medium"
           >
-            Tüm Değerlendirmeleri Göster ({reviews.length})
+            Tüm Değerlendirmeleri Göster ({safeReviews.length})
           </button>
         </div>
       )}

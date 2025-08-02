@@ -1313,7 +1313,17 @@ export default function AdminProductsPage() {
   }
 
   const ProductCard = ({ product }: { product: Product }) => {
-    const images = JSON.parse(product.images || '[]')
+    // Güvenli JSON parse - eğer parse fail olursa boş array döner
+    let images: string[] = []
+    try {
+      images = JSON.parse(product.images || '[]')
+      if (!Array.isArray(images)) {
+        images = []
+      }
+    } catch (error) {
+      console.warn('Product images JSON parse hatası:', error)
+      images = []
+    }
     const stockStatus = getStockStatus(product.stock, product.minStockLevel)
     const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : 0
     const totalVariants = product.variants?.length || 0
@@ -1377,7 +1387,7 @@ export default function AdminProductsPage() {
                 onClick={() => {
                   setPreviewImages(images)
                   setCurrentImageIndex(0)
-                  setPreviewImage(images[0])
+                  setPreviewImage(images.length > 0 ? (images[0] || null) : null)
                 }}
                 className="p-2 bg-gray-500 text-white rounded-full hover:bg-gray-600 transition-colors"
                 title={`${images.length} resim görüntüle`}

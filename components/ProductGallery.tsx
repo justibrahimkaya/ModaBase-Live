@@ -11,8 +11,8 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
   const [selectedImage, setSelectedImage] = useState(0)
   const [isZoomed, setIsZoomed] = useState(false)
 
-  // Eğer resim yoksa varsayılan resim kullan
-  const productImages = images.length > 0 ? images.map((src, index) => ({
+  // Eğer resim yoksa varsayılan resim kullan - Güvenli kontrol
+  const productImages = (images && Array.isArray(images) && images.length > 0) ? images.map((src, index) => ({
     id: index,
     src: src,
     alt: `Ürün Görseli ${index + 1}`

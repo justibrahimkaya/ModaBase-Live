@@ -284,7 +284,7 @@ export default function SEOEditModal({
                 maxLength={60}
               />
               <div className="text-xs text-gray-500 mt-1">
-                {form.metaTitle.length}/60 karakter
+                {form.metaTitle ? form.metaTitle.length : 0}/60 karakter
               </div>
             </div>
 
@@ -301,7 +301,7 @@ export default function SEOEditModal({
                 maxLength={160}
               />
               <div className="text-xs text-gray-500 mt-1">
-                {form.metaDescription.length}/160 karakter
+                {form.metaDescription ? form.metaDescription.length : 0}/160 karakter
               </div>
             </div>
 

@@ -119,7 +119,7 @@ export default function SEOGenerator({
           {/* Meta Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Meta Title ({seoData.metaTitle.length}/60)
+              Meta Title ({seoData.metaTitle ? seoData.metaTitle.length : 0}/60)
             </label>
             <div className="flex gap-2">
               <input
@@ -140,7 +140,7 @@ export default function SEOGenerator({
           {/* Meta Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Meta Description ({seoData.metaDescription.length}/160)
+              Meta Description ({seoData.metaDescription ? seoData.metaDescription.length : 0}/160)
             </label>
             <div className="flex gap-2">
               <textarea
@@ -182,7 +182,7 @@ export default function SEOGenerator({
           {/* Keywords */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Anahtar Kelimeler ({seoData.keywords.length}/10)
+              Anahtar Kelimeler ({seoData.keywords && Array.isArray(seoData.keywords) ? seoData.keywords.length : 0}/10)
             </label>
             <div className="flex flex-wrap gap-2 mb-2">
               {seoData.keywords.map((keyword, index) => (
@@ -232,16 +232,16 @@ export default function SEOGenerator({
             <h5 className="font-medium text-gray-900 mb-2">SEO Kalite Kontrolü</h5>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${seoData.metaTitle.length <= 60 ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                <span className="text-sm">Meta Title: {seoData.metaTitle.length}/60 karakter</span>
+                <div className={`w-3 h-3 rounded-full ${(seoData.metaTitle && seoData.metaTitle.length <= 60) ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span className="text-sm">Meta Title: {seoData.metaTitle ? seoData.metaTitle.length : 0}/60 karakter</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${seoData.metaDescription.length <= 160 ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                <span className="text-sm">Meta Description: {seoData.metaDescription.length}/160 karakter</span>
+                <div className={`w-3 h-3 rounded-full ${(seoData.metaDescription && seoData.metaDescription.length <= 160) ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span className="text-sm">Meta Description: {seoData.metaDescription ? seoData.metaDescription.length : 0}/160 karakter</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${seoData.keywords.length <= 10 ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                <span className="text-sm">Anahtar Kelimeler: {seoData.keywords.length}/10</span>
+                <div className={`w-3 h-3 rounded-full ${(seoData.keywords && Array.isArray(seoData.keywords) && seoData.keywords.length <= 10) ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span className="text-sm">Anahtar Kelimeler: {seoData.keywords && Array.isArray(seoData.keywords) ? seoData.keywords.length : 0}/10</span>
               </div>
             </div>
           </div>
