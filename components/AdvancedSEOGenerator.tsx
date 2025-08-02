@@ -192,7 +192,14 @@ export default function AdvancedSEOGenerator({
   }, [productName, category, price]);
 
   const generateBasicSEO = () => {
-    const slug = productName.toLowerCase()
+    // Güvenli kontroller
+    const safeProductName = productName || '';
+    const safeCategory = category || '';
+    const safeBrand = brand || 'ModaBase';
+    const safeDescription = description || '';
+    const safeImages = images && Array.isArray(images) ? images : [];
+
+    const slug = safeProductName.toLowerCase()
       .replace(/ğ/g, 'g')
       .replace(/ü/g, 'u')
       .replace(/ş/g, 's')
@@ -204,15 +211,15 @@ export default function AdvancedSEOGenerator({
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
 
-    const metaTitle = `${productName} - ${category} | ${brand}`;
-    const metaDescription = description 
-      ? `${description.substring(0, 150)}...` 
-      : `${productName} - ${category} kategorisinde en uygun fiyatlarla. Hızlı kargo ve güvenli ödeme.`;
+    const metaTitle = `${safeProductName} - ${safeCategory} | ${safeBrand}`;
+    const metaDescription = safeDescription && safeDescription.length > 0
+      ? `${safeDescription.substring(0, 150)}...` 
+      : `${safeProductName} - ${safeCategory} kategorisinde en uygun fiyatlarla. Hızlı kargo ve güvenli ödeme.`;
 
     const keywords = [
-      productName,
-      category,
-      brand,
+      safeProductName,
+      safeCategory,
+      safeBrand,
       'online alışveriş',
       'e-ticaret',
       'moda',
@@ -225,13 +232,13 @@ export default function AdvancedSEOGenerator({
       metaDescription,
       keywords,
       urlSlug: slug,
-      altText: `${productName} - ${category}`,
+      altText: `${safeProductName} - ${safeCategory}`,
       ogTitle: metaTitle,
       ogDescription: metaDescription,
       twitterTitle: metaTitle,
       twitterDescription: metaDescription,
-      ogImage: images[0] || '',
-      twitterImage: images[0] || ''
+      ogImage: safeImages.length > 0 ? (safeImages[0] || '') : '',
+      twitterImage: safeImages.length > 0 ? (safeImages[0] || '') : ''
     }));
 
     calculateSEOScore();
@@ -241,64 +248,64 @@ export default function AdvancedSEOGenerator({
     let score = 0;
     const checks = [];
 
-    // Meta Title kontrolü
-    if (seoData.metaTitle.length > 0 && seoData.metaTitle.length <= 60) {
+    // Meta Title kontrolü - Güvenli kontrol
+    if (seoData.metaTitle && seoData.metaTitle.length > 0 && seoData.metaTitle.length <= 60) {
       score += 15;
       checks.push({ name: 'Meta Title', status: 'success' });
     } else {
       checks.push({ name: 'Meta Title', status: 'error' });
     }
 
-    // Meta Description kontrolü
-    if (seoData.metaDescription.length > 0 && seoData.metaDescription.length <= 160) {
+    // Meta Description kontrolü - Güvenli kontrol
+    if (seoData.metaDescription && seoData.metaDescription.length > 0 && seoData.metaDescription.length <= 160) {
       score += 15;
       checks.push({ name: 'Meta Description', status: 'success' });
     } else {
       checks.push({ name: 'Meta Description', status: 'error' });
     }
 
-    // Keywords kontrolü
-    if (seoData.keywords.length > 0 && seoData.keywords.length <= 10) {
+    // Keywords kontrolü - Güvenli kontrol
+    if (seoData.keywords && Array.isArray(seoData.keywords) && seoData.keywords.length > 0 && seoData.keywords.length <= 10) {
       score += 10;
       checks.push({ name: 'Keywords', status: 'success' });
     } else {
       checks.push({ name: 'Keywords', status: 'error' });
     }
 
-    // URL Slug kontrolü
-    if (seoData.urlSlug.length > 0) {
+    // URL Slug kontrolü - Güvenli kontrol
+    if (seoData.urlSlug && seoData.urlSlug.length > 0) {
       score += 10;
       checks.push({ name: 'URL Slug', status: 'success' });
     } else {
       checks.push({ name: 'URL Slug', status: 'error' });
     }
 
-    // Alt Text kontrolü
-    if (seoData.altText.length > 0) {
+    // Alt Text kontrolü - Güvenli kontrol
+    if (seoData.altText && seoData.altText.length > 0) {
       score += 5;
       checks.push({ name: 'Alt Text', status: 'success' });
     } else {
       checks.push({ name: 'Alt Text', status: 'error' });
     }
 
-    // Brand kontrolü
-    if (seoData.brand.length > 0) {
+    // Brand kontrolü - Güvenli kontrol
+    if (seoData.brand && seoData.brand.length > 0) {
       score += 5;
       checks.push({ name: 'Brand', status: 'success' });
     } else {
       checks.push({ name: 'Brand', status: 'error' });
     }
 
-    // SKU kontrolü
-    if (seoData.sku.length > 0) {
+    // SKU kontrolü - Güvenli kontrol
+    if (seoData.sku && seoData.sku.length > 0) {
       score += 5;
       checks.push({ name: 'SKU', status: 'success' });
     } else {
       checks.push({ name: 'SKU', status: 'warning' });
     }
 
-    // Structured Data kontrolü
-    if (seoData.structuredData.length > 0) {
+    // Structured Data kontrolü - Güvenli kontrol
+    if (seoData.structuredData && seoData.structuredData.length > 0) {
       score += 10;
       checks.push({ name: 'Structured Data', status: 'success' });
     } else {
@@ -466,11 +473,11 @@ export default function AdvancedSEOGenerator({
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                     <span className={`text-xs px-2 py-1 rounded ${
-                      seoData.metaTitle.length <= 60 
+                      (seoData.metaTitle && seoData.metaTitle.length <= 60)
                         ? 'bg-green-100 text-green-700' 
                         : 'bg-red-100 text-red-700'
                     }`}>
-                      {seoData.metaTitle.length}/60
+                      {seoData.metaTitle ? seoData.metaTitle.length : 0}/60
                     </span>
                   </div>
                 </div>
@@ -506,11 +513,11 @@ export default function AdvancedSEOGenerator({
                 />
                 <div className="absolute right-3 bottom-3">
                   <span className={`text-xs px-2 py-1 rounded ${
-                    seoData.metaDescription.length <= 160 
+                    (seoData.metaDescription && seoData.metaDescription.length <= 160)
                       ? 'bg-green-100 text-green-700' 
                       : 'bg-red-100 text-red-700'
                   }`}>
-                    {seoData.metaDescription.length}/160
+                    {seoData.metaDescription ? seoData.metaDescription.length : 0}/160
                   </span>
                 </div>
               </div>
