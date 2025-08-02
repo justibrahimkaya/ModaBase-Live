@@ -1,0 +1,178 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Tailwind CSS Directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', sans-serif;
+    /* Mobile Optimization */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    /* iOS Safe Area Support */
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    
+    /* Mobile scroll optimization */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  /* Mobile viewport height fix */
+  .min-h-screen {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    min-height: stretch;
+  }
+  
+  /* Mobile touch optimization */
+  button, input, textarea, select {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* Mobile scroll fix */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    /* Mobile touch optimization */
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary-200 hover:bg-secondary-300 text-secondary-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    /* Mobile touch optimization */
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200;
+  }
+  
+  /* Mobile-specific styles */
+  .mobile-safe-bottom {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+  
+  .mobile-safe-top {
+    padding-top: calc(1rem + env(safe-area-inset-top));
+  }
+  
+  /* Mobile header fix */
+  .mobile-header {
+    height: calc(5rem + env(safe-area-inset-top));
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  /* Mobile footer fix */
+  .mobile-footer {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+  
+  /* WhatsApp Button Mobile Optimization */
+  .whatsapp-button-mobile {
+    /* Minimum touch target size */
+    min-width: 44px;
+    min-height: 44px;
+    
+    /* Touch optimization */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    
+    /* Safe area support */
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Mobile floating button positioning */
+  .whatsapp-floating-mobile {
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+    right: 1rem;
+  }
+  
+  /* Mobile active state */
+  .whatsapp-active-mobile:active {
+    transform: scale(0.95);
+    background-color: #16a34a;
+  }
+
+  /* ✅ PROFESSIONAL MOBILE HEADER STYLES */
+  .nav-link {
+    @apply text-gray-700 hover:text-purple-600 font-medium transition-colors duration-300 relative;
+  }
+  
+  .nav-link:hover::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-600 to-pink-600;
+  }
+
+  .admin-link {
+    @apply flex items-center space-x-1 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105;
+    min-height: 44px; /* Touch target */
+  }
+  
+  .admin-link-site {
+    @apply border border-red-200 bg-red-50 text-red-700 hover:bg-red-600 hover:text-white;
+  }
+  
+  .admin-link-business {
+    @apply border border-green-200 bg-green-50 text-green-700 hover:bg-green-600 hover:text-white;
+  }
+
+  .mobile-menu-item {
+    @apply flex items-center space-x-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200;
+    min-height: 48px; /* Larger touch target for mobile */
+  }
+
+  .mobile-nav-item {
+    @apply flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700 rounded-xl transition-all duration-300 font-medium;
+    min-height: 48px; /* Mobile touch target */
+  }
+
+  /* Professional Mobile Optimizations */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Improved button gradients */
+  .btn-primary {
+    @apply bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl;
+    min-height: 48px;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-gray-800 font-semibold py-3 px-6 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl;
+    min-height: 48px;
+  }
+
+  /* ✅ MODERN MOBILE BOTTOM NAVIGATION */
+  .pb-safe {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+  }
+  
+  .mb-safe {
+    margin-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+  
+  /* Mobile content spacing for bottom nav */
+  .mobile-bottom-nav-space {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+}
