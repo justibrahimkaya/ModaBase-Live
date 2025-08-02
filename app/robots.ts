@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next'
 
-// Force cache refresh - updated
+// Force cache refresh - updated v2
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
@@ -14,7 +14,6 @@ export default function robots(): MetadataRoute.Robots {
           '/private/',
           '/temp/',
           '*.json',
-          '*.xml',
         ],
       },
     ],
