@@ -9,6 +9,19 @@
       "memory": 3008
     }
   },
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.modabase.com.tr"
+        }
+      ],
+      "destination": "https://modabase.com.tr/$1",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/api/admin/products",
