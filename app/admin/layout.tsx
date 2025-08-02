@@ -46,6 +46,8 @@ export default function AdminLayout({
   // Login ve register sayfaları için layout kullanma
   const isAuthPage = pathname === '/admin/login' || pathname === '/admin/register' || pathname === '/admin/business-login'
 
+
+
   useEffect(() => {
     let mounted = true
     let retryCount = 0
@@ -131,6 +133,18 @@ export default function AdminLayout({
       router.replace('/admin/business-login')
     }
   }
+
+  // 🎭 Müşteri görünümü toggle function'ı  
+  const handleSiteView = async () => {
+    // Müşteri olarak görüntüle modunu aç
+    document.cookie = 'viewing_as_customer=true; path=/; max-age=86400; SameSite=Lax'
+    
+    // Kısa delay sonra ana sayfaya yönlendir
+    await new Promise(resolve => setTimeout(resolve, 100))
+    window.location.replace('/?customer_view=true')
+  }
+
+
 
   const navigation = [
     {
@@ -336,18 +350,6 @@ export default function AdminLayout({
                 </div>
               </div>
               
-              {/* View Site Button - Mobile */}
-              <button
-                onClick={() => window.open('/', '_blank')}
-                className="flex items-center w-full px-4 py-3 mb-3 text-sm font-medium text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-lg hover:bg-blue-500/20 hover:text-blue-200 transition-all duration-200 touch-manipulation"
-              >
-                <div className="p-2 bg-blue-500/20 rounded mr-3">
-                  <Globe className="h-4 w-4" />
-                </div>
-                <span className="flex-1">Siteyi Görüntüle</span>
-                <ExternalLink className="h-4 w-4 opacity-60" />
-              </button>
-              
               <button
                 onClick={handleLogout}
                 className="flex items-center w-full px-4 py-3 text-sm font-medium text-red-300 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 hover:text-red-200 transition-all duration-200 touch-manipulation"
@@ -386,7 +388,7 @@ export default function AdminLayout({
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-2xl blur-lg group-hover:blur-xl transition-all duration-300"></div>
                 </div>
                 <div className="ml-4">
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-white via-blue-200 via-purple-200 to-pink-200 bg-clip-text text-transparent">
+                  <h1 className="text-xl font-bold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
                     ModaBase
                   </h1>
                 </div>
@@ -548,7 +550,7 @@ export default function AdminLayout({
             <div className="flex items-center gap-x-3 lg:gap-x-6">
               {/* View Site Button */}
               <button
-                onClick={() => window.open('/', '_blank')}
+                onClick={handleSiteView}
                 className="group relative flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg hover:from-blue-100 hover:to-indigo-100 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 touch-manipulation"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>

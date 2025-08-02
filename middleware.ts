@@ -70,10 +70,68 @@ export function middleware(request: NextRequest) {
   // Enhanced rate limiting with different limits for different endpoints
   const pathname = request.nextUrl.pathname
   
-  // API rate limiting - PayTR notification hariç tüm endpoint'ler için
-  if (pathname.startsWith('/api/') && !pathname.includes('/paytr/notification')) {
+  // 🛡️ BUSINESS HESABI KONTROLÜ - İşletme hesabı ile normal siteye erişimi engelle
+  const businessCookie = request.cookies.get('session_business')
+  const viewingAsCustomer = request.cookies.get('viewing_as_customer')
+  
+  // 🎭 URL parameter ile customer view kontrolü (fallback)
+  const url = new URL(request.url)
+  const customerModeParam = url.searchParams.get('customer_view')
+  const hasCustomerMode = viewingAsCustomer?.value === 'true' || customerModeParam === 'true'
+  
+  // 🛡️ Business hesabı varsa /api/profile endpoint'ini tamamen blokla
+  if (businessCookie && pathname === '/api/profile') {
+    return new NextResponse(
+      JSON.stringify({ 
+        error: 'Business account cannot access user profile endpoint',
+        redirect: '/admin'
+      }), 
+      { 
+        status: 403,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    )
+  }
+  
+  // 🛡️ Business hesabı varsa profile sayfalarına HİÇBİR ZAMAN erişim yok
+  if (businessCookie && pathname.startsWith('/profile')) {
+    // Business hesabı profile sayfasına erişim engellendi
+    return NextResponse.redirect(new URL('/admin', request.url))
+  }
+
+  if (businessCookie && !hasCustomerMode) {
+    // İşletme hesabı ile giriş yapılmış VE müşteri görünümü aktif değil
+    const isAdminPath = pathname.startsWith('/admin') || 
+                       pathname.startsWith('/super-admin') ||
+                       pathname.startsWith('/api/admin') ||
+                       pathname.startsWith('/api/auth') ||
+                       pathname.startsWith('/api/whatsapp') ||
+                       pathname.startsWith('/api/products') ||
+                       pathname.startsWith('/api/categories') ||
+                       pathname.startsWith('/api/cart') ||
+                       pathname.startsWith('/api/orders') ||
+                       pathname.startsWith('/api/reviews') ||
+                       pathname.startsWith('/api/favorites') ||
+                       pathname.startsWith('/api/wishlist') ||
+                       pathname.startsWith('/api/blog') ||
+                       pathname.startsWith('/_next') ||
+                       pathname.startsWith('/.well-known') ||
+                       pathname === '/favicon.ico' ||
+                       pathname === '/robots.txt' ||
+                       pathname === '/sitemap.xml'
+    
+    if (!isAdminPath) {
+      // Normal site sayfalarına erişim engelle - admin paneline yönlendir
+      return NextResponse.redirect(new URL('/admin', request.url))
+    }
+  }
+  
+  // API rate limiting - PayTR notification ve NextAuth hariç tüm endpoint'ler için
+  if (pathname.startsWith('/api/') && 
+      !pathname.includes('/paytr/notification') &&
+      !pathname.includes('/api/auth/session')) {
     // General API limit
-    if (isRateLimited(`api_${ip}`, 200, 15 * 60 * 1000)) {
+    if (isRateLimited(`api_${ip}`, 500, 15 * 60 * 1000)) {
       return new NextResponse(
         JSON.stringify({ 
           error: 'Too Many Requests',
@@ -90,20 +148,20 @@ export function middleware(request: NextRequest) {
       )
     }
     
-    // Stricter limits for auth endpoints
+    // User-friendly limits for auth endpoints 
     if (pathname.includes('/auth/') || pathname.includes('/login') || pathname.includes('/register')) {
-      if (isRateLimited(`auth_${ip}`, 5, 15 * 60 * 1000)) {
+      if (isRateLimited(`auth_${ip}`, 200, 60 * 60 * 1000)) {  // 200 requests/hour
         return new NextResponse(
           JSON.stringify({ 
-            error: 'Too Many Authentication Attempts',
-            message: 'Please wait before trying again',
-            retryAfter: 900
+            error: 'Çok fazla deneme yapıldı',
+            message: 'Lütfen 1 saat sonra tekrar deneyin',
+            retryAfter: 3600
           }), 
           { 
             status: 429,
             headers: {
               'Content-Type': 'application/json',
-              'Retry-After': '900'
+              'Retry-After': '3600'
             }
           }
         )

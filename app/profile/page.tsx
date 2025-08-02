@@ -26,6 +26,17 @@ export default function ProfilePage() {
 
   const fetchProfile = async () => {
     try {
+      // 🛡️ Business hesabı kontrolü
+      const businessCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('session_business='))
+      
+      if (businessCookie) {
+        // Business hesabı ile profile sayfasına erişim engellendi
+        window.location.href = '/admin'
+        return
+      }
+
       const response = await fetch('/api/profile')
       if (!response.ok) {
         if (response.status === 401) {

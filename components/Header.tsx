@@ -21,8 +21,7 @@ export default function Header() {
     // ✅ Cart badge'ini hydration sonrası göster
     setShowCartCount(true)
     
-    // Initial auth check
-    checkUserAuth()
+
     
     // Admin kontrolünü sadece gerekli sayfalarında yap
     try {
@@ -35,11 +34,34 @@ export default function Header() {
       console.log('SSR: Window access skipped')
     }
     
+    // Initial auth check - admin info yüklendikten sonra yap
+    const timer = setTimeout(() => {
+      // AdminInfo yüklenme durumunu kontrol et
+      if (adminLoading) {
+        // Hâlâ yükleniyor, biraz daha bekle
+        setTimeout(checkUserAuth, 300)
+      } else {
+        checkUserAuth()
+      }
+    }, 500) // Daha uzun delay
+    
     // Sayfa focus event listener
     const handleFocus = () => {
       if (typeof window === 'undefined') return
       
-      checkUserAuth()
+      // 🛡️ Business hesabı varsa focus event'inde auth check yapma
+      const allCookies = document.cookie
+      const hasBusinessSession = allCookies.includes('session_business=') && 
+                                 allCookies.indexOf('session_business=') !== -1
+      
+      if (!hasBusinessSession) {
+        // Sadece normal kullanıcılar için auth check yap
+        console.log('🔄 Focus event: Normal kullanıcı için auth check')
+        checkUserAuth()
+      } else {
+        console.log('🔄 Focus event: Business kullanıcı, auth check atlandı')
+      }
+      
       try {
         const currentPath = window?.location?.pathname || ''
         if (currentPath.includes('/admin') || currentPath.includes('/super-admin') || currentPath === '/') {
@@ -53,19 +75,42 @@ export default function Header() {
     // Event listener ekleme - güvenli
     if (typeof window !== 'undefined' && window.addEventListener) {
       window.addEventListener('focus', handleFocus)
-      return () => {
-        if (typeof window !== 'undefined' && window.removeEventListener) {
-          window.removeEventListener('focus', handleFocus)
-        }
-      }
     }
     
-    // TypeScript için: tüm code paths return value'ya sahip olmalı
-    return undefined
-  }, [])
+    // Her durumda timer cleanup
+    return () => {
+      clearTimeout(timer) // Timer cleanup
+      if (typeof window !== 'undefined' && window.removeEventListener) {
+        window.removeEventListener('focus', handleFocus)
+      }
+    }
+  }, [])  // Sadece mount'ta bir kez çalış
 
-  const checkUserAuth = async () => {
-    try {
+          const checkUserAuth = async () => {
+      try {
+        // 🛡️ DETAYLI ADMIN INFO CHECK
+        console.log('🔍 Admin durumu:', { 
+          adminInfo: !!adminInfo, 
+          adminLoading, 
+          adminId: adminInfo?.id 
+        })
+        
+        if (adminInfo && adminInfo.id) {
+          console.log('🏢 Admin info tespit edildi, business hesabı - /api/profile çağrısı atlandı')
+          setUser(null)
+          return
+        }
+        
+        if (adminLoading) {
+          console.log('⏳ Admin bilgisi hâlâ yükleniyor, /api/profile çağrısı geciktirildi')
+          return
+        }
+
+        // 🛡️ Business cookie kontrolü - business hesabı varsa /api/profile çağırma
+        if (typeof window === 'undefined') return
+        
+        // 🛡️ Sadece normal kullanıcılar için profile çağrısı yap
+        console.log('✅ Normal kullanıcı tespit edildi, /api/profile çağrısı yapılacak')
       const response = await fetch('/api/profile', {
         method: 'GET',
         credentials: 'include',
@@ -123,6 +168,8 @@ export default function Header() {
       window.location.href = '/'
     }
   }
+
+
 
   // Click outside to close user menu
   useEffect(() => {
@@ -230,8 +277,9 @@ export default function Header() {
                 )}
               </a>
 
-              {/* User Menu - Mobile Optimized */}
-              <div className="relative user-menu">
+              {/* User Menu - Mobile Optimized - Business hesabı yoksa göster */}
+              {!adminInfo && (
+                <div className="relative user-menu">
                 <button 
                   className="relative p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-gray-50 to-slate-50 border border-gray-200 hover:from-gray-100 hover:to-slate-100 transition-all duration-300 touch-manipulation group"
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -301,6 +349,7 @@ export default function Header() {
                   </div>
                 )}
               </div>
+              )}
             </div>
           </div>
         </div>

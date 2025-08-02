@@ -22,23 +22,23 @@ const rateLimitConfigs: Record<string, RateLimitConfig> = {
     windowMs: 15 * 60 * 1000, // 15 dakika
     blockDurationMs: 60 * 60 * 1000 // 1 saat blok
   },
-  // User login - çok sıkı
+  // User login - kullanıcı dostu
   '/api/auth/login': {
-    maxAttempts: 3,
-    windowMs: 15 * 60 * 1000, // 15 dakika
-    blockDurationMs: 60 * 60 * 1000 // 1 saat blok
+    maxAttempts: 5,
+    windowMs: 30 * 60 * 1000, // 30 dakika
+    blockDurationMs: 30 * 60 * 1000 // 30 dakika blok
   },
-  // Password reset - sıkı
+  // Password reset - kullanıcı dostu
   '/api/auth/request-reset': {
-    maxAttempts: 3,
-    windowMs: 60 * 60 * 1000, // 1 saat
-    blockDurationMs: 60 * 60 * 1000 // 1 saat blok
-  },
-  // Register - orta
-  '/api/auth/register': {
     maxAttempts: 5,
     windowMs: 60 * 60 * 1000, // 1 saat
     blockDurationMs: 30 * 60 * 1000 // 30 dakika blok
+  },
+  // Register - daha esnek
+  '/api/auth/register': {
+    maxAttempts: 10,
+    windowMs: 60 * 60 * 1000, // 1 saat
+    blockDurationMs: 15 * 60 * 1000 // 15 dakika blok
   }
 };
 
@@ -151,15 +151,17 @@ export function createRateLimitResponse(
   };
 
   if (!allowed) {
+    const waitTimeMinutes = Math.ceil((resetTime - Date.now()) / (1000 * 60));
     const message = blocked 
-      ? 'Hesabınız geçici olarak kilitlendi. Lütfen daha sonra tekrar deneyin.'
-      : 'Çok fazla başarısız deneme. Lütfen daha sonra tekrar deneyin.';
+      ? `Güvenlik nedeniyle hesabınız geçici kilitlendi. ${waitTimeMinutes} dakika sonra tekrar deneyin.`
+      : `Çok fazla deneme yaptınız. ${waitTimeMinutes} dakika sonra tekrar deneyin.`;
       
     return NextResponse.json(
       { 
         error: message,
         blocked,
-        retryAfter: Math.ceil((resetTime - Date.now()) / 1000)
+        retryAfter: Math.ceil((resetTime - Date.now()) / 1000),
+        waitTimeMinutes
       },
       { 
         status: 429,

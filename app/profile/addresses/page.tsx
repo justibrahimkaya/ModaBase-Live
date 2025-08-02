@@ -293,7 +293,7 @@ export default function AddressesPage() {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="group">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                           <Star className="w-4 h-4 text-blue-600" />
                           <span>Adres Başlığı *</span>
                         </label>
@@ -308,7 +308,7 @@ export default function AddressesPage() {
                       </div>
 
                       <div className="group">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                           <Building className="w-4 h-4 text-purple-600" />
                           <span>Adres Tipi</span>
                         </label>
@@ -332,7 +332,7 @@ export default function AddressesPage() {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="group">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                           <User className="w-4 h-4 text-blue-600" />
                           <span>Ad *</span>
                         </label>
@@ -346,7 +346,7 @@ export default function AddressesPage() {
                       </div>
 
                       <div className="group">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                           <User className="w-4 h-4 text-purple-600" />
                           <span>Soyad *</span>
                         </label>
@@ -360,7 +360,7 @@ export default function AddressesPage() {
                       </div>
 
                       <div className="group">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                           <Mail className="w-4 h-4 text-green-600" />
                           <span>E-posta</span>
                         </label>
@@ -374,7 +374,7 @@ export default function AddressesPage() {
                       </div>
 
                       <div className="group">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                           <Phone className="w-4 h-4 text-orange-600" />
                           <span>Telefon *</span>
                         </label>

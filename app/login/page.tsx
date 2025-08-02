@@ -142,7 +142,7 @@ export default function LoginPage() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Email Input */}
                   <div className="group">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
+                    <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                       <Mail className="w-4 h-4 text-blue-500" />
                       <span>E-posta Adresi</span>
                     </label>
@@ -161,7 +161,7 @@ export default function LoginPage() {
 
                   {/* Password Input */}
                   <div className="group">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
+                    <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                       <Lock className="w-4 h-4 text-purple-500" />
                       <span>Şifre</span>
                     </label>

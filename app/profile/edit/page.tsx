@@ -34,6 +34,17 @@ export default function EditProfilePage() {
 
   const fetchProfile = async () => {
     try {
+      // 🛡️ Business hesabı kontrolü
+      const businessCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('session_business='))
+      
+      if (businessCookie) {
+        // Business hesabı ile profile edit sayfasına erişim engellendi
+        window.location.href = '/admin'
+        return
+      }
+
       const response = await fetch('/api/profile')
       if (!response.ok) {
         if (response.status === 401) {
@@ -61,6 +72,17 @@ export default function EditProfilePage() {
     setSaving(true)
     setError('')
     setSuccess('')
+
+    // 🛡️ Business hesabı kontrolü
+    const businessCookie = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('session_business='))
+    
+    if (businessCookie) {
+      // Business hesabı ile profile update engellendi
+      window.location.href = '/admin'
+      return
+    }
 
     try {
       const response = await fetch('/api/profile', {

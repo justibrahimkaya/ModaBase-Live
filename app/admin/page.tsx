@@ -16,7 +16,6 @@ import {
   TrendingDown,
   Sparkles,
   Crown,
-  Globe,
   FileText,
   Eye,
   FolderOpen,
@@ -309,15 +308,7 @@ export default function AdminDashboard() {
           </div>
         </div>
         
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={() => window.open('/', '_blank')}
-            className="flex items-center px-4 py-2 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 transition-all duration-200"
-          >
-            <Globe className="h-4 w-4 mr-2" />
-            Siteyi Görüntüle
-          </button>
-          
+        <div className="flex items-center justify-end">
           <div className="text-right">
             <p className="text-sm text-gray-400">Son güncellenme</p>
             <p className="text-white text-sm font-medium">{new Date().toLocaleString('tr-TR')}</p>

@@ -45,19 +45,43 @@ export default function WhatsAppButton({
   useEffect(() => {
     const fetchWhatsAppNumbers = async () => {
       try {
-        const response = await fetch('/api/whatsapp')
+        // 🛡️ Client-side safety check
+        if (typeof window === 'undefined') return
+        
+        const response = await fetch('/api/whatsapp', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          // 🔧 Credentials sadece gerektiğinde ekle
+          cache: 'default'
+        })
+        
         if (response.ok) {
           const data = await response.json()
-          if (data.success) {
+          if (data && data.success && data.data) {
             setWhatsappNumbers(data.data)
+          } else {
+            console.warn('WhatsApp API: Invalid response format', data)
           }
+        } else {
+          console.warn('WhatsApp API: Response not ok', response.status, response.statusText)
         }
       } catch (error) {
-        console.error('WhatsApp numbers fetch error:', error)
+        // 🎯 Daha ayrıntılı error logging ama user'a hata gösterme
+        console.warn('WhatsApp numbers fetch failed (not critical):', error)
+        // Fallback numbers kullan
+        setWhatsappNumbers({
+          support: '905362971255',
+          business: '905362971255', 
+          admin: '905362971255'
+        })
       }
     }
 
-    fetchWhatsAppNumbers()
+    // 🚀 Delay ekleyerek component mounting issues'ını önle
+    const timer = setTimeout(fetchWhatsAppNumbers, 100)
+    return () => clearTimeout(timer)
   }, [])
 
   // Doğru numarayı seç

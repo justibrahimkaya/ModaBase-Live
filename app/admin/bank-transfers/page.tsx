@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+// import { useSession } from 'next-auth/react' // ❌ Business auth kullanıyoruz
 import { useRouter } from 'next/navigation'
 
 interface TransferNotification {
@@ -23,7 +23,8 @@ interface TransferNotification {
 }
 
 export default function BankTransfersPage() {
-  const { data: session, status } = useSession()
+  // ❌ NextAuth devre dışı - Business authentication kullanıyoruz
+  // const { data: session, status } = useSession()
   const router = useRouter()
   const [transfers, setTransfers] = useState<TransferNotification[]>([])
   const [loading, setLoading] = useState(true)
@@ -32,16 +33,11 @@ export default function BankTransfersPage() {
   const [adminNote, setAdminNote] = useState('')
   const [processing, setProcessing] = useState(false)
 
+  // ✅ Business authentication admin layout'da hallediliyor
   useEffect(() => {
-    if (status === 'loading') return
-    
-    if (!session) {
-      router.push('/admin/login')
-      return
-    }
 
     fetchTransfers()
-  }, [session, status, router])
+  }, [router])
 
   const fetchTransfers = async () => {
     try {

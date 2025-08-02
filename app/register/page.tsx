@@ -340,7 +340,7 @@ export default function RegisterPage() {
                   {/* Name Fields */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="group">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
+                      <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                         <User className="w-4 h-4 text-violet-500" />
                         <span>Ad *</span>
                       </label>
@@ -358,7 +358,7 @@ export default function RegisterPage() {
                     </div>
 
                     <div className="group">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
+                      <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                         <User className="w-4 h-4 text-purple-500" />
                         <span>Soyad *</span>
                       </label>
@@ -378,7 +378,7 @@ export default function RegisterPage() {
 
                   {/* Email Input */}
                   <div className="group">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
+                    <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                       <Mail className="w-4 h-4 text-blue-500" />
                       <span>E-posta Adresi *</span>
                     </label>
@@ -397,7 +397,7 @@ export default function RegisterPage() {
 
                   {/* Phone Input */}
                   <div className="group">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
+                    <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                       <Phone className="w-4 h-4 text-green-500" />
                       <span>Telefon</span>
                     </label>
@@ -415,7 +415,7 @@ export default function RegisterPage() {
 
                   {/* Password Input */}
                   <div className="group">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
+                    <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                       <Lock className="w-4 h-4 text-red-500" />
                       <span>Şifre *</span>
                     </label>
@@ -482,7 +482,7 @@ export default function RegisterPage() {
 
                   {/* Confirm Password Input */}
                   <div className="group">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
+                    <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-2">
                       <Lock className="w-4 h-4 text-orange-500" />
                       <span>Şifre Tekrar *</span>
                     </label>
