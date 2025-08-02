@@ -281,9 +281,9 @@ export default function Header() {
                 )}
               </a>
 
-                              {/* User Menu - NUCLEAR SSR PROTECTION - Tamamen client-only */}
-                {typeof window !== 'undefined' && window.document && !adminInfo && isHydrated && (
-                  <div className="relative user-menu" suppressHydrationWarning={true}>
+                              {/* User Menu - REACT OFFICIAL FIX - useEffect pattern */}
+                {!adminInfo && isHydrated && (
+                  <div className="relative user-menu">
                 <button 
                   className="relative p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-gray-50 to-slate-50 border border-gray-200 hover:from-gray-100 hover:to-slate-100 transition-all duration-300 touch-manipulation group"
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
