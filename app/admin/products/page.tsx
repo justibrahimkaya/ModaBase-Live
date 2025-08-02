@@ -1934,15 +1934,15 @@ export default function AdminProductsPage() {
                       <h3 className="text-lg font-semibold text-gray-900">Ürün Fotoğrafları</h3>
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          form.images.length === 0 
+                          (!form.images || !Array.isArray(form.images) || form.images.length === 0)
                             ? 'bg-red-100 text-red-700' 
                             : form.images.length >= 8 
                             ? 'bg-green-100 text-green-700'
                             : 'bg-blue-100 text-blue-700'
                         }`}>
-                          {form.images.length}/8
+                          {form.images && Array.isArray(form.images) ? form.images.length : 0}/8
                         </span>
-                        {form.images.length === 0 && (
+                        {(!form.images || !Array.isArray(form.images) || form.images.length === 0) && (
                           <span className="text-red-600 text-xs">* Zorunlu</span>
                         )}
                       </div>

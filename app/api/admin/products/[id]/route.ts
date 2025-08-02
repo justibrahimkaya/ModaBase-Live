@@ -12,12 +12,12 @@ export const config = {
 }
 
 // Ürün güncelle
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authError = await requireAdmin(request)
   if (authError) return authError
 
   try {
-    const { id } = params
+    const { id } = await params
     
     // Manuel body parsing - büyük dosyalar için
     const chunks = []
