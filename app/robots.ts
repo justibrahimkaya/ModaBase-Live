@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 
+// Force cache refresh - updated
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
