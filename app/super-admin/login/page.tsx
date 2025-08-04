@@ -74,7 +74,7 @@ export default function SuperAdminLogin() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300"
-                  placeholder="admin@modabase.com"
+                                          placeholder="admin@modabase.com.tr"
                   required
                 />
               </div>

@@ -65,7 +65,7 @@ export default function ProductSEOHead({ product, category }: ProductSEOHeadProp
   const twitterTitle = product.twitterTitle || ogTitle;
   const twitterDescription = product.twitterDescription || ogDescription;
   const twitterImage = product.twitterImage || ogImage;
-  const canonicalUrl = product.canonicalUrl || `https://modabase.com/product/${product.slug}`;
+  const canonicalUrl = product.canonicalUrl || `https://modabase.com.tr/product/${product.slug}`;
   const robotsMeta = product.robotsMeta || 'index,follow';
   const hreflang = product.hreflang || 'tr-TR';
 

@@ -145,8 +145,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               "@context": "https://schema.org",
               "@type": "Organization",
               "name": "ModaBase",
-              "url": "https://modabase.com",
-              "logo": "https://modabase.com/ChatGPT Image 20 Haz 2025 14_16_10.png",
+              "url": "https://modabase.com.tr",
+              "logo": "https://modabase.com.tr/ChatGPT Image 20 Haz 2025 14_16_10.png",
               "description": "Premium moda e-ticaret platformu",
               "contactPoint": {
                 "@type": "ContactPoint",
@@ -178,12 +178,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               "@context": "https://schema.org",
               "@type": "WebSite",
               "name": "ModaBase",
-              "url": "https://modabase.com",
+              "url": "https://modabase.com.tr",
               "potentialAction": {
                 "@type": "SearchAction",
                 "target": {
                   "@type": "EntryPoint",
-                  "urlTemplate": "https://modabase.com/products?search={search_term_string}"
+                  "urlTemplate": "https://modabase.com.tr/products?search={search_term_string}"
                 },
                 "query-input": "required name=search_term_string"
               }
@@ -199,9 +199,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               "@context": "https://schema.org",
               "@type": "Store",
               "name": "ModaBase",
-              "image": "https://modabase.com/store-image.jpg",
+              "image": "https://modabase.com.tr/store-image.jpg",
               "description": "Premium moda ürünleri ve aksesuarları",
-              "url": "https://modabase.com",
+              "url": "https://modabase.com.tr",
               "telephone": "+90-212-XXX-XXXX",
               "priceRange": "₺₺₺",
               "paymentAccepted": ["Kredi Kartı", "Banka Kartı", "Havale", "Kapıda Ödeme"],
