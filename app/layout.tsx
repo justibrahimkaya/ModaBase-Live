@@ -9,7 +9,7 @@ import MobileBottomNav from '@/components/MobileBottomNav'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://modabase.com'),
+  metadataBase: new URL('https://modabase.com.tr'),
   title: {
     default: 'ModaBase - Modern E-Ticaret Platformu | En Yeni Moda Trendleri',
     template: '%s | ModaBase'
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'tr_TR',
-    url: 'https://modabase.com',
+    url: 'https://modabase.com.tr',
     title: 'ModaBase - Premium E-Ticaret Platformu',
     description: 'En yeni moda trendleri, premium markalar ve güvenli alışveriş deneyimi. 500+ marka, ücretsiz kargo ve 30 gün iade garantisi.',
     siteName: 'ModaBase',
@@ -75,10 +75,10 @@ export const metadata: Metadata = {
     yahoo: 'your-yahoo-verification-code',
   },
   alternates: {
-    canonical: 'https://modabase.com',
+    canonical: 'https://modabase.com.tr',
     languages: {
-      'tr-TR': 'https://modabase.com',
-      'en-US': 'https://en.modabase.com',
+      'tr-TR': 'https://modabase.com.tr',
+      'en-US': 'https://en.modabase.com.tr',
     },
   },
   category: 'E-Commerce',
