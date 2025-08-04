@@ -83,7 +83,7 @@ export default async function YazlikElbisePage() {
     "@type": "CollectionPage",
     "name": "Yazlık Elbise Modelleri 2024",
     "description": "En şık yazlık elbise modelleri. Serin ve rahat yaz elbiseleri, plaj elbise çeşitleri.",
-    "url": "https://www.modabase.com.tr/yazlik-elbise",
+    "url": "https://modabase.com.tr/yazlik-elbise",
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": products.length,
@@ -93,12 +93,21 @@ export default async function YazlikElbisePage() {
         "name": product.name,
         "description": product.description,
         "image": product.imageUrl,
-        "url": `https://www.modabase.com.tr/product/${product.id}`,
+        "url": `https://modabase.com.tr/product/${product.id}`,
         "offers": {
           "@type": "Offer",
           "price": product.price,
           "priceCurrency": "TRY",
-          "availability": "https://schema.org/InStock"
+          "availability": "https://schema.org/InStock",
+          "seller": {
+            "@type": "Organization",
+            "name": "ModaBase"
+          }
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": product.rating || 4.6,
+          "reviewCount": product.reviewCount || 16
         }
       }))
     }

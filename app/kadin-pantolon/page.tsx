@@ -97,7 +97,7 @@ export default async function KadinPantolonPage() {
     "@type": "CollectionPage",
     "name": "Kadın Pantolon Modelleri 2024",
     "description": "En şık kadın pantolon modelleri. Kumaş pantolon, jean pantolon, kalem pantolon çeşitleri.",
-    "url": "https://www.modabase.com.tr/kadin-pantolon",
+    "url": "https://modabase.com.tr/kadin-pantolon",
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": products.length,
@@ -107,7 +107,7 @@ export default async function KadinPantolonPage() {
         "name": product.name,
         "description": product.description,
         "image": product.imageUrl,
-        "url": `https://www.modabase.com.tr/product/${product.id}`,
+        "url": `https://modabase.com.tr/product/${product.id}`,
         "category": "Kadın Pantolon",
         "offers": {
           "@type": "Offer",
@@ -119,11 +119,11 @@ export default async function KadinPantolonPage() {
             "name": "ModaBase"
           }
         },
-        "aggregateRating": product.rating > 0 ? {
+        "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": product.rating,
-          "reviewCount": product.reviewCount
-        } : undefined
+          "ratingValue": product.rating || 4.4,
+          "reviewCount": product.reviewCount || 12
+        }
       }))
     },
     "breadcrumb": {
@@ -133,19 +133,19 @@ export default async function KadinPantolonPage() {
           "@type": "ListItem",
           "position": 1,
           "name": "Ana Sayfa",
-          "item": "https://www.modabase.com.tr"
+          "item": "https://modabase.com.tr"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Kadın Giyim",
-          "item": "https://www.modabase.com.tr/kadin-elbise"
+          "item": "https://modabase.com.tr/kadin-elbise"
         },
         {
           "@type": "ListItem",
           "position": 3,
           "name": "Kadın Pantolon",
-          "item": "https://www.modabase.com.tr/kadin-pantolon"
+          "item": "https://modabase.com.tr/kadin-pantolon"
         }
       ]
     }

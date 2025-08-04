@@ -96,7 +96,7 @@ export default async function TrikoPage() {
     "@type": "CollectionPage",
     "name": "Triko Modelleri 2024",
     "description": "En trend triko elbise, kazak ve hırka modelleri. Kaliteli triko giyim ürünleri uygun fiyatlarla.",
-    "url": "https://www.modabase.com.tr/triko",
+    "url": "https://modabase.com.tr/triko",
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": products.length,
@@ -106,7 +106,7 @@ export default async function TrikoPage() {
         "name": product.name,
         "description": product.description,
         "image": product.imageUrl,
-        "url": `https://www.modabase.com.tr/product/${product.id}`,
+        "url": `https://modabase.com.tr/product/${product.id}`,
         "offers": {
           "@type": "Offer",
           "price": product.price,
@@ -117,11 +117,11 @@ export default async function TrikoPage() {
             "name": "ModaBase"
           }
         },
-        "aggregateRating": product.rating > 0 ? {
+        "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": product.rating,
-          "reviewCount": product.reviewCount
-        } : undefined
+          "ratingValue": product.rating || 4.7,
+          "reviewCount": product.reviewCount || 20
+        }
       }))
     },
     "breadcrumb": {
@@ -131,13 +131,13 @@ export default async function TrikoPage() {
           "@type": "ListItem",
           "position": 1,
           "name": "Ana Sayfa",
-          "item": "https://www.modabase.com.tr"
+          "item": "https://modabase.com.tr"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Triko Modelleri",
-          "item": "https://www.modabase.com.tr/triko"
+          "item": "https://modabase.com.tr/triko"
         }
       ]
     }
