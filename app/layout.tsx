@@ -70,9 +70,9 @@ export const metadata: Metadata = {
     images: ['/twitter-image.jpg'],
   },
   verification: {
-    google: 'tUYCoHd7hb1xR8MTLzvYAOZXgPtlO5TAIV-jkM3x6-E',
-    yandex: 'your-yandex-verification-code',
-    yahoo: 'your-yahoo-verification-code',
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || 'tUYCoHd7hb1xR8MTLzvYAOZXgPtlO5TAIV-jkM3x6-E',
+    yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION,
+    yahoo: process.env.NEXT_PUBLIC_YAHOO_VERIFICATION,
   },
   alternates: {
     canonical: 'https://modabase.com.tr',
@@ -103,13 +103,15 @@ export default function RootLayout({
     <html lang="tr" className="scroll-smooth">
       <head>
         {/* Google Tag Manager */}
-        <script dangerouslySetInnerHTML={{
-          __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        {process.env.NEXT_PUBLIC_GTM_ID && (
+          <script dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-KGWT7HKF');`
-        }} />
+})(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GTM_ID}');`
+          }} />
+        )}
         
         {/* MOBILE OPTIMIZATION - Critical viewport and mobile meta tags */}
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, viewport-fit=cover, user-scalable=yes" />
@@ -248,29 +250,35 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         " />
         
         {/* Google Analytics (GA4) - Required in HEAD for Search Console verification */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-VL9KCLBV3R"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-VL9KCLBV3R');
-            `,
-          }}
-        />
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}></script>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');
+                `,
+              }}
+            />
+          </>
+        )}
         
       </head>
       <body className={`${inter.className} antialiased bg-white text-gray-900`}>
         {/* Google Tag Manager (noscript) */}
-        <noscript>
-          <iframe 
-            src="https://www.googletagmanager.com/ns.html?id=GTM-KGWT7HKF"
-            height="0" 
-            width="0" 
-            style={{display: 'none', visibility: 'hidden'}}
-          />
-        </noscript>
+        {process.env.NEXT_PUBLIC_GTM_ID && (
+          <noscript>
+            <iframe 
+              src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
+              height="0" 
+              width="0" 
+              style={{display: 'none', visibility: 'hidden'}}
+            />
+          </noscript>
+        )}
         
         {/* Skip to main content for accessibility */}
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50">
