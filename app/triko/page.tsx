@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     images: ['/twitter-triko.jpg']
   },
   alternates: {
-    canonical: 'https://www.modabase.com.tr/triko'
+    canonical: 'https://modabase.com.tr/triko'
   },
   robots: {
     index: true,

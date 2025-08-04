@@ -330,7 +330,7 @@ export class EmailService {
     try {
       const mailOptions = {
         from: process.env.EMAIL_FROM || 'info@modabase.com.tr',
-        to: 'info@modabase.com', // Süper admin email
+        to: 'info@modabase.com.tr', // Süper admin email
         subject: `🆕 Yeni İşletme Başvurusu - ${businessData.businessName}`,
         html: this.generateNewApplicationHTML(businessData)
       };
@@ -563,7 +563,7 @@ export class EmailService {
           </div>
           
           <div class="footer">
-            <p>E-posta: info@modabase.com | Web: www.modabase.com</p>
+            <p>E-posta: info@modabase.com.tr | Web: www.modabase.com.tr</p>
           </div>
         </div>
       </body>
@@ -626,7 +626,7 @@ export class EmailService {
           </div>
           
           <div class="footer">
-            <p>E-posta: info@modabase.com | Web: www.modabase.com</p>
+            <p>E-posta: info@modabase.com.tr | Web: www.modabase.com.tr</p>
           </div>
         </div>
       </body>

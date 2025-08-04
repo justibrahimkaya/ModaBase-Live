@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     images: ['/twitter-yazlik-elbise.jpg']
   },
   alternates: {
-    canonical: 'https://www.modabase.com.tr/yazlik-elbise'
+    canonical: 'https://modabase.com.tr/yazlik-elbise'
   }
 }
 

@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     images: ['/twitter-bluz-modelleri.jpg']
   },
   alternates: {
-    canonical: 'https://www.modabase.com.tr/bluz-modelleri'
+    canonical: 'https://modabase.com.tr/bluz-modelleri'
   },
   robots: {
     index: true,

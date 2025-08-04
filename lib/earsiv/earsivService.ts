@@ -321,7 +321,7 @@ export class EarsivService {
         ],
             user: null,
             guestName: 'Test Müşteri',
-            guestEmail: 'test@modabase.com',
+            guestEmail: 'test@modabase.com.tr',
             address: {
               address: 'Test Adresi Sultangazi',
               city: 'İstanbul'

@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     images: ['/twitter-buyuk-beden.jpg']
   },
   alternates: {
-    canonical: 'https://www.modabase.com.tr/buyuk-beden'
+    canonical: 'https://modabase.com.tr/buyuk-beden'
   },
   robots: {
     index: true,
