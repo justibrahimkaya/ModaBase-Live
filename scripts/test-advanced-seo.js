@@ -91,7 +91,7 @@ async function testAdvancedSEO() {
           "warranty": "2 yıl garanti",
           "countryOfOrigin": "Türkiye"
         }),
-        canonicalUrl: 'https://modabase.com/product/test-gelismis-seo-urunu',
+        canonicalUrl: 'https://modabase.com.tr/product/test-gelismis-seo-urunu',
         hreflang: 'tr-TR',
         
         // Analitik
@@ -236,7 +236,7 @@ async function testAdvancedSEO() {
     }
     
     console.log('\n🔗 Test URL:');
-    console.log(`https://modabase.com/product/${testProduct.slug}`);
+    console.log(`https://modabase.com.tr/product/${testProduct.slug}`);
     
     console.log('\n📋 Google Rich Snippets Test URL:');
     console.log('https://search.google.com/test/rich-results');

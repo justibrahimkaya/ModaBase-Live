@@ -40,7 +40,7 @@ async function createSecureAdmin() {
     console.log('❌ Varsayılan admin hesabı siliniyor...')
     await prisma.user.deleteMany({
       where: { 
-        email: 'info@modabase.com',
+        email: 'info@modabase.com.tr',
         role: 'ADMIN'
       }
     })

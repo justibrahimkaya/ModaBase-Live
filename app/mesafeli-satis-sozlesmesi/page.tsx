@@ -61,7 +61,7 @@ export default function DistanceSalesContractPage() {
                     <p><strong>Adres:</strong> Malkoçoğlu Mah. 305/1 Sok. No: 17/A Sultangazi/İstanbul</p>
                     <p><strong>Telefon:</strong> 0536 297 12 55</p>
                     <p><strong>E-posta:</strong> info@modabase.com.tr</p>
-                    <p><strong>Web Sitesi:</strong> www.modabase.com.tr</p>
+                    <p><strong>Web Sitesi:</strong> modabase.com.tr</p>
                   </div>
                 </div>
                 
@@ -83,7 +83,7 @@ export default function DistanceSalesContractPage() {
               <h2 className="text-3xl font-bold text-gray-900 mb-6">MADDE 2 - SÖZLEŞME KONUSU</h2>
               <div className="bg-yellow-50/50 rounded-xl p-6">
                 <p className="text-gray-700 leading-relaxed">
-                  İşbu sözleşmenin konusu, ALICI'nın SATICI'ya ait www.modabase.com.tr internet sitesi üzerinden elektronik ortamda vermiş olduğu siparişe konu mal/hizmetin satışı ve teslimi ile ilgili olarak 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri gereğince tarafların hak ve yükümlülüklerinin saptanması amaçlanmaktadır.
+                  İşbu sözleşmenin konusu, ALICI'nın SATICI'ya ait modabase.com.tr internet sitesi üzerinden elektronik ortamda vermiş olduğu siparişe konu mal/hizmetin satışı ve teslimi ile ilgili olarak 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri gereğince tarafların hak ve yükümlülüklerinin saptanması amaçlanmaktadır.
                 </p>
               </div>
             </section>

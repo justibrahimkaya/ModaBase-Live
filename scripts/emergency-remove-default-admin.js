@@ -12,7 +12,7 @@ async function removeDefaultAdmin() {
     // Tüm varsayılan admin hesaplarını sil
     const deleted = await prisma.user.deleteMany({
       where: { 
-        email: 'info@modabase.com',
+        email: 'info@modabase.com.tr',
         role: 'ADMIN'
       }
     })
@@ -21,10 +21,10 @@ async function removeDefaultAdmin() {
     
     // Diğer tehlikeli varsayılan hesapları da kontrol et
     const dangerousEmails = [
-      'admin@modabase.com',
-      'super@modabase.com', 
-      'test@modabase.com',
-      'demo@modabase.com'
+          'admin@modabase.com.tr',
+    'super@modabase.com.tr',
+    'test@modabase.com.tr',
+    'demo@modabase.com.tr'
     ]
     
     for (const email of dangerousEmails) {

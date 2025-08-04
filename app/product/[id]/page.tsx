@@ -2,10 +2,92 @@ import ProductDetail from '@/components/ProductDetail'
 import ProductSEOHead from '@/components/ProductSEOHead'
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
 
 interface ProductPageProps {
   params: {
     id: string
+  }
+}
+
+// Dynamic Metadata for Product Pages
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  try {
+    // Ürünü getir
+    let product = await prisma.product.findUnique({
+      where: { id: params.id },
+      include: {
+        category: true
+      }
+    })
+
+    // Slug ile dene
+    if (!product) {
+      product = await prisma.product.findUnique({
+        where: { slug: params.id },
+        include: {
+          category: true
+        }
+      })
+    }
+
+    if (!product) {
+      return {
+        title: 'Ürün Bulunamadı | ModaBase',
+        description: 'Aradığınız ürün bulunamadı. ModaBase\'de binlerce farklı ürün seçeneği sizleri bekliyor.'
+      }
+    }
+
+    const images = JSON.parse(product.images || '[]')
+    const mainImage = images[0] || '/default-product.jpg'
+
+    return {
+      title: `${product.name} - ${product.category?.name || 'Moda'} | ModaBase`,
+      description: product.description || `${product.name} ürününü ModaBase'den güvenle satın alın. ${product.category?.name} kategorisinde en kaliteli ürünler burada!`,
+      keywords: [
+        product.name,
+        product.category?.name || '',
+        'modabase',
+        'online alışveriş',
+        'moda',
+        'kaliteli ürün',
+        'güvenli ödeme',
+        'ücretsiz kargo'
+      ],
+      openGraph: {
+        title: `${product.name} | ModaBase`,
+        description: product.description || `${product.name} - En uygun fiyatlarla ModaBase'de!`,
+        images: [mainImage],
+        type: 'website',
+        locale: 'tr_TR',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${product.name} | ModaBase`,
+        description: product.description || `${product.name} - En uygun fiyatlarla!`,
+        images: [mainImage]
+      },
+      alternates: {
+        canonical: `https://modabase.com.tr/product/${product.slug || product.id}`
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+        },
+      }
+    }
+  } catch (error) {
+    console.error('Generate metadata error:', error)
+    return {
+      title: 'Ürün | ModaBase',
+      description: 'ModaBase - En kaliteli moda ürünleri'
+    }
   }
 }
 

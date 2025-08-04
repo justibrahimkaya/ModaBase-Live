@@ -259,7 +259,7 @@ export class InvoiceService {
     doc.setFontSize(8);
     doc.setTextColor(100, 100, 100);
     doc.text('Bu belge elektronik ortamda olusturulmus olup yasal gecerliligi sahiptir.', 15, yPos);
-    doc.text('ModaBase E-Ticaret Sistemi | www.modabase.com.tr | info@modabase.com.tr', 15, yPos + 8);
+    doc.text('ModaBase E-Ticaret Sistemi | modabase.com.tr | info@modabase.com.tr', 15, yPos + 8);
     
     // QR kod placeholder (opsiyonel)
     doc.setDrawColor(200, 200, 200);

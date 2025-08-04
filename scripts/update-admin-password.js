@@ -26,7 +26,7 @@ async function updateAdminPassword() {
     // Mevcut admin hesabını bul ve şifresini güncelle
     const updatedAdmin = await prisma.user.update({
       where: {
-        email: 'info@modabase.com',
+        email: 'info@modabase.com.tr',
         role: 'ADMIN'
       },
       data: {

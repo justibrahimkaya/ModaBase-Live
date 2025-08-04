@@ -52,8 +52,8 @@ export async function POST(request: NextRequest) {
     params.append('user_name', body.user_name || 'Test User');
     params.append('user_address', body.user_address || 'Test Address');
     params.append('user_phone', body.user_phone || '05301234567');
-    params.append('merchant_ok_url', body.merchant_ok_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/order/${body.merchant_oid}?status=success`);
-    params.append('merchant_fail_url', body.merchant_fail_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/order/${body.merchant_oid}?status=failed`);
+    params.append('merchant_ok_url', body.merchant_ok_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/order/${body.merchant_oid}?status=success`);
+    params.append('merchant_fail_url', body.merchant_fail_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/order/${body.merchant_oid}?status=failed`);
     // ✅ PAYTR RESMİ PARAMETRELERİ
     const testModeValue = PAYTR_TEST_MODE ? '1' : '0';
     const userBasket = JSON.stringify([['Sipariş', paymentAmount, 1]]);

@@ -72,7 +72,7 @@ export const REAL_COMPANY_INFO = {
   taxOffice: 'ATIŞALANI',
   phone: '05362971255',
   email: 'kavram.triko@gmail.com',
-  website: 'www.modabase.com.tr'
+  website: 'modabase.com.tr'
 };
 
 // TEST FİRMA BİLGİLERİ (Test amaçlı)
@@ -83,7 +83,7 @@ export const TEST_COMPANY_INFO = {
   taxOffice: 'Test Vergi Dairesi',
   phone: '+90 536 297 12 55',
   email: 'test@modabase.com.tr',
-  website: 'www.modabase.com.tr'
+  website: 'modabase.com.tr'
 };
 
 // UBL-TR STANDART KODLARI

@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import { Metadata } from 'next'
 import Header from '@/components/Header'
 import FeaturedProducts from '@/components/FeaturedProducts'
 import Footer from '@/components/Footer'
@@ -14,6 +15,45 @@ import {
   Quote,
   ShoppingBag
 } from 'lucide-react'
+
+// Ana Sayfa SEO Metadata
+export const metadata: Metadata = {
+  title: 'ModaBase - Türkiye\'nin En Büyük Moda E-Ticaret Platformu | 2024 Moda Trendleri',
+  description: 'ModaBase\'de 500+ marka, 50K+ ürün, %100 güvenli alışveriş! Kadın giyim, erkek giyim, çocuk giyim, ayakkabı, çanta, aksesuar. Ücretsiz kargo, 30 gün iade garantisi. En yeni moda trendleri burada!',
+  keywords: [
+    'modabase', 'moda', 'e-ticaret', 'alışveriş', 'kadın giyim', 'erkek giyim', 
+    'elbise', 'bluz', 'pantolon', 'ayakkabı', 'çanta', 'aksesuar',
+    'moda trendleri', 'online alışveriş', 'ücretsiz kargo', 'güvenli ödeme',
+    'indirim', 'kampanya', 'marka', 'kaliteli giyim', 'uygun fiyat'
+  ],
+  openGraph: {
+    title: 'ModaBase - Türkiye\'nin En Büyük Moda E-Ticaret Platformu',
+    description: '500+ marka, 50K+ ürün, %100 güvenli alışveriş! En yeni moda trendleri ve kampanyalar.',
+    images: ['/og-homepage.jpg'],
+    type: 'website',
+    locale: 'tr_TR',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ModaBase - Türkiye\'nin En Büyük Moda Platformu',
+    description: '500+ marka, 50K+ ürün, ücretsiz kargo! En yeni moda trendleri burada.',
+    images: ['/twitter-homepage.jpg']
+  },
+  alternates: {
+    canonical: 'https://modabase.com.tr'
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  }
+}
 
 // Force dynamic rendering to prevent build-time database access
 export const dynamic = 'force-dynamic'

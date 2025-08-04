@@ -563,7 +563,7 @@ export class EmailService {
           </div>
           
           <div class="footer">
-            <p>E-posta: info@modabase.com.tr | Web: www.modabase.com.tr</p>
+            <p>E-posta: info@modabase.com.tr | Web: modabase.com.tr</p>
           </div>
         </div>
       </body>
@@ -626,7 +626,7 @@ export class EmailService {
           </div>
           
           <div class="footer">
-            <p>E-posta: info@modabase.com.tr | Web: www.modabase.com.tr</p>
+            <p>E-posta: info@modabase.com.tr | Web: modabase.com.tr</p>
           </div>
         </div>
       </body>
@@ -1436,7 +1436,7 @@ export class EmailService {
             </table>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/admin/orders/${data.orderId}" class="cta-button">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/admin/orders/${data.orderId}" class="cta-button">
                 📋 Siparişi Görüntüle
               </a>
             </div>
@@ -1530,7 +1530,7 @@ export class EmailService {
             </table>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/admin/orders/${data.orderId}" class="cta-button">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/admin/orders/${data.orderId}" class="cta-button">
                 📋 Siparişi Görüntüle
               </a>
             </div>
@@ -1634,7 +1634,7 @@ export class EmailService {
             </table>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/order/${data.orderId}" class="cta-button">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/order/${data.orderId}" class="cta-button">
                 💳 Ödeme Yap
               </a>
             </div>
@@ -1841,7 +1841,7 @@ export class EmailService {
             </div>
             
             <p style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/profile/orders" 
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/profile/orders" 
                  style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
                 Siparişlerimi Görüntüle
               </a>
@@ -1941,7 +1941,7 @@ export class EmailService {
             </div>
             
             <p style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/contact" 
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/contact" 
                  style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
                 Müşteri Hizmetleri
               </a>
@@ -2046,7 +2046,7 @@ export class EmailService {
             </div>
             
             <p style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/profile/orders" 
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/profile/orders" 
                  style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
                 Siparişlerimi Görüntüle
               </a>
@@ -2146,7 +2146,7 @@ export class EmailService {
             </div>
             
             <p style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/contact" 
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/contact" 
                  style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
                 Müşteri Hizmetleri
               </a>
@@ -2332,7 +2332,7 @@ export class EmailService {
             </div>
             
             <p style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/admin/stock-alerts" 
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/admin/stock-alerts" 
                  style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
                 Stok Yönetimi
               </a>
@@ -2480,7 +2480,7 @@ export class EmailService {
             </div>
             
             <p style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/admin/stock-alerts" 
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/admin/stock-alerts" 
                  style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
                 Detaylı Rapor
               </a>
@@ -2646,7 +2646,7 @@ export class EmailService {
             </div>
             
             <p style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/profile/orders" 
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/profile/orders" 
                  style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
                 Siparişlerimi Görüntüle
               </a>
@@ -2756,11 +2756,11 @@ export class EmailService {
             </div>
             
             <p style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/profile/orders" 
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/profile/orders" 
                  style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #212529; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 0 10px;">
                 ⭐ Değerlendir
               </a>
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr'}/products" 
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/products" 
                  style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 0 10px;">
                 🛍️ Tekrar Alışveriş
               </a>
