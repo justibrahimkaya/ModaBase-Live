@@ -101,13 +101,13 @@ export default async function TrikoElbisePage() {
       "@type": "ItemList",
       "numberOfItems": products.length,
       "itemListElement": products.slice(0, 12).map((product, index) => {
-        const validImage = typeof product.imageUrl === 'string' && (product.imageUrl.startsWith('http://') || product.imageUrl.startsWith('https://')) ? product.imageUrl : undefined;
+        const validImage = typeof product.imageUrl === 'string' && (product.imageUrl.startsWith('http://') || product.imageUrl.startsWith('https://')) ? product.imageUrl : 'https://modabase.com.tr/default-product.jpg';
         return {
           "@type": "Product",
           "position": index + 1,
           "name": product.name,
           "description": product.description,
-          ...(validImage ? { "image": validImage } : {}),
+          "image": validImage,
           "url": `https://modabase.com.tr/product/${product.id}`,
           "category": "Triko Elbise",
           "offers": {
@@ -118,6 +118,23 @@ export default async function TrikoElbisePage() {
             "seller": {
               "@type": "Organization",
               "name": "ModaBase"
+            },
+            "shippingDetails": {
+              "@type": "OfferShippingDetails",
+              "shippingRate": {
+                "@type": "MonetaryAmount",
+                "value": "0",
+                "currency": "TRY"
+              },
+              "shippingDestination": {
+                "@type": "DefinedRegion",
+                "addressCountry": "TR"
+              }
+            },
+            "hasMerchantReturnPolicy": {
+              "@type": "MerchantReturnPolicy",
+              "applicableCountry": "TR",
+              "returnPolicyCategory": "https://schema.org/Refundable"
             }
           },
           ...(product.rating || product.reviewCount ? {
