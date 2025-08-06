@@ -353,7 +353,6 @@ export default function AdvancedSEOGenerator({
 
   const generateStructuredData = () => {
     const filteredImages = images && Array.isArray(images) ? images.filter((img: string) => typeof img === 'string' && (img.startsWith('http://') || img.startsWith('https://'))) : [];
-    const finalImages = filteredImages.length > 0 ? filteredImages : ['https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=400&fit=crop'];
     const structuredData = {
       "@context": "https://schema.org/",
       "@type": "Product",
@@ -364,7 +363,7 @@ export default function AdvancedSEOGenerator({
         "name": seoData.brand
       },
       "category": category,
-      "image": finalImages,
+      // image alanını tamamen kaldırdık - Google'ın zorunda olmadığı alan
       "offers": {
         "@type": "Offer",
         "price": price,

@@ -89,15 +89,14 @@ export default function ProductSEOHead({ product, category }: ProductSEOHeadProp
 
   // Yapılandırılmış veri
   const filteredImages = images.filter((img: string) => typeof img === 'string' && (img.startsWith('http://') || img.startsWith('https://')));
-  const finalImages = filteredImages.length > 0 ? filteredImages : ['https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=400&fit=crop'];
   
   // Debug için console.log ekle
   if (typeof window === 'undefined') { // Sadece server-side'da çalışır
     console.log(`🔍 Product: ${product.name}`);
     console.log(`📊 Original images count: ${images.length}`);
     console.log(`✅ Filtered images count: ${filteredImages.length}`);
-    console.log(`🎯 Final images:`, finalImages);
   }
+  
   const structuredData = product.structuredData ? JSON.parse(product.structuredData) : {
     "@context": "https://schema.org/",
     "@type": "Product",
@@ -108,7 +107,7 @@ export default function ProductSEOHead({ product, category }: ProductSEOHeadProp
       "name": product.brand || "ModaBase"
     },
     "category": category?.name,
-    "image": finalImages,
+    // image alanını tamamen kaldırdık - Google'ın zorunda olmadığı alan
     "offers": {
       "@type": "Offer",
       "price": product.price,
