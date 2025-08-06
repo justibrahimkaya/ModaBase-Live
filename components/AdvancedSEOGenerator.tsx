@@ -86,6 +86,26 @@ interface AdvancedSEOData {
   sitemapPriority: number;
   changeFrequency: string;
   lastModified: string;
+
+  // Yapılandırılmış Veri Özel Alanları
+  aggregateRating?: {
+    "@type": "AggregateRating";
+    ratingValue: number;
+    reviewCount: number;
+  };
+  review?: {
+    "@type": "Review";
+    reviewRating: {
+      "@type": "Rating";
+      ratingValue: number;
+    };
+    author: {
+      "@type": "Person";
+      name: string;
+    };
+    reviewBody: string;
+    datePublished: string;
+  };
 }
 
 interface AdvancedSEOGeneratorProps {
@@ -332,6 +352,7 @@ export default function AdvancedSEOGenerator({
   };
 
   const generateStructuredData = () => {
+    const filteredImages = images && Array.isArray(images) ? images.filter((img: string) => typeof img === 'string' && (img.startsWith('http://') || img.startsWith('https://'))) : [];
     const structuredData = {
       "@context": "https://schema.org/",
       "@type": "Product",
@@ -342,7 +363,7 @@ export default function AdvancedSEOGenerator({
         "name": seoData.brand
       },
       "category": category,
-      "image": images && Array.isArray(images) ? images : [],
+      "image": filteredImages,
       "offers": {
         "@type": "Offer",
         "price": price,
@@ -363,7 +384,9 @@ export default function AdvancedSEOGenerator({
       "color": seoData.color,
       "size": seoData.size,
       "warranty": seoData.warranty,
-      "countryOfOrigin": seoData.countryOfOrigin
+      "countryOfOrigin": seoData.countryOfOrigin,
+      ...(seoData.aggregateRating ? { "aggregateRating": seoData.aggregateRating } : {}),
+      ...(seoData.review ? { "review": seoData.review } : {})
     };
 
     setSeoData(prev => ({

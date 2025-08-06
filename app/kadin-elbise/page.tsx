@@ -100,29 +100,34 @@ export default async function KadinElbisePage() {
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": products.length,
-      "itemListElement": products.slice(0, 12).map((product, index) => ({
-        "@type": "Product",
-        "position": index + 1,
-        "name": product.name,
-        "description": product.description,
-        "image": product.imageUrl,
-        "url": `https://modabase.com.tr/product/${product.id}`,
-        "offers": {
-          "@type": "Offer",
-          "price": product.price,
-          "priceCurrency": "TRY",
-          "availability": "https://schema.org/InStock",
-          "seller": {
-            "@type": "Organization",
-            "name": "ModaBase"
-          }
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": product.rating || 4.6,
-          "reviewCount": product.reviewCount || 15
-        }
-      }))
+      "itemListElement": products.slice(0, 12).map((product, index) => {
+        const validImage = typeof product.imageUrl === 'string' && (product.imageUrl.startsWith('http://') || product.imageUrl.startsWith('https://')) ? product.imageUrl : undefined;
+        return {
+          "@type": "Product",
+          "position": index + 1,
+          "name": product.name,
+          "description": product.description,
+          ...(validImage ? { "image": validImage } : {}),
+          "url": `https://modabase.com.tr/product/${product.id}`,
+          "offers": {
+            "@type": "Offer",
+            "price": product.price,
+            "priceCurrency": "TRY",
+            "availability": "https://schema.org/InStock",
+            "seller": {
+              "@type": "Organization",
+              "name": "ModaBase"
+            }
+          },
+          ...(product.rating || product.reviewCount ? {
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": product.rating || 4.6,
+              "reviewCount": product.reviewCount || 15
+            }
+          } : {})
+        };
+      })
     },
     "breadcrumb": {
       "@type": "BreadcrumbList",

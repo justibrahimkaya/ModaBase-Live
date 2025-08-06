@@ -46,6 +46,24 @@ interface ProductSEOHeadProps {
     sitemapPriority?: number | null;
     changeFrequency?: string | null;
     lastModified?: string | null | Date;
+    aggregateRating?: {
+      "@type": string;
+      "ratingValue": number;
+      "reviewCount": number;
+    } | null;
+    review?: {
+      "@type": string;
+      "reviewRating": {
+        "@type": string;
+        "ratingValue": number;
+      };
+      "author": {
+        "@type": string;
+        "name": string;
+      };
+      "reviewBody": string;
+      "datePublished": string;
+    } | null;
   };
   category?: {
     name: string;
@@ -70,6 +88,7 @@ export default function ProductSEOHead({ product, category }: ProductSEOHeadProp
   const hreflang = product.hreflang || 'tr-TR';
 
   // Yapılandırılmış veri
+  const filteredImages = images.filter((img: string) => typeof img === 'string' && (img.startsWith('http://') || img.startsWith('https://')));
   const structuredData = product.structuredData ? JSON.parse(product.structuredData) : {
     "@context": "https://schema.org/",
     "@type": "Product",
@@ -80,12 +99,12 @@ export default function ProductSEOHead({ product, category }: ProductSEOHeadProp
       "name": product.brand || "ModaBase"
     },
     "category": category?.name,
-    "image": images,
+    "image": filteredImages,
     "offers": {
       "@type": "Offer",
       "price": product.price,
       "priceCurrency": "TRY",
-      "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 gün geçerli
+      "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       "availability": product.availability ? `https://schema.org/${product.availability}` : "https://schema.org/InStock",
       "condition": product.condition ? `https://schema.org/${product.condition}` : "https://schema.org/NewCondition",
       "seller": {
@@ -102,7 +121,9 @@ export default function ProductSEOHead({ product, category }: ProductSEOHeadProp
     "color": product.color,
     "size": product.size,
     "warranty": product.warranty,
-    "countryOfOrigin": product.countryOfOrigin || "Türkiye"
+    "countryOfOrigin": product.countryOfOrigin || "Türkiye",
+    ...(product.aggregateRating ? { "aggregateRating": product.aggregateRating } : {}),
+    ...(product.review ? { "review": product.review } : {})
   };
 
   return (
