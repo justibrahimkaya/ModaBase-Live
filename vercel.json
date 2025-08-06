@@ -28,6 +28,11 @@
       "source": "/sitemap.xml",
       "destination": "https://www.modabase.com.tr/sitemap.xml",
       "permanent": true
+    },
+    {
+      "source": "/api/paytr/(.*)",
+      "destination": "https://www.modabase.com.tr/api/paytr/$1",
+      "permanent": true
     }
   ]
 }

@@ -18,7 +18,7 @@ function testLivePayTR() {
   const postData = JSON.stringify(testData);
 
   const options = {
-    hostname: 'moda-base-live.vercel.app',
+    hostname: 'modabase.com.tr',
     port: 443,
     path: '/api/paytr/init',
     method: 'POST',
