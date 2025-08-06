@@ -97,7 +97,17 @@ export default function ProductSEOHead({ product, category }: ProductSEOHeadProp
     console.log(`✅ Filtered images count: ${filteredImages.length}`);
   }
   
-  const structuredData = product.structuredData ? JSON.parse(product.structuredData) : {
+  const structuredData = (product.structuredData && product.structuredData.trim() !== '') ? 
+    (() => {
+      try {
+        return JSON.parse(product.structuredData);
+      } catch (error) {
+        console.error('🚨 ProductSEOHead: Bozuk structured data:', error.message);
+        return null;
+      }
+    })() : null;
+  
+  const finalStructuredData = structuredData || {
     "@context": "https://schema.org/",
     "@type": "Product",
     "name": product.name,
@@ -187,7 +197,7 @@ export default function ProductSEOHead({ product, category }: ProductSEOHeadProp
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(structuredData)
+          __html: JSON.stringify(finalStructuredData)
         }}
       />
 
