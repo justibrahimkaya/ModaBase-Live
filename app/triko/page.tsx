@@ -109,33 +109,35 @@ export default async function TrikoPage() {
           "description": product.description,
           "image": validImage,
           "url": `https://modabase.com.tr/product/${product.id}`,
-          "offers": {
-            "@type": "Offer",
-            "price": product.price,
-            "priceCurrency": "TRY",
-            "availability": "https://schema.org/InStock",
-            "seller": {
-              "@type": "Organization",
-              "name": "ModaBase"
-            },
-            "shippingDetails": {
-              "@type": "OfferShippingDetails",
-              "shippingRate": {
-                "@type": "MonetaryAmount",
-                "value": "0",
-                "currency": "TRY"
+          ...(product.name === 'Bluzlar' || product.name === 'Elbiseler' ? {
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "TRY",
+              "availability": "https://schema.org/InStock",
+              "seller": {
+                "@type": "Organization",
+                "name": "ModaBase"
               },
-              "shippingDestination": {
-                "@type": "DefinedRegion",
-                "addressCountry": "TR"
+              "shippingDetails": {
+                "@type": "OfferShippingDetails",
+                "shippingRate": {
+                  "@type": "MonetaryAmount",
+                  "value": "0",
+                  "currency": "TRY"
+                },
+                "shippingDestination": {
+                  "@type": "DefinedRegion",
+                  "addressCountry": "TR"
+                }
+              },
+              "hasMerchantReturnPolicy": {
+                "@type": "MerchantReturnPolicy",
+                "applicableCountry": "TR",
+                "returnPolicyCategory": "https://schema.org/Refundable"
               }
-            },
-            "hasMerchantReturnPolicy": {
-              "@type": "MerchantReturnPolicy",
-              "applicableCountry": "TR",
-              "returnPolicyCategory": "https://schema.org/Refundable"
             }
-          },
+          } : {}),
           ...(product.rating || product.reviewCount ? {
             "aggregateRating": {
               "@type": "AggregateRating",
