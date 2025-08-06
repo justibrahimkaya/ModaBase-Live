@@ -22,5 +22,12 @@
   ],
   "env": {
     "NEXT_BODY_SIZE_LIMIT": "100mb"
-  }
+  },
+  "redirects": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "https://www.modabase.com.tr/sitemap.xml",
+      "permanent": true
+    }
+  ]
 }
