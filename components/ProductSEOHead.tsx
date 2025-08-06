@@ -102,7 +102,7 @@ export default function ProductSEOHead({ product, category }: ProductSEOHeadProp
       try {
         return JSON.parse(product.structuredData);
       } catch (error) {
-        console.error('🚨 ProductSEOHead: Bozuk structured data:', error.message);
+        console.error('🚨 ProductSEOHead: Bozuk structured data:', error instanceof Error ? error.message : String(error));
         return null;
       }
     })() : null;
