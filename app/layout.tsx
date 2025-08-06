@@ -217,8 +217,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     "@type": "OfferCatalog",
                     "name": "Kadın Giyim",
                     "itemListElement": [
-                      { "@type": "Offer", "itemOffered": { "@type": "ProductGroup", "name": "Elbiseler" } },
-                      { "@type": "Offer", "itemOffered": { "@type": "ProductGroup", "name": "Bluzlar" } }
+                      { "@type": "Offer", "itemOffered": { "@type": "Thing", "name": "Kadın Elbise Koleksiyonu" } },
+                      { "@type": "Offer", "itemOffered": { "@type": "Thing", "name": "Kadın Bluz Koleksiyonu" } }
                     ]
                   }
                 ]

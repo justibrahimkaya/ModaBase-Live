@@ -4,33 +4,54 @@ const prisma = new PrismaClient()
 
 async function checkProducts() {
   try {
-    console.log('🔍 Veritabanındaki ürünleri kontrol ediliyor...')
+    console.log('🔍 "Bluzlar" ve "Elbiseler" isimli ürünleri aranıyor...')
     
-    const products = await prisma.product.findMany({
+    // Önce bu isimli ürünleri ara
+    const problemProducts = await prisma.product.findMany({
+      where: {
+        OR: [
+          { name: { equals: 'Bluzlar', mode: 'insensitive' } },
+          { name: { equals: 'Elbiseler', mode: 'insensitive' } },
+          { name: { contains: 'Bluzlar', mode: 'insensitive' } },
+          { name: { contains: 'Elbiseler', mode: 'insensitive' } }
+        ]
+      },
       include: {
-        category: true,
-        variants: true
+        category: true
       }
     })
     
-    console.log(`📊 Toplam ürün sayısı: ${products.length}`)
+    console.log(`🎯 "Bluzlar/Elbiseler" bulunan ürün sayısı: ${problemProducts.length}`)
     
-    if (products.length === 0) {
+    if (problemProducts.length > 0) {
+      console.log('\n❌ Sorunlu ürünler bulundu:')
+      problemProducts.forEach((product, index) => {
+        console.log(`\n${index + 1}. "${product.name}"`)
+        console.log(`   ID: ${product.id}`)
+        console.log(`   Slug: ${product.slug}`)
+        console.log(`   Kategori: ${product.category?.name || 'Kategori yok'}`)
+      })
+    } else {
+      console.log('✅ "Bluzlar" ve "Elbiseler" isimli ürün bulunamadı.')
+    }
+    
+    // Tüm ürünleri de listele
+    const allProducts = await prisma.product.findMany({
+      include: {
+        category: true
+      }
+    })
+    
+    console.log(`\n📊 Toplam ürün sayısı: ${allProducts.length}`)
+    
+    if (allProducts.length === 0) {
       console.log('❌ Veritabanında hiç ürün yok!')
       return
     }
     
-    console.log('\n📋 Ürünler:')
-    products.forEach((product, index) => {
-      console.log(`\n${index + 1}. ${product.name}`)
-      console.log(`   ID: ${product.id}`)
-      console.log(`   Slug: ${product.slug}`)
-      console.log(`   Fiyat: ${product.price}`)
-      console.log(`   Stok: ${product.stock}`)
-      console.log(`   Kategori: ${product.category?.name || 'Kategori yok'}`)
-      console.log(`   Resim sayısı: ${product.images ? JSON.parse(product.images).length : 0}`)
-      console.log(`   Varyant sayısı: ${product.variants?.length || 0}`)
-      console.log(`   Oluşturulma: ${product.createdAt}`)
+    console.log('\n📋 Tüm ürünler:')
+    allProducts.forEach((product, index) => {
+      console.log(`${index + 1}. "${product.name}" (ID: ${product.id})`)
     })
     
   } catch (error) {
