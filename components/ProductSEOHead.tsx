@@ -89,6 +89,7 @@ export default function ProductSEOHead({ product, category }: ProductSEOHeadProp
 
   // Yapılandırılmış veri
   const filteredImages = images.filter((img: string) => typeof img === 'string' && (img.startsWith('http://') || img.startsWith('https://')));
+  const finalImages = filteredImages.length > 0 ? filteredImages : ['https://modabase.com.tr/default-product.jpg'];
   const structuredData = product.structuredData ? JSON.parse(product.structuredData) : {
     "@context": "https://schema.org/",
     "@type": "Product",
@@ -99,7 +100,7 @@ export default function ProductSEOHead({ product, category }: ProductSEOHeadProp
       "name": product.brand || "ModaBase"
     },
     "category": category?.name,
-    "image": filteredImages,
+    "image": finalImages,
     "offers": {
       "@type": "Offer",
       "price": product.price,
@@ -110,6 +111,23 @@ export default function ProductSEOHead({ product, category }: ProductSEOHeadProp
       "seller": {
         "@type": "Organization",
         "name": "ModaBase"
+      },
+      "shippingDetails": {
+        "@type": "OfferShippingDetails",
+        "shippingRate": {
+          "@type": "MonetaryAmount",
+          "value": "0",
+          "currency": "TRY"
+        },
+        "shippingDestination": {
+          "@type": "DefinedRegion",
+          "addressCountry": "TR"
+        }
+      },
+      "hasMerchantReturnPolicy": {
+        "@type": "MerchantReturnPolicy",
+        "applicableCountry": "TR",
+        "returnPolicyCategory": "https://schema.org/Refundable"
       }
     },
     "sku": product.sku,

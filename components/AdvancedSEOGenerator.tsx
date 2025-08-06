@@ -353,6 +353,7 @@ export default function AdvancedSEOGenerator({
 
   const generateStructuredData = () => {
     const filteredImages = images && Array.isArray(images) ? images.filter((img: string) => typeof img === 'string' && (img.startsWith('http://') || img.startsWith('https://'))) : [];
+    const finalImages = filteredImages.length > 0 ? filteredImages : ['https://modabase.com.tr/default-product.jpg'];
     const structuredData = {
       "@context": "https://schema.org/",
       "@type": "Product",
@@ -363,7 +364,7 @@ export default function AdvancedSEOGenerator({
         "name": seoData.brand
       },
       "category": category,
-      "image": filteredImages,
+      "image": finalImages,
       "offers": {
         "@type": "Offer",
         "price": price,
@@ -373,6 +374,23 @@ export default function AdvancedSEOGenerator({
         "seller": {
           "@type": "Organization",
           "name": brand
+        },
+        "shippingDetails": {
+          "@type": "OfferShippingDetails",
+          "shippingRate": {
+            "@type": "MonetaryAmount",
+            "value": "0",
+            "currency": "TRY"
+          },
+          "shippingDestination": {
+            "@type": "DefinedRegion",
+            "addressCountry": "TR"
+          }
+        },
+        "hasMerchantReturnPolicy": {
+          "@type": "MerchantReturnPolicy",
+          "applicableCountry": "TR",
+          "returnPolicyCategory": "https://schema.org/Refundable"
         }
       },
       "sku": seoData.sku,
