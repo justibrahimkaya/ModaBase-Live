@@ -1,5 +1,4 @@
 import ProductDetail from '@/components/ProductDetail'
-import ProductSEOHead from '@/components/ProductSEOHead'
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
@@ -80,6 +79,34 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
           'max-image-preview': 'large',
           'max-snippet': -1,
         },
+      },
+      other: {
+        'application/ld+json': JSON.stringify({
+          "@context": "https://schema.org/",
+          "@type": "Product",
+          "name": product.name,
+          "description": product.description || `${product.name} - En uygun fiyatlarla ModaBase'de!`,
+          "brand": {
+            "@type": "Brand", 
+            "name": product.brand || "ModaBase"
+          },
+          "category": product.category?.name,
+          "offers": {
+            "@type": "Offer",
+            "price": product.price,
+            "priceCurrency": "TRY",
+            "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            "availability": "https://schema.org/InStock",
+            "condition": "https://schema.org/NewCondition",
+            "seller": {
+              "@type": "Organization",
+              "name": "ModaBase"
+            }
+          },
+          "sku": product.sku,
+          "mpn": product.mpn,
+          "gtin": product.gtin
+        })
       }
     }
   } catch (error) {
@@ -216,13 +243,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
     return (
       <>
-        <ProductSEOHead 
-          product={{
-            ...product,
-            originalPrice: product.originalPrice || 0
-          }}
-          category={product.category}
-        />
         <main className="min-h-screen bg-gray-50">
           <ProductDetail 
             product={{
