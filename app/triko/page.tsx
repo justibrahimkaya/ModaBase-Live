@@ -109,35 +109,33 @@ export default async function TrikoPage() {
           "description": product.description,
           "image": validImage,
           "url": `https://modabase.com.tr/product/${product.id}`,
-          ...(product.name === 'Bluzlar' || product.name === 'Elbiseler' ? {
-            "offers": {
-              "@type": "Offer",
-              "price": "0",
-              "priceCurrency": "TRY",
-              "availability": "https://schema.org/InStock",
-              "seller": {
-                "@type": "Organization",
-                "name": "ModaBase"
+          "offers": {
+            "@type": "Offer",
+            "price": (product.name === 'Bluzlar' || product.name === 'Elbiseler') ? "0" : (product.price || "0"),
+            "priceCurrency": "TRY",
+            "availability": "https://schema.org/InStock",
+            "seller": {
+              "@type": "Organization",
+              "name": "ModaBase"
+            },
+            "shippingDetails": {
+              "@type": "OfferShippingDetails",
+              "shippingRate": {
+                "@type": "MonetaryAmount",
+                "value": "0",
+                "currency": "TRY"
               },
-              "shippingDetails": {
-                "@type": "OfferShippingDetails",
-                "shippingRate": {
-                  "@type": "MonetaryAmount",
-                  "value": "0",
-                  "currency": "TRY"
-                },
-                "shippingDestination": {
-                  "@type": "DefinedRegion",
-                  "addressCountry": "TR"
-                }
-              },
-              "hasMerchantReturnPolicy": {
-                "@type": "MerchantReturnPolicy",
-                "applicableCountry": "TR",
-                "returnPolicyCategory": "https://schema.org/Refundable"
+              "shippingDestination": {
+                "@type": "DefinedRegion",
+                "addressCountry": "TR"
               }
+            },
+            "hasMerchantReturnPolicy": {
+              "@type": "MerchantReturnPolicy",
+              "applicableCountry": "TR",
+              "returnPolicyCategory": "https://schema.org/Refundable"
             }
-          } : {}),
+          },
           ...(product.rating || product.reviewCount ? {
             "aggregateRating": {
               "@type": "AggregateRating",
