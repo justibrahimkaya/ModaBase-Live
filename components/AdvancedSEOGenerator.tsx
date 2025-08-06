@@ -352,7 +352,6 @@ export default function AdvancedSEOGenerator({
   };
 
   const generateStructuredData = () => {
-    const filteredImages = images && Array.isArray(images) ? images.filter((img: string) => typeof img === 'string' && (img.startsWith('http://') || img.startsWith('https://'))) : [];
     const structuredData = {
       "@context": "https://schema.org/",
       "@type": "Product",
@@ -363,7 +362,6 @@ export default function AdvancedSEOGenerator({
         "name": seoData.brand
       },
       "category": category,
-      // image alanını tamamen kaldırdık - Google'ın zorunda olmadığı alan
       "offers": {
         "@type": "Offer",
         "price": price,

@@ -107,7 +107,6 @@ export default function ProductSEOHead({ product, category }: ProductSEOHeadProp
       "name": product.brand || "ModaBase"
     },
     "category": category?.name,
-    // image alanını tamamen kaldırdık - Google'ın zorunda olmadığı alan
     "offers": {
       "@type": "Offer",
       "price": product.price,
