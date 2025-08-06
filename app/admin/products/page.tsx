@@ -695,13 +695,22 @@ export default function AdminProductsPage() {
     
     // Auto-generate slug from name
     if (name === 'name') {
-      const slug = value.toLowerCase()
-        .replace(/ğ/g, 'g')
-        .replace(/ü/g, 'u')
-        .replace(/ş/g, 's')
-        .replace(/ı/g, 'i')
-        .replace(/ö/g, 'o')
-        .replace(/ç/g, 'c')
+      // Türkçe karakterleri İngilizce karakterlere dönüştür
+      const turkishToEnglish: { [key: string]: string } = {
+        'ç': 'c', 'Ç': 'c',
+        'ğ': 'g', 'Ğ': 'g', 
+        'ı': 'i', 'I': 'i',
+        'ö': 'o', 'Ö': 'o',
+        'ş': 's', 'Ş': 's',
+        'ü': 'u', 'Ü': 'u'
+      }
+      
+      let result = value
+      for (const [turkish, english] of Object.entries(turkishToEnglish)) {
+        result = result.replace(new RegExp(turkish, 'g'), english)
+      }
+      
+      const slug = result.toLowerCase()
         .replace(/[^a-z0-9]/g, '-')
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '')

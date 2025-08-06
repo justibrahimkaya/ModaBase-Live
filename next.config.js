@@ -140,6 +140,130 @@ const nextConfig = {
   // Server external packages (Next.js 15 format)
   serverExternalPackages: ['@prisma/client'],
   
+  // Redirects for legacy blog URLs
+  async redirects() {
+    return [
+      // Blog URL redirects - Google'ın aradığı eski slug'ları yeni slug'lara yönlendir
+      {
+        source: '/blog/2024-kis-moda-trendleri-rehber-2024-trendi-ve-yenilikleri',
+        destination: '/blog/2024-kis-moda-trendleri-rehberi-2024-trendleri-ve-oneriler',
+        permanent: true,
+      },
+      {
+        source: '/blog/aksesuar-seciminde-dikkat-kurali-2024-en-populer-trendleri',
+        destination: '/blog/aksesuar-seciminde-altin-kurallar-2024-un-en-populer-trendleri',
+        permanent: true,
+      },
+      {
+        source: '/blog/aksesuar-seciminde-dikkat-kuralı-2024-en-populer-trendleri',
+        destination: '/blog/aksesuar-seciminde-altin-kurallar-2024-un-en-populer-trendleri',
+        permanent: true,
+      },
+      {
+        source: '/blog/aksesuar-seciminde-dikkat-kurallari-rehber-2024-trendi-ve-yenilikleri',
+        destination: '/blog/aksesuar-seciminde-altin-kurallar-rehberi-2024-trendleri-ve-oneriler',
+        permanent: true,
+      },
+      {
+        source: '/blog/cocuk-giyimde-konfor-ve-guvenlik-2024-en-populer-trendleri',
+        destination: '/blog/cocuk-giyiminde-konfor-ve-guvenlik-2024-un-en-populer-trendleri',
+        permanent: true,
+      },
+      {
+        source: '/blog/erkek-giyimde-profesyonel-gorunum-rehber-2024-trendi-ve-yenilikleri',
+        destination: '/blog/erkek-giyimde-profesyonel-gorunum-rehberi-2024-trendleri-ve-oneriler',
+        permanent: true,
+      },
+      {
+        source: '/blog/evsekli-bakım-rehber-rehber-2024-trendi-ve-yenilikleri',
+        destination: '/blog/ev-tekstili-bakim-rehberi-rehberi-2024-trendleri-ve-oneriler',
+        permanent: true,
+      },
+      {
+        source: '/blog/kadin-giyimde-kombinleme-sanati-rehber-2024-trendi-ve-yenilikleri',
+        destination: '/blog/kadin-giyimde-kombinleme-sanati-rehberi-2024-trendleri-ve-oneriler',
+        permanent: true,
+      },
+      {
+        source: '/blog/luaks-girlerin-ozellikler-rehber-2024-trendi-ve-yenilikleri',
+        destination: '/blog/surdurulebilir-tekstil-uretimi-rehberi-2024-trendleri-ve-oneriler',
+        permanent: true,
+      },
+      {
+        source: '/blog/organik-kumaslar-avantajlari-rehber-2024-trendi-ve-yenilikleri',
+        destination: '/blog/organik-kumaslarin-faydalari-rehberi-2024-trendleri-ve-oneriler',
+        permanent: true,
+      },
+      {
+        source: '/blog/spor-giyiminde-teknoloji-rehber-2024-trendi-ve-yenilikleri',
+        destination: '/blog/spor-giyiminde-teknoloji-rehberi-2024-trendleri-ve-oneriler',
+        permanent: true,
+      },
+      {
+        source: '/blog/surdurulebilir-tekstil-uretimi-rehber-2024-trendi-ve-yenilikleri',
+        destination: '/blog/surdurulebilir-tekstil-uretimi-rehberi-2024-trendleri-ve-oneriler',
+        permanent: true,
+      },
+      {
+        source: '/blog/durdurulabilir-tekstil-uretimi-rehber-2024-trendi-ve-yenilikleri',
+        destination: '/blog/surdurulebilir-tekstil-uretimi-rehberi-2024-trendleri-ve-oneriler',
+        permanent: true,
+      },
+      
+      // Category URL redirects - Google'ın aradığı kısa slug'ları uzun slug'lara yönlendir
+      {
+        source: '/products\\?category=çanta',
+        destination: '/products?category=aksesuar-canta',
+        permanent: true,
+      },
+      {
+        source: '/products\\?category=canta',
+        destination: '/products?category=aksesuar-canta',
+        permanent: true,
+      },
+      {
+        source: '/products\\?category=takı',
+        destination: '/products?category=aksesuar-taki',
+        permanent: true,
+      },
+      {
+        source: '/products\\?category=taki',
+        destination: '/products?category=aksesuar-taki',
+        permanent: true,
+      },
+      {
+        source: '/products\\?category=bluzler',
+        destination: '/products?category=kadin-bluzler',
+        permanent: true,
+      },
+      {
+        source: '/products\\?category=pantolon',
+        destination: '/products?category=erkek-pantolon',
+        permanent: true,
+      },
+      {
+        source: '/products\\?category=tshirt',
+        destination: '/products?category=erkek-tshirt',
+        permanent: true,
+      },
+      {
+        source: '/products\\?category=elbiseler',
+        destination: '/products?category=kadin-elbiseler',
+        permanent: true,
+      },
+      {
+        source: '/products\\?category=etekler',
+        destination: '/products?category=kadin-etekler',
+        permanent: true,
+      },
+      {
+        source: '/products\\?category=pantolonlar',
+        destination: '/products?category=kadin-pantolonlar',
+        permanent: true,
+      },
+    ]
+  },
+
   // Compiler options
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',

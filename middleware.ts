@@ -125,7 +125,19 @@ export function middleware(request: NextRequest) {
                        pathname.startsWith('/.well-known') ||
                        pathname === '/favicon.ico' ||
                        pathname === '/robots.txt' ||
-                       pathname === '/sitemap.xml'
+                       pathname === '/sitemap.xml' ||
+                       pathname === '/products' ||
+                       pathname === '/triko' ||
+                       pathname === '/kadin-elbise' ||
+                       pathname === '/yazlik-elbise' ||
+                       pathname === '/triko-elbise' ||
+                       pathname === '/bluz-modelleri' ||
+                       pathname === '/kadin-pantolon' ||
+                       pathname === '/buyuk-beden' ||
+                       pathname === '/siyah-elbise' ||
+                       pathname === '/kadin-tisort' ||
+                       pathname.startsWith('/product/') ||
+                       pathname.startsWith('/blog/')
     
     if (!isAdminPath) {
       // Normal site sayfalarına erişim engelle - admin paneline yönlendir

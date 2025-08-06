@@ -135,8 +135,22 @@ async function createSamplePosts() {
     console.log('Örnek blog yazıları oluşturuluyor...')
     
     for (const post of samplePosts) {
-      // Slug oluştur
-      const slug = post.title.toLowerCase()
+      // Slug oluştur - Türkçe karakterleri dönüştür
+      const turkishToEnglish = {
+        'ç': 'c', 'Ç': 'c',
+        'ğ': 'g', 'Ğ': 'g', 
+        'ı': 'i', 'I': 'i',
+        'ö': 'o', 'Ö': 'o',
+        'ş': 's', 'Ş': 's',
+        'ü': 'u', 'Ü': 'u'
+      }
+      
+      let result = post.title
+      for (const [turkish, english] of Object.entries(turkishToEnglish)) {
+        result = result.replace(new RegExp(turkish, 'g'), english)
+      }
+      
+      const slug = result.toLowerCase()
         .replace(/[^a-z0-9]/g, '-')
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '')
