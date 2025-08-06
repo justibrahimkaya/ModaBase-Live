@@ -62,7 +62,6 @@ Sadece JSON formatında döndür, başka açıklama ekleme:
   "excerpt": "Özet",
   "content": "HTML içerik",
   "tags": ["etiket1", "etiket2"],
-  "image": "https://images.unsplash.com/...",
   "category": "${category}"
 }
 `

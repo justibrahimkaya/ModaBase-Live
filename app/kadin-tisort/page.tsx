@@ -119,7 +119,6 @@ export default async function KadinTisortPage() {
         "position": index + 1,
         "name": product.name,
         "description": product.description,
-        "image": product.imageUrl,
         "url": `https://modabase.com.tr/product/${product.id}`,
         "category": "Kadın Tişört",
         "offers": {

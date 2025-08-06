@@ -155,7 +155,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     "@type": "BlogPosting",
     "headline": post.title,
     "description": post.excerpt,
-    "image": post.image,
     "url": `https://modabase.com.tr/blog/${post.slug}`,
     "datePublished": post.publishedAt?.toISOString(),
     "dateModified": post.publishedAt?.toISOString(),

@@ -125,7 +125,6 @@ export default async function BlogPage() {
         "name": "ModaBase"
       },
       "description": post.excerpt,
-      "image": post.image,
       "wordCount": post.readTime * 200 // Tahmini kelime sayısı
     }))
   }

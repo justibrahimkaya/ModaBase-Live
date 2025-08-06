@@ -106,7 +106,6 @@ export default async function KadinPantolonPage() {
         "position": index + 1,
         "name": product.name,
         "description": product.description,
-        "image": product.imageUrl,
         "url": `https://modabase.com.tr/product/${product.id}`,
         "category": "Kadın Pantolon",
         "offers": {

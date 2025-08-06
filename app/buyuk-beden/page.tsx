@@ -107,7 +107,6 @@ export default async function BuyukBedenPage() {
         "position": index + 1,
         "name": product.name,
         "description": product.description,
-        "image": product.imageUrl,
         "url": `https://modabase.com.tr/product/${product.id}`,
         "category": "Büyük Beden",
         "offers": {

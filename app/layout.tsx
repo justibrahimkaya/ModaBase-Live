@@ -201,7 +201,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               "@context": "https://schema.org",
               "@type": "Store",
               "name": "ModaBase",
-              "image": "https://modabase.com.tr/store-image.jpg",
               "description": "Premium moda ürünleri ve aksesuarları",
               "url": "https://modabase.com.tr",
               "telephone": "+90-212-XXX-XXXX",
