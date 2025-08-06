@@ -103,7 +103,7 @@ export default async function KadinElbisePage() {
       "itemListElement": products.slice(0, 12)
         .filter(product => product.name !== 'Bluzlar' && product.name !== 'Elbiseler')
         .map((product, index) => {
-          const validImage = typeof product.imageUrl === 'string' && (product.imageUrl.startsWith('http://') || product.imageUrl.startsWith('https://')) ? product.imageUrl : 'https://modabase.com.tr/default-product.jpg';
+          const validImage = typeof product.imageUrl === 'string' && (product.imageUrl.startsWith('http://') || product.imageUrl.startsWith('https://')) ? product.imageUrl : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=400&fit=crop';
           return {
             "@type": "Product",
             "position": index + 1,

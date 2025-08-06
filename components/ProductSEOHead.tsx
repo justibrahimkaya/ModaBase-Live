@@ -89,7 +89,7 @@ export default function ProductSEOHead({ product, category }: ProductSEOHeadProp
 
   // Yapılandırılmış veri
   const filteredImages = images.filter((img: string) => typeof img === 'string' && (img.startsWith('http://') || img.startsWith('https://')));
-  const finalImages = filteredImages.length > 0 ? filteredImages : ['https://modabase.com.tr/default-product.jpg'];
+  const finalImages = filteredImages.length > 0 ? filteredImages : ['https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=400&fit=crop'];
   const structuredData = product.structuredData ? JSON.parse(product.structuredData) : {
     "@context": "https://schema.org/",
     "@type": "Product",

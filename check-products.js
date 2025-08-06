@@ -49,9 +49,31 @@ async function checkProducts() {
       return
     }
     
-    console.log('\n📋 Tüm ürünler:')
+    console.log('\n📋 Tüm ürünler ve image verileri:')
     allProducts.forEach((product, index) => {
-      console.log(`${index + 1}. "${product.name}" (ID: ${product.id})`)
+      console.log(`\n${index + 1}. "${product.name}" (ID: ${product.id})`)
+      console.log(`   Slug: ${product.slug}`)
+      
+      try {
+        const images = JSON.parse(product.images || '[]')
+        console.log(`   Images sayısı: ${images.length}`)
+        
+        images.forEach((img, imgIndex) => {
+          if (typeof img === 'string') {
+            if (img.startsWith('data:')) {
+              console.log(`   ${imgIndex + 1}. BASE64 IMAGE (${img.substring(0, 50)}...)`)
+            } else if (img.startsWith('http://') || img.startsWith('https://')) {
+              console.log(`   ${imgIndex + 1}. VALID URL: ${img}`)
+            } else {
+              console.log(`   ${imgIndex + 1}. INVALID: ${img.substring(0, 50)}`)
+            }
+          } else {
+            console.log(`   ${imgIndex + 1}. NON-STRING: ${typeof img}`)
+          }
+        })
+      } catch (error) {
+        console.log(`   Images parse hatası: ${error.message}`)
+      }
     })
     
   } catch (error) {
