@@ -100,51 +100,53 @@ export default async function TrikoPage() {
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": products.length,
-      "itemListElement": products.slice(0, 10).map((product, index) => {
-        const validImage = typeof product.imageUrl === 'string' && (product.imageUrl.startsWith('http://') || product.imageUrl.startsWith('https://')) ? product.imageUrl : 'https://modabase.com.tr/default-product.jpg';
-        return {
-          "@type": "Product",
-          "position": index + 1,
-          "name": product.name,
-          "description": product.description,
-          "image": validImage,
-          "url": `https://modabase.com.tr/product/${product.id}`,
-          "offers": {
-            "@type": "Offer",
-            "price": (product.name === 'Bluzlar' || product.name === 'Elbiseler') ? "0" : (product.price || "0"),
-            "priceCurrency": "TRY",
-            "availability": "https://schema.org/InStock",
-            "seller": {
-              "@type": "Organization",
-              "name": "ModaBase"
-            },
-            "shippingDetails": {
-              "@type": "OfferShippingDetails",
-              "shippingRate": {
-                "@type": "MonetaryAmount",
-                "value": "0",
-                "currency": "TRY"
+      "itemListElement": products.slice(0, 10)
+        .filter(product => product.name !== 'Bluzlar' && product.name !== 'Elbiseler')
+        .map((product, index) => {
+          const validImage = typeof product.imageUrl === 'string' && (product.imageUrl.startsWith('http://') || product.imageUrl.startsWith('https://')) ? product.imageUrl : 'https://modabase.com.tr/default-product.jpg';
+          return {
+            "@type": "Product",
+            "position": index + 1,
+            "name": product.name,
+            "description": product.description,
+            "image": validImage,
+            "url": `https://modabase.com.tr/product/${product.id}`,
+            "offers": {
+              "@type": "Offer",
+              "price": product.price || "0",
+              "priceCurrency": "TRY",
+              "availability": "https://schema.org/InStock",
+              "seller": {
+                "@type": "Organization",
+                "name": "ModaBase"
               },
-              "shippingDestination": {
-                "@type": "DefinedRegion",
-                "addressCountry": "TR"
+              "shippingDetails": {
+                "@type": "OfferShippingDetails",
+                "shippingRate": {
+                  "@type": "MonetaryAmount",
+                  "value": "0",
+                  "currency": "TRY"
+                },
+                "shippingDestination": {
+                  "@type": "DefinedRegion",
+                  "addressCountry": "TR"
+                }
+              },
+              "hasMerchantReturnPolicy": {
+                "@type": "MerchantReturnPolicy",
+                "applicableCountry": "TR",
+                "returnPolicyCategory": "https://schema.org/Refundable"
               }
             },
-            "hasMerchantReturnPolicy": {
-              "@type": "MerchantReturnPolicy",
-              "applicableCountry": "TR",
-              "returnPolicyCategory": "https://schema.org/Refundable"
-            }
-          },
-          ...(product.rating || product.reviewCount ? {
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": product.rating || 4.7,
-              "reviewCount": product.reviewCount || 20
-            }
-          } : {})
-        };
-      })
+            ...(product.rating || product.reviewCount ? {
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": product.rating || 4.7,
+                "reviewCount": product.reviewCount || 20
+              }
+            } : {})
+          };
+        })
     },
     "breadcrumb": {
       "@type": "BreadcrumbList",
