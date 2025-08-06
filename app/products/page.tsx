@@ -188,13 +188,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       "@type": "ItemList",
       "numberOfItems": pagination.totalCount,
       "itemListElement": products.slice(0, 12).map((product, index) => {
-        const images = JSON.parse(product.images || '[]')
         return {
           "@type": "Product",
           "position": index + 1,
           "name": product.name,
           "description": product.description,
-          "image": images[0] || '/default-product.jpg',
           "url": `https://modabase.com.tr/product/${product.slug}`,
           "category": product.category.name,
           "offers": {
