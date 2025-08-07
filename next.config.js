@@ -35,11 +35,11 @@ const nextConfig = {
       },
     ],
     formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 3600, // 1 hour cache
+    minimumCacheTTL: 86400, // 24 hour cache - increased from 1 hour
     deviceSizes: [640, 750, 828, 1080, 1200], // Mobile first sizes
     imageSizes: [16, 32, 48, 64, 96, 128, 256], // Smaller image sizes
     dangerouslyAllowSVG: true, // SVG support for default-product.svg
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;", // SVG security
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;" // SVG security
   },
   
   // Security headers

@@ -162,7 +162,7 @@ async function testSitemap() {
       }
       
       // Schema validation
-      if (content.includes('xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"')) {
+      if (content.includes('xmlns="https://www.sitemaps.org/schemas/sitemap/0.9"') || content.includes('xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"')) {
         logResult('Sitemap Schema', 'pass', 'Sitemap schema doğru');
       } else {
         logResult('Sitemap Schema', 'fail', 'Sitemap schema eksik/yanlış');
