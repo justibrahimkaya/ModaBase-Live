@@ -39,7 +39,9 @@ const nextConfig = {
     deviceSizes: [420, 640, 750, 828, 1080, 1200], // Mobile first sizes + 420px for very small
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384], // More size options
     dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;"
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // ⚡ SPEED: Disable optimization for faster dev/build
+    unoptimized: process.env.NODE_ENV === 'development'
   },
   
   // Security headers

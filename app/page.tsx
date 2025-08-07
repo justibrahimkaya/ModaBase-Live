@@ -396,15 +396,33 @@ export default async function Home() {
   let hasError = false
 
   try {
-    // En popüler/öne çıkan ürünleri getir
+    // ⚡ FAST: En popüler/öne çıkan ürünleri getir - OPTIMIZED
     const products = await prisma.product.findMany({
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        originalPrice: true,
+        images: true,
+        createdAt: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        },
+        reviews: {
+          select: {
+            rating: true
+          }
+        },
+        _count: { 
+          select: { reviews: true } 
+        }
+      },
       orderBy: { createdAt: 'desc' },
-      take: 8,
-      include: {
-        category: true,
-        _count: { select: { reviews: true } },
-        reviews: { select: { rating: true } }
-      }
+      take: 8
     })
 
     // Ortalama rating hesapla
