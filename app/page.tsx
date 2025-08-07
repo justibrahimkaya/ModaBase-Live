@@ -525,7 +525,7 @@ export default async function Home() {
 
       {/* WhatsApp Support Button for Customers */}
       <WhatsAppButton
-        phoneNumber="905555555555"
+        phoneNumber="905362971255"
         variant="floating"
         size="lg"
         isBusinessAdmin={false}

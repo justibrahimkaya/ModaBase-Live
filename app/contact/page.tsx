@@ -72,15 +72,15 @@ export default function ContactPage() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">WhatsApp</h3>
               <p className="text-gray-600 mb-4">Anında destek alın</p>
-              <a
-                href="https://wa.me/905555555555?text=Merhaba ModaBase, yardıma ihtiyacım var."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
-              >
-                <MessageCircle className="w-4 h-4" />
-                Mesaj Gönder
-              </a>
+                                <a
+                    href="https://wa.me/905362971255?text=Merhaba ModaBase, yardıma ihtiyacım var."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Mesaj Gönder
+                  </a>
             </div>
 
             {/* Phone */}
@@ -91,11 +91,11 @@ export default function ContactPage() {
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Telefon</h3>
               <p className="text-gray-600 mb-4">Direkt konuşun</p>
               <a
-                href="tel:+905555555555"
+                href="tel:+905362971255"
                 className="inline-flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
               >
                 <Phone className="w-4 h-4" />
-                (0555) 555 5555
+                (0536) 297 1255
               </a>
             </div>
 
@@ -300,7 +300,7 @@ export default function ContactPage() {
                     Acil durumlar için WhatsApp üzerinden 7/24 ulaşabilirsiniz.
                   </p>
                   <a
-                    href="https://wa.me/905555555555?text=Acil yardıma ihtiyacım var."
+                    href="https://wa.me/905362971255?text=Acil yardıma ihtiyacım var."
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors font-medium"
@@ -319,7 +319,7 @@ export default function ContactPage() {
       
       {/* WhatsApp Support Button */}
       <WhatsAppButton
-        phoneNumber="905555555555"
+        phoneNumber="905362971255"
         variant="floating"
         size="lg"
         isBusinessAdmin={false}

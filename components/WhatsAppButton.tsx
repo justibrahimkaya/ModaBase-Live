@@ -145,7 +145,7 @@ export default function WhatsAppButton({
 
   if (variant === 'floating') {
     return (
-      <div className={`fixed z-50 ${className}`}>
+      <div className={`fixed z-[9999] ${className}`}>
         <button
           onClick={handleClick}
           onMouseEnter={() => setIsHovered(true)}
