@@ -51,14 +51,37 @@ export async function GET(request: NextRequest) {
     const orderBy: any = {}
     orderBy[sortBy] = sortOrder
 
-    // Ürünleri getir
+    // Ürünleri getir - ⚡ OPTIMIZED
     const [products, total] = await Promise.all([
       prisma.product.findMany({
         where,
-        include: {
-          category: true,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          price: true,
+          originalPrice: true,
+          stock: true,
+          images: true,
+          createdAt: true,
+          updatedAt: true,
+          category: {
+            select: {
+              id: true,
+              name: true,
+              slug: true
+            }
+          },
+          reviews: {
+            select: {
+              rating: true
+            }
+          },
           _count: {
-            select: { reviews: true }
+            select: { 
+              reviews: true 
+            }
           }
         },
         orderBy,
@@ -68,45 +91,39 @@ export async function GET(request: NextRequest) {
       prisma.product.count({ where })
     ])
 
-    // Ortalama rating hesapla
-    const productsWithRating = await Promise.all(
-      products.map(async (product: any) => {
-        const reviews = await prisma.review.findMany({
-          where: { productId: product.id },
-          select: { rating: true }
-        })
+    // ⚡ FAST: Rating hesaplama tek seferde
+    const productsWithRating = products.map((product: any) => {
+      const reviews = product.reviews || [];
+      const averageRating = reviews.length > 0
+        ? reviews.reduce((sum: number, review: any) => sum + review.rating, 0) / reviews.length
+        : 0
 
-        const averageRating = reviews.length > 0
-          ? reviews.reduce((sum: number, review: any) => sum + review.rating, 0) / reviews.length
-          : 0
+      // Images'ı parse et ve ilk fotoğrafı al
+      let image = ''
+      try {
+        const images = JSON.parse(product.images || '[]')
+        image = images[0] || ''
+      } catch (error) {
+        console.error('Image parse error:', error)
+        image = ''
+      }
 
-        // Images'ı parse et ve ilk fotoğrafı al
-        let image = ''
-        try {
-          const images = JSON.parse(product.images || '[]')
-          image = images[0] || ''
-        } catch (error) {
-          console.error('Image parse error:', error)
-          image = ''
-        }
+      // İndirim hesapla
+      let discount = 0
+      if (product.originalPrice && product.originalPrice > product.price) {
+        discount = Math.round((1 - product.price / product.originalPrice) * 100)
+      }
 
-        // İndirim hesapla
-        let discount = 0
-        if (product.originalPrice && product.originalPrice > product.price) {
-          discount = Math.round((1 - product.price / product.originalPrice) * 100)
-        }
-
-        return {
-          ...product,
-          image, // İlk fotoğrafı image olarak kullan
-          averageRating: Math.round(averageRating * 10) / 10,
-          reviewCount: reviews.length,
-          rating: Math.round(averageRating * 10) / 10, // rating field'ı için
-          reviews: reviews.length, // reviews field'ı için
-          discount
-        }
-      })
-    )
+      return {
+        ...product,
+        image, // İlk fotoğrafı image olarak kullan
+        averageRating: Math.round(averageRating * 10) / 10,
+        reviewCount: reviews.length,
+        rating: Math.round(averageRating * 10) / 10, // rating field'ı için
+        reviews: reviews.length, // reviews field'ı için
+        discount
+      }
+    })
 
     return NextResponse.json({
       products: productsWithRating,

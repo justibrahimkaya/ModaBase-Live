@@ -121,10 +121,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <meta name="HandheldFriendly" content="true" />
         <meta name="MobileOptimized" content="width" />
         
-        {/* Preconnect to important domains */}
+        {/* ⚡ SPEED: Preconnect to important domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://vercel-insights.com" />
+        <link rel="dns-prefetch" href="https://vitals.vercel-analytics.com" />
+        
+        {/* ⚡ SPEED: Resource hints for faster loading */}
+        <link rel="prefetch" href="/api/products" />
+        <link rel="prefetch" href="/api/categories" />
         
         {/* Favicon and app icons - ✨ MODABASE LOGO SİSTEMİ */}
         <link rel="icon" type="image/png" href="/ChatGPT Image 20 Haz 2025 14_16_10.png" />
