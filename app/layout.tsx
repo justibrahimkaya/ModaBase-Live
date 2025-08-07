@@ -293,8 +293,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           </CartProvider>
         </AuthSessionProvider>
 
-        {/* Schema for breadcrumbs - will be populated by individual pages */}
-        <script id="breadcrumb-schema" type="application/ld+json"></script>
+
       </body>
     </html>
   )

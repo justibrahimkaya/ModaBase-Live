@@ -12,7 +12,7 @@ const nextConfig = {
     bodySizeLimit: '100mb',
   },
   
-  // Image optimization settings
+  // Image optimization settings - Enhanced performance
   images: {
     remotePatterns: [
       {
@@ -35,8 +35,10 @@ const nextConfig = {
       },
     ],
     formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60,
-    // Base64 resimler için
+    minimumCacheTTL: 3600, // 1 hour cache
+    deviceSizes: [640, 750, 828, 1080, 1200], // Mobile first sizes
+    imageSizes: [16, 32, 48, 64, 96, 128, 256], // Smaller image sizes
+    // Base64 resimler için - güvenlik artırıldı
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
