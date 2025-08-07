@@ -103,21 +103,40 @@ export default async function TrikoPage() {
       "itemListElement": products.slice(0, 10)
         .filter(product => product.name !== 'Bluzlar' && product.name !== 'Elbiseler')
         .map((product, index) => {
+          // Image URL belirle - base64'leri reddet, default kullan
+          const getValidImageUrl = () => {
+            if (product.images && product.images.length > 0) {
+              const firstImage = product.images[0];
+              // Sadece HTTP URL'leri kabul et, base64'leri reddet
+              if (firstImage && !firstImage.startsWith('data:image/') && firstImage.startsWith('http')) {
+                return firstImage;
+              }
+            }
+            // Default image kullan
+            return 'https://www.modabase.com.tr/default-product.svg';
+          };
+
           return {
             "@type": "Product",
             "position": index + 1,
             "name": product.name,
             "description": product.description,
-
-            "url": `https://modabase.com.tr/product/${product.id}`,
+            "image": getValidImageUrl(),
+            "url": `https://www.modabase.com.tr/product/${product.id}`,
             "offers": {
               "@type": "Offer",
               "price": product.price || "0",
               "priceCurrency": "TRY",
               "availability": "https://schema.org/InStock",
+              "condition": "https://schema.org/NewCondition",
+              "itemCondition": "https://schema.org/NewCondition",
+              "url": `https://www.modabase.com.tr/product/${product.id}`,
+              "priceValidUntil": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+              "validFrom": new Date().toISOString().split('T')[0],
               "seller": {
                 "@type": "Organization",
-                "name": "ModaBase"
+                "name": "ModaBase",
+                "url": "https://www.modabase.com.tr"
               },
               "shippingDetails": {
                 "@type": "OfferShippingDetails",

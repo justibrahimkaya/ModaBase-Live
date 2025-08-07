@@ -101,12 +101,27 @@ export default async function KadinPantolonPage() {
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": products.length,
-      "itemListElement": products.slice(0, 12).map((product, index) => ({
-        "@type": "Product",
-        "position": index + 1,
-        "name": product.name,
-        "description": product.description,
-        "url": `https://modabase.com.tr/product/${product.id}`,
+      "itemListElement": products.slice(0, 12).map((product, index) => {
+        // Image URL belirle - base64'leri reddet, default kullan
+        const getValidImageUrl = () => {
+          if (product.images && product.images.length > 0) {
+            const firstImage = product.images[0];
+            // Sadece HTTP URL'leri kabul et, base64'leri reddet
+            if (firstImage && !firstImage.startsWith('data:image/') && firstImage.startsWith('http')) {
+              return firstImage;
+            }
+          }
+          // Default image kullan
+          return 'https://www.modabase.com.tr/default-product.svg';
+        };
+
+        return {
+          "@type": "Product",
+          "position": index + 1,
+          "name": product.name,
+          "description": product.description,
+          "image": getValidImageUrl(),
+          "url": `https://www.modabase.com.tr/product/${product.id}`,
         "category": "Kadın Pantolon",
         "offers": {
           "@type": "Offer",
@@ -122,8 +137,8 @@ export default async function KadinPantolonPage() {
           "@type": "AggregateRating",
           "ratingValue": product.rating || 4.4,
           "reviewCount": product.reviewCount || 12
-        }
-      }))
+        };
+      })
     },
     "breadcrumb": {
       "@type": "BreadcrumbList",
