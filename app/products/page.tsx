@@ -188,13 +188,25 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       "@type": "ItemList",
       "numberOfItems": pagination.totalCount,
       "itemListElement": products.slice(0, 12).map((product, index) => {
+        // Image URL belirle - base64'leri reddet, default kullan
+        const getValidImageUrl = () => {
+          if (product.images && product.images.length > 0) {
+            const firstImage = product.images[0];
+            if (firstImage && firstImage.startsWith('http') && !firstImage.startsWith('data:image/')) {
+              return firstImage;
+            }
+          }
+          return 'https://www.modabase.com.tr/default-product.svg';
+        };
+
         return {
           "@type": "Product",
           "position": index + 1,
           "name": product.name,
           "description": product.description,
-          "url": `https://modabase.com.tr/product/${product.slug}`,
+          "url": `https://www.modabase.com.tr/product/${product.slug}`,
           "category": product.category.name,
+          "image": getValidImageUrl(),
           "offers": {
             "@type": "Offer",
             "price": product.price,
