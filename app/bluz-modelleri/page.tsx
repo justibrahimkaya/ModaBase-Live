@@ -136,6 +136,7 @@ export default async function BluzModelleriPage() {
           "@type": "AggregateRating",
           "ratingValue": product.rating || 4.5,
           "reviewCount": product.reviewCount || 10
+        }
         };
       })
     },

@@ -138,6 +138,7 @@ export default async function BuyukBedenPage() {
           "@type": "AggregateRating",
           "ratingValue": product.rating || 4.8,
           "reviewCount": product.reviewCount || 25
+        }
         };
       })
     },

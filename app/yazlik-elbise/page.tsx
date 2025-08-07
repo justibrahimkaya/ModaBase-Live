@@ -122,6 +122,7 @@ export default async function YazlikElbisePage() {
           "@type": "AggregateRating",
           "ratingValue": product.rating || 4.6,
           "reviewCount": product.reviewCount || 16
+        }
         };
       })
     }

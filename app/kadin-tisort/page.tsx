@@ -150,6 +150,7 @@ export default async function KadinTisortPage() {
           "@type": "AggregateRating",
           "ratingValue": product.rating || 4.3,
           "reviewCount": product.reviewCount || 18
+        }
         };
       })
     },

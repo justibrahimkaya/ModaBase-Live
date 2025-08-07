@@ -137,6 +137,7 @@ export default async function KadinPantolonPage() {
           "@type": "AggregateRating",
           "ratingValue": product.rating || 4.4,
           "reviewCount": product.reviewCount || 12
+        }
         };
       })
     },
