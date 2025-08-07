@@ -1,0 +1,13 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="400" fill="#F8F9FA"/>
+  <rect x="80" y="80" width="240" height="240" fill="#E9ECEF" stroke="#DEE2E6" stroke-width="2"/>
+  
+  <!-- Image Icon -->
+  <rect x="160" y="140" width="80" height="60" fill="#6C757D" rx="4"/>
+  <circle cx="180" cy="160" r="8" fill="#ADB5BD"/>
+  <path d="M170 180L190 160L210 180L230 160L240 170V190H160V170L170 180Z" fill="#ADB5BD"/>
+  
+  <!-- Text -->
+  <text x="200" y="260" font-family="Arial, sans-serif" font-size="16" fill="#6C757D" text-anchor="middle" font-weight="500">ModaBase</text>
+  <text x="200" y="280" font-family="Arial, sans-serif" font-size="14" fill="#ADB5BD" text-anchor="middle">Product Image</text>
+</svg>

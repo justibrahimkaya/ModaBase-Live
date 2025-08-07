@@ -214,11 +214,25 @@ export default async function ProductPage({ params }: ProductPageProps) {
     })
 
     // Product structured data JSON-LD
+    // Image URL'i belirle: geçerli image varsa onu kullan, yoksa default
+    const getValidImageUrl = () => {
+      if (product.images && product.images.length > 0) {
+        const firstImage = product.images[0];
+        // firstImage var mı ve geçerli mi kontrol et
+        if (firstImage && !firstImage.startsWith('data:image/') && firstImage.startsWith('http')) {
+          return firstImage;
+        }
+      }
+      // Default image kullan
+      return 'https://modabase.com.tr/default-product.svg';
+    };
+
     const productStructuredData = {
       "@context": "https://schema.org/",
       "@type": "Product",
       "name": product.name,
       "description": product.description || `${product.name} - En uygun fiyatlarla ModaBase'de!`,
+      "image": getValidImageUrl(), // GOOGLE'IN İSTEDİĞİ ALAN!
       "brand": {
         "@type": "Brand", 
         "name": product.brand || "ModaBase"
