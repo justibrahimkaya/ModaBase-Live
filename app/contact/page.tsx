@@ -1,4 +1,6 @@
-import { Metadata } from 'next'
+'use client'
+
+import Head from 'next/head'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import WhatsAppButton from '@/components/WhatsAppButton'
@@ -13,38 +15,62 @@ import {
   Info
 } from 'lucide-react'
 
-export const metadata: Metadata = {
-  title: 'İletişim - ModaBase | Kadın Giyim Mağazası',
-  description: 'ModaBase ile iletişime geçin. Müşteri hizmetleri, adres bilgileri, çalışma saatleri ve iletişim formu.',
-  keywords: 'iletişim, müşteri hizmetleri, modabase, kadın giyim, destek, yardım',
-  openGraph: {
-    title: 'İletişim - ModaBase',
-    description: 'ModaBase ile iletişime geçin. Müşteri hizmetleri ve destek.',
-    url: 'https://www.modabase.com.tr/contact',
-    siteName: 'ModaBase',
-    images: [
-      {
-        url: 'https://www.modabase.com.tr/ChatGPT Image 20 Haz 2025 14_16_10.png',
-        width: 1200,
-        height: 630,
-        alt: 'ModaBase İletişim',
-      },
-    ],
-    locale: 'tr_TR',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'İletişim - ModaBase',
-    description: 'ModaBase ile iletişime geçin.',
-    images: ['https://www.modabase.com.tr/ChatGPT Image 20 Haz 2025 14_16_10.png'],
-  },
-}
-
 export default function ContactPage() {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    
+    const firstName = formData.get('firstName')
+    const lastName = formData.get('lastName')
+    const email = formData.get('email')
+    const phone = formData.get('phone')
+    const subject = formData.get('subject')
+    const message = formData.get('message')
+    
+    // Konu mapping
+    const subjectMap: Record<string, string> = {
+      'order': 'Sipariş ile ilgili',
+      'product': 'Ürün ile ilgili',
+      'return': 'İade/Değişim',
+      'shipping': 'Kargo/Teslimat',
+      'payment': 'Ödeme sorunları',
+      'general': 'Genel sorular',
+      'suggestion': 'Öneri/Şikayet'
+    }
+    
+    const subjectText = subjectMap[subject as string] || subject
+    
+    // E-posta body'si oluştur
+    const emailBody = `
+Sayın ModaBase Yetkilileri,
+
+Ad Soyad: ${firstName} ${lastName}
+E-posta: ${email}
+Telefon: ${phone || 'Belirtilmemiş'}
+Konu: ${subjectText}
+
+Mesaj:
+${message}
+
+İyi günler dilerim.
+    `.trim()
+    
+    // Mailto linkini oluştur
+    const mailtoLink = `mailto:info@modabase.com.tr?subject=${encodeURIComponent(`ModaBase İletişim: ${subjectText}`)}&body=${encodeURIComponent(emailBody)}`
+    
+    // E-posta programını aç
+    window.location.href = mailtoLink
+  }
+
   return (
-    <main className="min-h-screen bg-gray-50">
-      <Header />
+    <>
+      <Head>
+        <title>İletişim - ModaBase | Kadın Giyim Mağazası</title>
+        <meta name="description" content="ModaBase ile iletişime geçin. Müşteri hizmetleri, adres bilgileri, çalışma saatleri ve iletişim formu." />
+        <meta name="keywords" content="iletişim, müşteri hizmetleri, modabase, kadın giyim, destek, yardım" />
+      </Head>
+      <main className="min-h-screen bg-gray-50">
+        <Header />
       
       {/* Spacer for fixed header */}
       <div className="h-16 sm:h-20"></div>
@@ -111,7 +137,7 @@ export default function ContactPage() {
                 className="inline-flex items-center gap-2 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors"
               >
                 <Mail className="w-4 h-4" />
-                E-posta Gönder
+                info@modabase.com.tr
               </a>
             </div>
 
@@ -123,8 +149,9 @@ export default function ContactPage() {
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Adres</h3>
               <p className="text-gray-600 mb-4">Mağazamızı ziyaret edin</p>
               <address className="text-sm text-gray-700 not-italic">
-                Atatürk Cad. No:123<br />
-                Kadıköy/İstanbul
+                Malkoçoğlu Mah.<br />
+                305/1 Sokak No:17/A<br />
+                Sultangazi/İstanbul
               </address>
             </div>
           </div>
@@ -138,7 +165,7 @@ export default function ContactPage() {
             {/* Contact Form */}
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Bize Mesaj Gönderin</h2>
-              <form className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
@@ -191,7 +218,7 @@ export default function ContactPage() {
                     id="phone"
                     name="phone"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                    placeholder="(0555) 555 5555"
+                                          placeholder="(0536) 297 1255"
                   />
                 </div>
 
@@ -325,6 +352,7 @@ export default function ContactPage() {
         isBusinessAdmin={false}
         className="bottom-6 right-6"
       />
-    </main>
+      </main>
+    </>
   )
 }
