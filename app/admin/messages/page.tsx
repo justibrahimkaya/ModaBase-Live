@@ -61,13 +61,19 @@ export default function AdminMessagesPage() {
   const fetchMessages = async () => {
     setLoading(true)
     try {
+      // İşletme ID'sini almak için gerçek auth kullanılmalı
+      // Şimdilik demo amaçlı sabit bir business ID kullanıyoruz
+      const businessId = 'demo-business-id' // Bu kısmı gerçek business ID ile değiştirin
+      
       const params = new URLSearchParams({
         page: pagination.page.toString(),
         limit: pagination.limit.toString(),
-        status: statusFilter
+        status: statusFilter,
+        businessId: businessId
       })
 
-      const response = await fetch(`/api/contact?${params}`)
+      // İşletme admin API'sini kullan
+      const response = await fetch(`/api/admin/messages?${params}`)
       const data = await response.json()
 
       if (data.messages) {

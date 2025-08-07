@@ -446,6 +446,7 @@ model Business {
   updatedAt               DateTime               @updatedAt
   categories              Category[]             @relation("BusinessCategories")
   transferNotifications   TransferNotification[]
+  contactMessages         ContactMessage[]
 }
 
 model SEOSettings {
@@ -543,6 +544,7 @@ model ContactMessage {
   phone        String?
   subject      String
   message      String
+  businessId   String?               // İşletme ID'si
   status       ContactMessageStatus  @default(PENDING)
   adminReply   String?
   adminId      String?
@@ -551,10 +553,12 @@ model ContactMessage {
   updatedAt    DateTime              @updatedAt
   
   admin        User?                 @relation(fields: [adminId], references: [id])
+  business     Business?             @relation(fields: [businessId], references: [id])
   
   @@index([status])
   @@index([createdAt])
   @@index([email])
+  @@index([businessId])
 }
 
 enum ContactMessageStatus {

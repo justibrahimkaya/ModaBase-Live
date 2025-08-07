@@ -59,7 +59,8 @@ export default function ContactPage() {
           email,
           phone,
           subject: subjectText,
-          message
+          message,
+          businessId: 'modabase-main' // Ana ModaBase sitesi için sabit ID
         })
       })
 

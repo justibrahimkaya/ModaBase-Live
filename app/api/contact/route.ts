@@ -6,7 +6,7 @@ import nodemailer from 'nodemailer'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { firstName, lastName, email, phone, subject, message } = body
+    const { firstName, lastName, email, phone, subject, message, businessId } = body
 
     // Validasyon
     if (!firstName || !lastName || !email || !subject || !message) {
@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
         phone: phone || null,
         subject,
         message,
+        businessId: businessId || null, // İşletme ID'si varsa ekle
         status: 'PENDING'
       }
     })
