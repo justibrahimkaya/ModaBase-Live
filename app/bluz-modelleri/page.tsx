@@ -7,11 +7,11 @@ import { Star, ShoppingBag, Heart, Sparkles, TrendingUp, Search } from 'lucide-r
 
 // Professional SEO Metadata - Bluz Modelleri
 export const metadata: Metadata = {
-  title: 'Bluz Modelleri 2024 - En Şık Kadın Bluz Çeşitleri | ModaBase',
-  description: 'Bluz modelleri: şifon bluz, saten bluz, uzun kollu bluz, kısa kollu bluz. 2024 trend kadın bluz modelleri uygun fiyatlarla. Ücretsiz kargo fırsatı!',
-  keywords: 'bluz modelleri, kadın bluz, şifon bluz, saten bluz, uzun kollu bluz, kısa kollu bluz, iş bluz, günlük bluz, gece bluz, 2024 bluz trend',
+  title: 'Bluz Modelleri 2025 - En Şık Kadın Bluz Çeşitleri | ModaBase',
+  description: 'Bluz modelleri: şifon bluz, saten bluz, uzun kollu bluz, kısa kollu bluz. 2025 trend kadın bluz modelleri uygun fiyatlarla. Ücretsiz kargo fırsatı!',
+  keywords: 'bluz modelleri, kadın bluz, şifon bluz, saten bluz, uzun kollu bluz, kısa kollu bluz, iş bluz, günlük bluz, gece bluz, 2025 bluz trend',
   openGraph: {
-    title: 'Bluz Modelleri 2024 - En Şık Kadın Bluz Çeşitleri',
+    title: 'Bluz Modelleri 2025 - En Şık Kadın Bluz Çeşitleri',
     description: 'ModaBase\'de binlerce bluz modeli! Şifon, saten, günlük ve iş bluzu çeşitleri. Her tarza uygun kadın bluz modelleri.',
     images: ['/og-bluz-modelleri.jpg'],
     type: 'website',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bluz Modelleri 2024 - ModaBase',
+    title: 'Bluz Modelleri 2025 - ModaBase',
     description: 'En şık bluz modelleri. Şifon, saten, günlük kadın bluz çeşitleri uygun fiyatlarla.',
     images: ['/twitter-bluz-modelleri.jpg']
   },
@@ -94,7 +94,7 @@ export default async function BluzModelleriPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Bluz Modelleri 2024",
+    "name": "Bluz Modelleri 2025",
     "description": "En şık kadın bluz modelleri. Şifon bluz, saten bluz, günlük ve iş bluzu çeşitleri.",
     "url": "https://modabase.com.tr/bluz-modelleri",
     "mainEntity": {
@@ -183,7 +183,7 @@ export default async function BluzModelleriPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <h1 className="text-6xl md:text-8xl font-bold mb-8">
-                👚 Bluz Modelleri 2024
+                👚 Bluz Modelleri 2025
               </h1>
               <p className="text-2xl md:text-3xl mb-8 max-w-5xl mx-auto leading-relaxed">
                 Şık ve modern <strong>bluz modelleri</strong> koleksiyonu! 
@@ -246,7 +246,7 @@ export default async function BluzModelleriPage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="bg-white rounded-2xl p-10 mb-12 shadow-xl">
             <h2 className="text-5xl font-bold text-gray-900 mb-10 text-center">
-              2024 Bluz Modelleri Trendleri ve Çeşitleri
+              2025 Bluz Modelleri Trendleri ve Çeşitleri
             </h2>
             <div className="grid md:grid-cols-2 gap-12">
               <div>

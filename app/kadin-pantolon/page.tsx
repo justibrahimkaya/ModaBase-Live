@@ -7,11 +7,11 @@ import { Star, ShoppingBag, Heart, Sparkles, TrendingUp, Filter } from 'lucide-r
 
 // Professional SEO Metadata - Kadın Pantolon
 export const metadata: Metadata = {
-  title: 'Kadın Pantolon Modelleri 2024 - En Şık Pantolon Çeşitleri | ModaBase',
-  description: 'Kadın pantolon modelleri: kumaş pantolon, jean pantolon, kalem pantolon, bol pantolon. 2024 trend kadın pantolon çeşitleri uygun fiyatlarla. Ücretsiz kargo!',
-  keywords: 'kadın pantolon, pantolon modelleri, kumaş pantolon, jean pantolon, kalem pantolon, bol pantolon, iş pantolonu, günlük pantolon, yüksek bel pantolon, 2024 pantolon trend',
+  title: 'Kadın Pantolon Modelleri 2025 - En Şık Pantolon Çeşitleri | ModaBase',
+  description: 'Kadın pantolon modelleri: kumaş pantolon, jean pantolon, kalem pantolon, bol pantolon. 2025 trend kadın pantolon çeşitleri uygun fiyatlarla. Ücretsiz kargo!',
+  keywords: 'kadın pantolon, pantolon modelleri, kumaş pantolon, jean pantolon, kalem pantolon, bol pantolon, iş pantolonu, günlük pantolon, yüksek bel pantolon, 2025 pantolon trend',
   openGraph: {
-    title: 'Kadın Pantolon Modelleri 2024 - En Şık Pantolon Çeşitleri',
+    title: 'Kadın Pantolon Modelleri 2025 - En Şık Pantolon Çeşitleri',
     description: 'ModaBase\'de binlerce kadın pantolon modeli! Kumaş, jean, kalem ve bol pantolon çeşitleri. Her vücut tipine uygun pantolon modelleri.',
     images: ['/og-kadin-pantolon.jpg'],
     type: 'website',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Kadın Pantolon Modelleri 2024 - ModaBase',
+    title: 'Kadın Pantolon Modelleri 2025 - ModaBase',
     description: 'En şık kadın pantolon modelleri. Kumaş, jean, kalem pantolon çeşitleri uygun fiyatlarla.',
     images: ['/twitter-kadin-pantolon.jpg']
   },
@@ -95,7 +95,7 @@ export default async function KadinPantolonPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Kadın Pantolon Modelleri 2024",
+    "name": "Kadın Pantolon Modelleri 2025",
     "description": "En şık kadın pantolon modelleri. Kumaş pantolon, jean pantolon, kalem pantolon çeşitleri.",
     "url": "https://modabase.com.tr/kadin-pantolon",
     "mainEntity": {
@@ -247,7 +247,7 @@ export default async function KadinPantolonPage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="bg-white rounded-2xl p-10 mb-12 shadow-xl">
             <h2 className="text-5xl font-bold text-gray-900 mb-10 text-center">
-              2024 Kadın Pantolon Trendleri ve Çeşitleri
+              2025 Kadın Pantolon Trendleri ve Çeşitleri
             </h2>
             <div className="grid md:grid-cols-2 gap-12">
               <div>

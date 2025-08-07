@@ -7,11 +7,11 @@ import { Star, ShoppingBag, Heart } from 'lucide-react'
 
 // SEO Metadata
 export const metadata: Metadata = {
-  title: 'Triko Modelleri 2024 - En Trend Triko Elbise ve Kazak | ModaBase',
-  description: 'Triko elbise, triko kazak, triko hırka ve triko modelleri. 2024 kış trendi triko giyim ürünleri uygun fiyatlarla. Ücretsiz kargo fırsatı!',
-  keywords: 'triko, triko elbise, triko kazak, triko modelleri, kadın triko, triko hırka, triko giyim, kış triko, 2024 triko trend',
+  title: 'Triko Modelleri 2025 - En Trend Triko Elbise ve Kazak | ModaBase',
+  description: 'Triko elbise, triko kazak, triko hırka ve triko modelleri. 2025 kış trendi triko giyim ürünleri uygun fiyatlarla. Ücretsiz kargo fırsatı!',
+  keywords: 'triko, triko elbise, triko kazak, triko modelleri, kadın triko, triko hırka, triko giyim, kış triko, 2025 triko trend',
   openGraph: {
-    title: 'Triko Modelleri 2024 - En Trend Triko Elbise ve Kazak',
+    title: 'Triko Modelleri 2025 - En Trend Triko Elbise ve Kazak',
     description: 'ModaBase\'de en şık triko modelleri! Triko elbise, kazak ve hırka çeşitleri. Ücretsiz kargo, hızlı teslimat.',
     images: ['/og-triko.jpg'],
     type: 'website',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Triko Modelleri 2024 - ModaBase',
+    title: 'Triko Modelleri 2025 - ModaBase',
     description: 'En trend triko elbise ve kazak modelleri. Kaliteli triko giyim ürünleri uygun fiyatlarla.',
     images: ['/twitter-triko.jpg']
   },
@@ -94,7 +94,7 @@ export default async function TrikoPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Triko Modelleri 2024",
+    "name": "Triko Modelleri 2025",
     "description": "En trend triko elbise, kazak ve hırka modelleri. Kaliteli triko giyim ürünleri uygun fiyatlarla.",
     "url": "https://modabase.com.tr/triko",
     "mainEntity": {
@@ -203,7 +203,7 @@ export default async function TrikoPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                Triko Modelleri 2024
+                Triko Modelleri 2025
               </h1>
               <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
                 En şık <strong>triko elbise</strong>, <strong>triko kazak</strong> ve <strong>triko hırka</strong> modelleri. 
@@ -231,13 +231,13 @@ export default async function TrikoPage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-lg p-8 mb-8 shadow-lg">
             <h2 className="text-3xl font-bold text-gray-900 mb-6">
-              2024 Triko Trendleri ve Modelleri
+              2025 Triko Trendleri ve Modelleri
             </h2>
             <div className="grid md:grid-cols-2 gap-8">
               <div>
                 <h3 className="text-2xl font-semibold mb-4">Triko Elbise Modelleri</h3>
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  <strong>Triko elbise</strong> modelleri, 2024 kış sezonunun en trend parçaları arasında yer alıyor. 
+                  <strong>Triko elbise</strong> modelleri, 2025 kış sezonunun en trend parçaları arasında yer alıyor. 
                   Boğazlı triko elbise, midi triko elbise ve maxi triko elbise çeşitleri ile her tarzda 
                   şık kombinler yapabilirsiniz.
                 </p>

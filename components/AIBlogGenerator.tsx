@@ -20,7 +20,7 @@ const categories = [
 ]
 
 const suggestedTopics = [
-  '2024 Kış Moda Trendleri',
+      '2025 Kış Moda Trendleri',
   'Sürdürülebilir Tekstil Üretimi',
   'Organik Kumaşların Faydaları',
   'Ev Tekstili Bakım Rehberi',
@@ -103,7 +103,7 @@ export default function AIBlogGenerator({ onBlogCreated }: AIBlogGeneratorProps)
             type="text"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="Örn: 2024 Kış Moda Trendleri"
+            placeholder="Örn: 2025 Kış Moda Trendleri"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             disabled={loading}
           />

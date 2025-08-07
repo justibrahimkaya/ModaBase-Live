@@ -101,7 +101,7 @@ export default function Footer() {
         <div className="border-t border-gray-800 mt-6 sm:mt-8 pt-6 sm:pt-8">
           <div className="flex flex-col space-y-4 md:flex-row md:justify-between md:items-center md:space-y-0">
             <p className="text-gray-400 text-xs sm:text-sm text-center md:text-left">
-              © 2024 ModaBase. Tüm hakları saklıdır.
+              © 2025 ModaBase. Tüm hakları saklıdır.
             </p>
             {/* Mobile-optimized legal links - PayTR Uyumlu */}
             <div className="flex flex-wrap justify-center md:justify-end gap-x-3 gap-y-2 sm:gap-x-4">

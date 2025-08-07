@@ -7,11 +7,11 @@ import { Star, ShoppingBag, Heart, Palette, Thermometer, Zap, Sun, Users, Target
 
 // Professional SEO Metadata - Kadın Tişört (High Volume Strategy)
 export const metadata: Metadata = {
-  title: 'Kadın Tişört Modelleri 2024 - En Trend Tişört Çeşitleri | ModaBase',
-  description: 'Kadın tişört modelleri: basic tişört, oversize tişört, crop tişört, v yaka tişört, polo tişört. 2024 en trend kadın tişört çeşitleri her renkte ve bedende. Ücretsiz kargo!',
-  keywords: 'kadın tişört, tişört modelleri, basic tişört, oversize tişört, crop tişört, v yaka tişört, polo tişört, pamuklu tişört, baskılı tişört, düz tişört, kadın basic, 2024 tişört',
+  title: 'Kadın Tişört Modelleri 2025 - En Trend Tişört Çeşitleri | ModaBase',
+  description: 'Kadın tişört modelleri: basic tişört, oversize tişört, crop tişört, v yaka tişört, polo tişört. 2025 en trend kadın tişört çeşitleri her renkte ve bedende. Ücretsiz kargo!',
+  keywords: 'kadın tişört, tişört modelleri, basic tişört, oversize tişört, crop tişört, v yaka tişört, polo tişört, pamuklu tişört, baskılı tişört, düz tişört, kadın basic, 2025 tişört',
   openGraph: {
-    title: 'Kadın Tişört Modelleri 2024 - En Trend Tişört Çeşitleri',
+    title: 'Kadın Tişört Modelleri 2025 - En Trend Tişört Çeşitleri',
     description: 'ModaBase\'de en geniş kadın tişört koleksiyonu! Basic, oversize, crop, v yaka, polo tişört modelleri. Her renk, her beden, her tarza uygun tişört çeşitleri.',
     images: ['/og-kadin-tisort.jpg'],
     type: 'website',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Kadın Tişört Modelleri 2024 - ModaBase',
+    title: 'Kadın Tişört Modelleri 2025 - ModaBase',
     description: 'En geniş kadın tişört koleksiyonu. Basic, oversize, crop tişört modelleri her renkte ve bedende.',
     images: ['/twitter-kadin-tisort.jpg']
   },
@@ -108,7 +108,7 @@ export default async function KadinTisortPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Kadın Tişört Modelleri 2024",
+    "name": "Kadın Tişört Modelleri 2025",
     "description": "En geniş kadın tişört koleksiyonu. Basic, oversize, crop, v yaka, polo tişört modelleri her renkte ve bedende.",
     "url": "https://modabase.com.tr/kadin-tisort",
     "mainEntity": {
@@ -200,7 +200,7 @@ export default async function KadinTisortPage() {
                 👕 Kadın Tişört Modelleri
               </h1>
               <p className="text-2xl md:text-3xl mb-8 max-w-5xl mx-auto leading-relaxed">
-                2024'ün en trend <strong>kadın tişört</strong> koleksiyonu! 
+                2025'ün en trend <strong>kadın tişört</strong> koleksiyonu! 
                 <strong>Basic tişört</strong>, <strong>oversize tişört</strong>, <strong>crop tişört</strong> 
                 ve daha fazlası her renkte, her bedende.
               </p>

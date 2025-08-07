@@ -7,11 +7,11 @@ import { Star, ShoppingBag, TrendingUp, Heart, Filter } from 'lucide-react'
 
 // SEO Metadata - Kadın Elbise için optimize edilmiş
 export const metadata: Metadata = {
-  title: 'Kadın Elbise Modelleri 2024 - En Şık Elbise Çeşitleri | ModaBase',
-  description: 'Kadın elbise modelleri: günlük elbise, abiye elbise, yazlık elbise, kışlık elbise. 2024 trend kadın elbiseleri uygun fiyatlarla. Ücretsiz kargo!',
-  keywords: 'kadın elbise, elbise modelleri, günlük elbise, abiye elbise, yazlık elbise, kışlık elbise, kadın giyim, elbise çeşitleri, 2024 elbise trend',
+  title: 'Kadın Elbise Modelleri 2025 - En Şık Elbise Çeşitleri | ModaBase',
+  description: 'Kadın elbise modelleri: günlük elbise, abiye elbise, yazlık elbise, kışlık elbise. 2025 trend kadın elbiseleri uygun fiyatlarla. Ücretsiz kargo!',
+  keywords: 'kadın elbise, elbise modelleri, günlük elbise, abiye elbise, yazlık elbise, kışlık elbise, kadın giyim, elbise çeşitleri, 2025 elbise trend',
   openGraph: {
-    title: 'Kadın Elbise Modelleri 2024 - En Şık Elbise Çeşitleri',
+    title: 'Kadın Elbise Modelleri 2025 - En Şık Elbise Çeşitleri',
     description: 'ModaBase\'de binlerce kadın elbise modeli! Günlük, abiye, yazlık ve kışlık elbise çeşitleri. Her zevke uygun elbise modelleri.',
     images: ['/og-kadin-elbise.jpg'],
     type: 'website',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Kadın Elbise Modelleri 2024 - ModaBase',
+    title: 'Kadın Elbise Modelleri 2025 - ModaBase',
     description: 'En şık kadın elbise modelleri. Günlük, abiye, yazlık kadın elbiseleri uygun fiyatlarla.',
     images: ['/twitter-kadin-elbise.jpg']
   },
@@ -94,7 +94,7 @@ export default async function KadinElbisePage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Kadın Elbise Modelleri 2024",
+    "name": "Kadın Elbise Modelleri 2025",
     "description": "En şık kadın elbise modelleri. Günlük elbise, abiye elbise, yazlık ve kışlık elbise çeşitleri.",
     "url": "https://modabase.com.tr/kadin-elbise",
     "mainEntity": {
@@ -252,7 +252,7 @@ export default async function KadinElbisePage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-lg p-8 mb-8 shadow-lg">
             <h2 className="text-4xl font-bold text-gray-900 mb-8 text-center">
-              2024 Kadın Elbise Trendleri ve Çeşitleri
+              2025 Kadın Elbise Trendleri ve Çeşitleri
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               <div>

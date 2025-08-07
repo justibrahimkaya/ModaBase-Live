@@ -10,7 +10,7 @@ export default function MobileHeroOptimized() {
     {
       id: 1,
       title: "Yeni Koleksiyon",
-      subtitle: "2024 Sonbahar",
+      subtitle: "2025 İlkbahar",
       description: "Trend parçalarla stilini tamamla",
       cta: "Koleksiyonu Keşfet",
       image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=600&fit=crop&crop=center",

@@ -7,11 +7,11 @@ import { Star, ShoppingBag, Heart, Sparkles, TrendingUp } from 'lucide-react'
 
 // Ultra SEO Metadata - Triko Elbise için özel optimize edilmiş
 export const metadata: Metadata = {
-  title: 'Triko Elbise Modelleri 2024 - En Şık Triko Elbise Çeşitleri | ModaBase',
-  description: 'Triko elbise modelleri: boğazlı triko elbise, midi triko elbise, uzun triko elbise. 2024 kış trendi kadın triko elbise çeşitleri uygun fiyatlarla. Ücretsiz kargo!',
-  keywords: 'triko elbise, triko elbise modelleri, boğazlı triko elbise, midi triko elbise, uzun triko elbise, kışlık triko elbise, kadın triko elbise, 2024 triko elbise trend',
+  title: 'Triko Elbise Modelleri 2025 - En Şık Triko Elbise Çeşitleri | ModaBase',
+  description: 'Triko elbise modelleri: boğazlı triko elbise, midi triko elbise, uzun triko elbise. 2025 kış trendi kadın triko elbise çeşitleri uygun fiyatlarla. Ücretsiz kargo!',
+  keywords: 'triko elbise, triko elbise modelleri, boğazlı triko elbise, midi triko elbise, uzun triko elbise, kışlık triko elbise, kadın triko elbise, 2025 triko elbise trend',
   openGraph: {
-    title: 'Triko Elbise Modelleri 2024 - En Şık Triko Elbise Çeşitleri',
+    title: 'Triko Elbise Modelleri 2025 - En Şık Triko Elbise Çeşitleri',
     description: 'ModaBase\'de en trend triko elbise modelleri! Boğazlı, midi, uzun triko elbise çeşitleri. Kış gardırobunuzun vazgeçilmezi triko elbise modelleri.',
     images: ['/og-triko-elbise.jpg'],
     type: 'website',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Triko Elbise Modelleri 2024 - ModaBase',
+    title: 'Triko Elbise Modelleri 2025 - ModaBase',
     description: 'En şık triko elbise modelleri. Boğazlı, midi, uzun triko elbise çeşitleri uygun fiyatlarla.',
     images: ['/twitter-triko-elbise.jpg']
   },
@@ -94,7 +94,7 @@ export default async function TrikoElbisePage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Triko Elbise Modelleri 2024",
+    "name": "Triko Elbise Modelleri 2025",
     "description": "En şık triko elbise modelleri. Boğazlı triko elbise, midi triko elbise ve uzun triko elbise çeşitleri.",
     "url": "https://modabase.com.tr/triko-elbise",
     "mainEntity": {
@@ -269,7 +269,7 @@ export default async function TrikoElbisePage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="bg-white rounded-2xl p-10 mb-12 shadow-xl">
             <h2 className="text-5xl font-bold text-gray-900 mb-10 text-center">
-              2024 Triko Elbise Trendleri ve Modelleri
+              2025 Triko Elbise Trendleri ve Modelleri
             </h2>
             <div className="grid md:grid-cols-2 gap-12">
               <div>

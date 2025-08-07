@@ -18,7 +18,7 @@ import {
 
 // Ana Sayfa SEO Metadata
 export const metadata: Metadata = {
-  title: 'ModaBase - Türkiye\'nin En Büyük Moda E-Ticaret Platformu | 2024 Moda Trendleri',
+      title: 'ModaBase - Türkiye\'nin En Büyük Moda E-Ticaret Platformu | 2025 Moda Trendleri',
   description: 'ModaBase\'de 500+ marka, 50K+ ürün, %100 güvenli alışveriş! Kadın giyim, erkek giyim, çocuk giyim, ayakkabı, çanta, aksesuar. Ücretsiz kargo, 30 gün iade garantisi. En yeni moda trendleri burada!',
   keywords: [
     'modabase', 'moda', 'e-ticaret', 'alışveriş', 'kadın giyim', 'erkek giyim', 
@@ -509,7 +509,7 @@ export default async function Home() {
         variant="floating"
         size="lg"
         isBusinessAdmin={false}
-        className="bottom-6 right-6"
+        className="bottom-20 right-6 md:bottom-6 md:right-6"
       />
     </main>
   )

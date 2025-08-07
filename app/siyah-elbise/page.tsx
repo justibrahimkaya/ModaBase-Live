@@ -7,11 +7,11 @@ import { Star, ShoppingBag, Heart, Sparkles, Crown, Clock } from 'lucide-react'
 
 // Professional SEO Metadata - Siyah Elbise (Conversion Strategy)
 export const metadata: Metadata = {
-  title: 'Siyah Elbise Modelleri 2024 - Şık Siyah Elbise Çeşitleri | ModaBase',
-  description: 'Siyah elbise modelleri: kısa siyah elbise, uzun siyah elbise, siyah abiye elbise, siyah günlük elbise. 2024 en şık siyah elbise çeşitleri uygun fiyatlarla. Ücretsiz kargo!',
+  title: 'Siyah Elbise Modelleri 2025 - Şık Siyah Elbise Çeşitleri | ModaBase',
+  description: 'Siyah elbise modelleri: kısa siyah elbise, uzun siyah elbise, siyah abiye elbise, siyah günlük elbise. 2025 en şık siyah elbise çeşitleri uygun fiyatlarla. Ücretsiz kargo!',
   keywords: 'siyah elbise, siyah elbise modelleri, kısa siyah elbise, uzun siyah elbise, siyah abiye elbise, siyah günlük elbise, little black dress, siyah gece elbise, klasik siyah elbise',
   openGraph: {
-    title: 'Siyah Elbise Modelleri 2024 - Şık Siyah Elbise Çeşitleri',
+    title: 'Siyah Elbise Modelleri 2025 - Şık Siyah Elbise Çeşitleri',
     description: 'ModaBase\'de zarif siyah elbise koleksiyonu! Kısa, uzun, abiye ve günlük siyah elbise modelleri. Her gardırobun vazgeçilmezi siyah elbise çeşitleri.',
     images: ['/og-siyah-elbise.jpg'],
     type: 'website',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Siyah Elbise Modelleri 2024 - ModaBase',
+    title: 'Siyah Elbise Modelleri 2025 - ModaBase',
     description: 'Zarif siyah elbise koleksiyonu. Kısa, uzun, abiye siyah elbise modelleri uygun fiyatlarla.',
     images: ['/twitter-siyah-elbise.jpg']
   },
@@ -106,7 +106,7 @@ export default async function SiyahElbisePage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Siyah Elbise Modelleri 2024",
+    "name": "Siyah Elbise Modelleri 2025",
     "description": "Zarif siyah elbise koleksiyonu. Kısa, uzun, abiye ve günlük siyah elbise modelleri.",
     "url": "https://modabase.com.tr/siyah-elbise",
     "mainEntity": {

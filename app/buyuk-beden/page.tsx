@@ -7,11 +7,11 @@ import { Star, ShoppingBag, Heart, Sparkles, TrendingUp, Award, Users } from 'lu
 
 // Professional SEO Metadata - Büyük Beden (Niche Market Strategy)
 export const metadata: Metadata = {
-  title: 'Büyük Beden Kıyafetler 2024 - XL XXL 3XL 4XL Büyük Beden Giyim | ModaBase',
+  title: 'Büyük Beden Kıyafetler 2025 - XL XXL 3XL 4XL Büyük Beden Giyim | ModaBase',
   description: 'Büyük beden kadın giyim: büyük beden elbise, büyük beden bluz, büyük beden pantolon. XL, XXL, 3XL, 4XL, 5XL büyük beden kıyafetler uygun fiyatlarla. Özel tasarım!',
   keywords: 'büyük beden, büyük beden kıyafetler, büyük beden elbise, büyük beden bluz, büyük beden pantolon, XL, XXL, 3XL, 4XL, 5XL, plus size, büyük beden moda, büyük beden giyim',
   openGraph: {
-    title: 'Büyük Beden Kıyafetler 2024 - XL XXL 3XL 4XL Büyük Beden Giyim',
+    title: 'Büyük Beden Kıyafetler 2025 - XL XXL 3XL 4XL Büyük Beden Giyim',
     description: 'ModaBase\'de özel tasarım büyük beden koleksiyonu! XL\'den 5XL\'e kadar her bedende şık ve kaliteli kıyafetler. Büyük beden moda uzmanı.',
     images: ['/og-buyuk-beden.jpg'],
     type: 'website',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Büyük Beden Kıyafetler 2024 - ModaBase',
+    title: 'Büyük Beden Kıyafetler 2025 - ModaBase',
     description: 'Özel tasarım büyük beden koleksiyonu. XL, XXL, 3XL, 4XL, 5XL büyük beden kıyafetler.',
     images: ['/twitter-buyuk-beden.jpg']
   },
@@ -96,7 +96,7 @@ export default async function BuyukBedenPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Büyük Beden Kıyafetler 2024",
+    "name": "Büyük Beden Kıyafetler 2025",
     "description": "Özel tasarım büyük beden koleksiyonu. XL, XXL, 3XL, 4XL, 5XL büyük beden kıyafetler.",
     "url": "https://modabase.com.tr/buyuk-beden",
     "mainEntity": {
@@ -253,7 +253,7 @@ export default async function BuyukBedenPage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="bg-white rounded-2xl p-10 mb-12 shadow-xl">
             <h2 className="text-5xl font-bold text-gray-900 mb-10 text-center">
-              2024 Büyük Beden Moda Trendleri
+              2025 Büyük Beden Moda Trendleri
             </h2>
             <div className="grid md:grid-cols-2 gap-12">
               <div>

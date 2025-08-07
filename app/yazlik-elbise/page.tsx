@@ -7,11 +7,11 @@ import { Star, ShoppingBag, Sun, Heart, Thermometer } from 'lucide-react'
 
 // SEO Metadata - Yazlık Elbise için optimize edilmiş
 export const metadata: Metadata = {
-  title: 'Yazlık Elbise Modelleri 2024 - En Şık Yaz Elbiseleri | ModaBase',
-  description: 'Yazlık elbise modelleri: günlük yazlık elbise, plaj elbise, yaz abiye. 2024 yazlık kadın elbiseleri, ince kumaş elbiseler uygun fiyatlarla. Ücretsiz kargo!',
-  keywords: 'yazlık elbise, yaz elbise, yazlık kadın elbise, plaj elbise, ince elbise, günlük yazlık elbise, yaz abiye, yazlık giyim, 2024 yazlık elbise',
+  title: 'Yazlık Elbise Modelleri 2025 - En Şık Yaz Elbiseleri | ModaBase',
+  description: 'Yazlık elbise modelleri: günlük yazlık elbise, plaj elbise, yaz abiye. 2025 yazlık kadın elbiseleri, ince kumaş elbiseler uygun fiyatlarla. Ücretsiz kargo!',
+  keywords: 'yazlık elbise, yaz elbise, yazlık kadın elbise, plaj elbise, ince elbise, günlük yazlık elbise, yaz abiye, yazlık giyim, 2025 yazlık elbise',
   openGraph: {
-    title: 'Yazlık Elbise Modelleri 2024 - En Şık Yaz Elbiseleri',
+    title: 'Yazlık Elbise Modelleri 2025 - En Şık Yaz Elbiseleri',
     description: 'ModaBase\'de en şık yazlık elbise modelleri! Günlük yazlık elbise, plaj elbise ve yaz abiye çeşitleri. Serin ve rahat yaz elbiseleri.',
     images: ['/og-yazlik-elbise.jpg'],
     type: 'website',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Yazlık Elbise Modelleri 2024 - ModaBase',
+    title: 'Yazlık Elbise Modelleri 2025 - ModaBase',
     description: 'En trend yazlık elbise modelleri. Serin ve şık yaz elbiseleri uygun fiyatlarla.',
     images: ['/twitter-yazlik-elbise.jpg']
   },
@@ -81,7 +81,7 @@ export default async function YazlikElbisePage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Yazlık Elbise Modelleri 2024",
+    "name": "Yazlık Elbise Modelleri 2025",
     "description": "En şık yazlık elbise modelleri. Serin ve rahat yaz elbiseleri, plaj elbise çeşitleri.",
     "url": "https://modabase.com.tr/yazlik-elbise",
     "mainEntity": {
@@ -176,7 +176,7 @@ export default async function YazlikElbisePage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-lg p-8 mb-8 shadow-lg">
             <h2 className="text-4xl font-bold text-gray-900 mb-8 text-center">
-              2024 Yazlık Elbise Trendleri
+              2025 Yazlık Elbise Trendleri
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               <div>
@@ -262,7 +262,7 @@ export default async function YazlikElbisePage() {
                       </div>
                     )}
                     <div className="absolute top-3 right-3 bg-yellow-400 text-gray-900 text-xs font-bold px-2 py-1 rounded-full">
-                      YAZ 2024
+                      YAZ 2025
                     </div>
                     <button className="absolute bottom-3 right-3 p-2 bg-white/90 rounded-full hover:bg-white transition-colors shadow-md">
                       <Heart className="w-4 h-4 text-gray-600 hover:text-red-500" />
