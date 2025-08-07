@@ -433,6 +433,8 @@ export default async function Home() {
         ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
         : 0
       const images = JSON.parse(product.images || '[]')
+      const imageUrl = images[0] || ''
+
       return {
         id: product.id,
         name: product.name,
@@ -440,7 +442,7 @@ export default async function Home() {
         originalPrice: product.originalPrice,
         rating: Math.round(averageRating * 10) / 10,
         reviews: product._count.reviews,
-        image: images[0] || '',
+        image: imageUrl,
         isNew: false,
         discount,
         category: product.category

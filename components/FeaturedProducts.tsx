@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { Heart, Star } from 'lucide-react'
 
 interface Product {
@@ -31,17 +30,20 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
           <a href={`/product/${product.id}`} className="block">
             {/* Image Container - Fixed for display */}
             <div className="relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 aspect-square">
-              {product.image && !product.image.startsWith('data:image/') ? (
-                <Image
+              {product.image ? (
+                <img
                   src={product.image}
                   alt={product.name}
-                  width={300}
-                  height={300}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                   loading="lazy"
-                  placeholder="blur"
-                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gray-200"><span class="text-gray-500 text-sm">Resim Yüklenemedi</span></div>';
+                    }
+                  }}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gray-200">
