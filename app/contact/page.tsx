@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Head from 'next/head'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -16,16 +17,22 @@ import {
 } from 'lucide-react'
 
 export default function ContactPage() {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setIsSubmitting(true)
+    setSubmitStatus('idle')
+    
     const formData = new FormData(e.currentTarget)
     
-    const firstName = formData.get('firstName')
-    const lastName = formData.get('lastName')
-    const email = formData.get('email')
-    const phone = formData.get('phone')
-    const subject = formData.get('subject')
-    const message = formData.get('message')
+    const firstName = formData.get('firstName') as string
+    const lastName = formData.get('lastName') as string
+    const email = formData.get('email') as string
+    const phone = formData.get('phone') as string
+    const subject = formData.get('subject') as string
+    const message = formData.get('message') as string
     
     // Konu mapping
     const subjectMap: Record<string, string> = {
@@ -38,28 +45,40 @@ export default function ContactPage() {
       'suggestion': 'Öneri/Şikayet'
     }
     
-    const subjectText = subjectMap[subject as string] || subject
+    const subjectText = subjectMap[subject] || subject
     
-    // E-posta body'si oluştur
-    const emailBody = `
-Sayın ModaBase Yetkilileri,
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          phone,
+          subject: subjectText,
+          message
+        })
+      })
 
-Ad Soyad: ${firstName} ${lastName}
-E-posta: ${email}
-Telefon: ${phone || 'Belirtilmemiş'}
-Konu: ${subjectText}
+      const data = await response.json()
 
-Mesaj:
-${message}
-
-İyi günler dilerim.
-    `.trim()
-    
-    // Mailto linkini oluştur
-    const mailtoLink = `mailto:info@modabase.com.tr?subject=${encodeURIComponent(`ModaBase İletişim: ${subjectText}`)}&body=${encodeURIComponent(emailBody)}`
-    
-    // E-posta programını aç
-    window.location.href = mailtoLink
+      if (response.ok) {
+        setSubmitStatus('success')
+        // Formu temizle
+        e.currentTarget.reset()
+      } else {
+        setSubmitStatus('error')
+        console.error('Form submission error:', data.error)
+      }
+    } catch (error) {
+      setSubmitStatus('error')
+      console.error('Form submission error:', error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -257,12 +276,38 @@ ${message}
                   ></textarea>
                 </div>
 
+                {/* Status Messages */}
+                {submitStatus === 'success' && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-center gap-2 text-green-800">
+                      <CheckCircle className="w-5 h-5" />
+                      <span className="font-medium">Mesajınız başarıyla gönderildi!</span>
+                    </div>
+                    <p className="text-green-700 text-sm mt-1">
+                      En kısa sürede size dönüş yapacağız.
+                    </p>
+                  </div>
+                )}
+
+                {submitStatus === 'error' && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-center gap-2 text-red-800">
+                      <Info className="w-5 h-5" />
+                      <span className="font-medium">Mesaj gönderilirken hata oluştu</span>
+                    </div>
+                    <p className="text-red-700 text-sm mt-1">
+                      Lütfen tekrar deneyin veya WhatsApp ile iletişime geçin.
+                    </p>
+                  </div>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 px-6 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 flex items-center justify-center gap-2 group"
+                  disabled={isSubmitting}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 px-6 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  Mesajı Gönder
+                  <Send className={`w-5 h-5 transition-transform ${isSubmitting ? 'animate-pulse' : 'group-hover:translate-x-1'}`} />
+                  {isSubmitting ? 'Gönderiliyor...' : 'Mesajı Gönder'}
                 </button>
               </form>
             </div>

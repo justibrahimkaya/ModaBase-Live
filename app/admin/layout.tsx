@@ -18,7 +18,8 @@ import {
   Sparkles,
   ChevronRight,
   ExternalLink,
-  Globe
+  Globe,
+  MessageSquare
 } from 'lucide-react'
 import WhatsAppButton from '@/components/WhatsAppButton'
 import { useRouter, usePathname } from 'next/navigation'
@@ -182,6 +183,15 @@ export default function AdminLayout({
       bgColor: 'bg-orange-50',
       isActive: pathname.startsWith('/admin/categories'),
       roles: ['SITE_ADMIN']
+    },
+    {
+      name: 'Mesajlar',
+      href: '/admin/messages',
+      icon: MessageSquare,
+      color: 'from-pink-500 to-rose-600',
+      bgColor: 'bg-pink-50',
+      isActive: pathname.startsWith('/admin/messages'),
+      roles: ['SITE_ADMIN', 'BUSINESS_ADMIN']
     },
     {
       name: 'İşletme Kategorileri',
