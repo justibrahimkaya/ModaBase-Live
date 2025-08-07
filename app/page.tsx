@@ -4,7 +4,6 @@ import Header from '@/components/Header'
 import FeaturedProducts from '@/components/FeaturedProducts'
 import Footer from '@/components/Footer'
 import WhatsAppButton from '@/components/WhatsAppButton'
-import MobileHeroOptimized from '@/components/MobileHeroOptimized'
 import { prisma } from '@/lib/prisma'
 import { 
   Star, 
@@ -497,17 +496,9 @@ export default async function Home() {
         </div>
       </div>
       
-      <MobileHeroOptimized />
-      
-      <section className="py-12 sm:py-20 bg-white">
+      {/* Ana Ürün Grid - Hero olmadan direkt ürünler */}
+      <section className="py-6 sm:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Öne Çıkan Ürünler</h2>
-            <p className="text-base sm:text-xl text-gray-600 max-w-2xl mx-auto">
-              En popüler ve trend ürünlerimizi keşfedin
-            </p>
-          </div>
-          
           <Suspense fallback={<ProductsLoading />}>
             <FeaturedProducts products={featuredProducts} />
           </Suspense>
