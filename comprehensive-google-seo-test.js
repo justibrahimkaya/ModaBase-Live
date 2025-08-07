@@ -89,7 +89,7 @@ async function testRobotsTxt() {
       
       lines.forEach((line, index) => {
         line = line.trim();
-        if (line.startsWith('User-agent:')) hasUserAgent = true;
+        if (line.toLowerCase().startsWith('user-agent:')) hasUserAgent = true;
         if (line.startsWith('Sitemap:')) hasSitemap = true;
         
         // Basic syntax check
