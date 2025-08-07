@@ -470,6 +470,15 @@ export default async function Home() {
       {/* Spacer for fixed header - Mobile optimized */}
       <div className="h-16 sm:h-20 mobile-safe-top"></div>
       
+      {/* Ücretsiz Kargo Banner - Denivy Style */}
+      <div className="bg-gray-900 text-white text-center py-3 text-sm font-medium relative overflow-hidden">
+        <div className="animate-pulse absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+        <div className="relative flex items-center justify-center gap-2">
+          <span>🚚</span>
+          <span className="font-semibold">ÜCRETSİZ KARGO 2500₺ ÜZERİ SİPARİŞLERDE</span>
+        </div>
+      </div>
+      
       <MobileHeroOptimized />
       
       <section className="py-12 sm:py-20 bg-white">
