@@ -248,22 +248,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           connect-src 'self' https://www.google-analytics.com;
         " />
         
-        {/* Google Analytics (GA4) - Required in HEAD for Search Console verification */}
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-          <>
-            <script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}></script>
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');
-                `,
-              }}
-            />
-          </>
-        )}
+        {/* Google Analytics (GA4) - Updated for WWW domain */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-VL9KCLBV3R"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-VL9KCLBV3R');
+            `,
+          }}
+        />
         
       </head>
       <body className={`${inter.className} antialiased bg-white text-gray-900`}>
