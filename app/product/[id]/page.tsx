@@ -214,17 +214,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
     })
 
     // Product structured data JSON-LD
-    // Image URL'i belirle: geçerli image varsa onu kullan, yoksa default
+    // Image URL'i belirle: Base64 images Google kabul etmiyor, default kullan
     const getValidImageUrl = () => {
       if (product.images && product.images.length > 0) {
         const firstImage = product.images[0];
-        // firstImage var mı ve geçerli mi kontrol et
-        if (firstImage && !firstImage.startsWith('data:image/') && firstImage.startsWith('http')) {
+        // Sadece HTTP URL'leri kabul et, base64'leri reddet
+        if (firstImage && firstImage.startsWith('http') && !firstImage.startsWith('data:image/')) {
           return firstImage;
         }
       }
-      // Default image kullan
-      return 'https://modabase.com.tr/default-product.svg';
+      // Base64 veya geçersiz images için default kullan
+      return 'https://www.modabase.com.tr/default-product.svg';
     };
 
     const productStructuredData = {
