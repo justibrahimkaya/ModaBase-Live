@@ -73,7 +73,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
         images: [post.image]
       },
       alternates: {
-        canonical: `https://modabase.com.tr/blog/${post.slug}`
+        canonical: `https://www.modabase.com.tr/blog/${post.slug}`
       },
       robots: {
         index: true,

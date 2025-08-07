@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     images: ['/twitter-products.jpg']
   },
   alternates: {
-    canonical: 'https://modabase.com.tr/products'
+    canonical: 'https://www.modabase.com.tr/products'
   },
   robots: {
     index: true,

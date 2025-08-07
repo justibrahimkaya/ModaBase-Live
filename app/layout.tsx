@@ -75,7 +75,7 @@ export const metadata: Metadata = {
     yahoo: process.env.NEXT_PUBLIC_YAHOO_VERIFICATION,
   },
   alternates: {
-    canonical: 'https://modabase.com.tr',
+    canonical: 'https://www.modabase.com.tr',
     languages: {
       'tr-TR': 'https://modabase.com.tr',
       'en-US': 'https://en.modabase.com.tr',

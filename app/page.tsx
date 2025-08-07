@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     images: ['/twitter-homepage.jpg']
   },
   alternates: {
-    canonical: 'https://modabase.com.tr'
+    canonical: 'https://www.modabase.com.tr'
   },
   robots: {
     index: true,

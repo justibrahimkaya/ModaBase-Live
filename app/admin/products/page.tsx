@@ -1881,7 +1881,7 @@ export default function AdminProductsPage() {
                           <h4 className="text-sm font-medium text-gray-700 mb-2">Google Arama Sonucu</h4>
                           <div className="space-y-1">
                             <div className="text-blue-600 text-sm truncate">
-                              {form.canonicalUrl || `https://modabase.com.tr/product/${form.slug}`}
+                              {form.canonicalUrl || `https://www.modabase.com.tr/product/${form.slug}`}
                             </div>
                             <div className="text-lg text-blue-600 font-medium">
                               {form.metaTitle || 'Ürün başlığı'}

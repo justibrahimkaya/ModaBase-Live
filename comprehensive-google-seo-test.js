@@ -6,7 +6,7 @@ console.log('🔍 COMPREHENSIVE GOOGLE SEO TEST SUITE');
 console.log('=====================================');
 console.log('Google\'ın yaptığı TÜM SEO testlerini simüle ediyoruz...\n');
 
-const BASE_URL = 'https://modabase.com.tr';
+const BASE_URL = 'https://www.modabase.com.tr';
 
 // Test sonuçlarını toplamak için
 const testResults = {

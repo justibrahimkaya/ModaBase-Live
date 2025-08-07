@@ -17,6 +17,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://modabase.com.tr/sitemap.xml',
+    sitemap: 'https://www.modabase.com.tr/sitemap.xml',
   }
 }

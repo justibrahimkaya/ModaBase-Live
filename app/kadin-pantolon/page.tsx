@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     images: ['/twitter-kadin-pantolon.jpg']
   },
   alternates: {
-    canonical: 'https://modabase.com.tr/kadin-pantolon'
+    canonical: 'https://www.modabase.com.tr/kadin-pantolon'
   },
   robots: {
     index: true,

@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     images: ['/twitter-kadin-elbise.jpg']
   },
   alternates: {
-    canonical: 'https://modabase.com.tr/kadin-elbise'
+    canonical: 'https://www.modabase.com.tr/kadin-elbise'
   },
   robots: {
     index: true,

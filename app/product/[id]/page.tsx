@@ -67,7 +67,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
         images: [mainImage]
       },
       alternates: {
-        canonical: `https://modabase.com.tr/product/${product.slug || product.id}`
+        canonical: `https://www.modabase.com.tr/product/${product.slug || product.id}`
       },
       robots: {
         index: true,

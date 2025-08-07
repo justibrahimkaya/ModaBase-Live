@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     images: ['/twitter-siyah-elbise.jpg']
   },
   alternates: {
-    canonical: 'https://modabase.com.tr/siyah-elbise'
+    canonical: 'https://www.modabase.com.tr/siyah-elbise'
   },
   robots: {
     index: true,
