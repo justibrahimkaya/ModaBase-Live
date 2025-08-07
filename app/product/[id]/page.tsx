@@ -245,9 +245,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
         "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         "availability": "https://schema.org/InStock",
         "condition": "https://schema.org/NewCondition",
+        "url": `https://www.modabase.com.tr/product/${product.slug || product.id}`,
+        "itemCondition": "https://schema.org/NewCondition",
+        "validFrom": new Date().toISOString().split('T')[0],
         "seller": {
           "@type": "Organization",
-          "name": "ModaBase"
+          "name": "ModaBase",
+          "url": "https://www.modabase.com.tr"
         }
       },
       "sku": product.sku,

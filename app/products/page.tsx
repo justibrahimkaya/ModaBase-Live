@@ -212,9 +212,14 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             "price": product.price,
             "priceCurrency": "TRY",
             "availability": "https://schema.org/InStock",
+            "condition": "https://schema.org/NewCondition",
+            "priceValidUntil": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            "url": `https://www.modabase.com.tr/product/${product.slug}`,
+            "itemCondition": "https://schema.org/NewCondition",
             "seller": {
               "@type": "Organization",
-              "name": "ModaBase"
+              "name": "ModaBase",
+              "url": "https://www.modabase.com.tr"
             }
           }
         }
