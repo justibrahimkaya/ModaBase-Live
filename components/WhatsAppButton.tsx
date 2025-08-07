@@ -145,26 +145,25 @@ export default function WhatsAppButton({
 
   if (variant === 'floating') {
     return (
-      <div className={`fixed z-50 ${className} ${isMobileDevice ? 'whatsapp-floating-mobile' : 'bottom-6 right-6'}`}>
+      <div className={`fixed z-50 ${className}`}>
         <button
           onClick={handleClick}
-          onMouseEnter={() => !isMobileDevice && setIsHovered(true)}
-          onMouseLeave={() => !isMobileDevice && setIsHovered(false)}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
           className={`
             ${getSizeClasses()} 
-            bg-green-500 ${!isMobileDevice ? 'hover:bg-green-600' : 'whatsapp-active-mobile'} 
-            text-white rounded-full shadow-lg ${!isMobileDevice ? 'hover:shadow-xl' : 'active:shadow-xl'} 
-            transition-all duration-300 ${!isMobileDevice ? 'transform hover:scale-110' : 'transform active:scale-95'}
+            bg-green-500 hover:bg-green-600 
+            text-white rounded-full shadow-lg hover:shadow-xl 
+            transition-all duration-300 transform hover:scale-110
             flex items-center justify-center
             group
-            ${isMobileDevice ? 'whatsapp-button-mobile' : ''}
           `}
           title={isBusinessAdmin ? "ModaBase ile iletişime geç" : "İşletme ile iletişime geç"}
         >
           <MessageCircle className={getIconSize()} />
           
-          {/* Tooltip - Sadece desktop'ta göster */}
-          {isHovered && !isMobileDevice && (
+          {/* Tooltip */}
+          {isHovered && (
             <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg whitespace-nowrap opacity-90">
               {isBusinessAdmin ? "ModaBase Destek" : "WhatsApp ile İletişim"}
               <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>

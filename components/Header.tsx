@@ -208,7 +208,7 @@ export default function Header() {
               <a href="/products" className="nav-link">Ürünler</a>
               <a href="/blog" className="nav-link">Blog</a>
               <a href="#" className="nav-link">Kampanyalar</a>
-              <a href="#" className="nav-link">İletişim</a>
+              <a href="/contact" className="nav-link">İletişim</a>
             </nav>
 
             {/* Right Side Actions - Mobile Optimized */}
