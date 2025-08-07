@@ -529,7 +529,7 @@ export default async function Home() {
         variant="floating"
         size="lg"
         isBusinessAdmin={false}
-        className="bottom-20 right-6 md:bottom-6 md:right-6"
+        className="bottom-6 right-6"
       />
     </main>
   )
