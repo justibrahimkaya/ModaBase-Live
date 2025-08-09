@@ -125,12 +125,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://images.unsplash.com" />
-        <link rel="dns-prefetch" href="https://vercel-insights.com" />
-        <link rel="dns-prefetch" href="https://vitals.vercel-analytics.com" />
+        {/* DNS prefetch removed temporarily */}
         
-        {/* ⚡ SPEED: Resource hints for faster loading */}
-        <link rel="prefetch" href="/api/products" />
-        <link rel="prefetch" href="/api/categories" />
+        {/* API prefetch removed temporarily */}
         
         {/* Favicon and app icons - ✨ MODABASE LOGO SİSTEMİ */}
         <link rel="icon" type="image/png" href="/ChatGPT Image 20 Haz 2025 14_16_10.png" />
@@ -242,15 +239,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="mobile-web-app-capable" content="yes" />
         
-        {/* Content Security Policy */}
-        <meta httpEquiv="Content-Security-Policy" content="
-          default-src 'self';
-          script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.google-analytics.com https://www.googletagmanager.com;
-          style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-          img-src 'self' data: https: blob:;
-          font-src 'self' https://fonts.gstatic.com;
-          connect-src 'self' https://www.google-analytics.com;
-        " />
+        {/* Content Security Policy - Removed temporarily to fix site */}
         
         {/* Google Analytics (GA4) - Updated for WWW domain */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-VL9KCLBV3R"></script>

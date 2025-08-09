@@ -10,6 +10,7 @@ const FeaturedProducts = dynamicImport(() => import('@/components/FeaturedProduc
   loading: () => <div className="animate-pulse bg-gray-200 h-96 rounded-lg"></div>
 })
 const Footer = dynamicImport(() => import('@/components/Footer'))
+const NewsletterForm = dynamicImport(() => import('@/components/NewsletterForm'))
 import { 
   Star, 
   TruckIcon, 
@@ -377,20 +378,7 @@ function Newsletter() {
           </p>
         </div>
         
-        <form className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto" onSubmit={(e) => e.preventDefault()}>
-          <label htmlFor="newsletter-email" className="sr-only">E-posta adresiniz</label>
-          <input
-            id="newsletter-email"
-            type="email"
-            placeholder="E-posta adresinizi girin"
-            className="flex-1 px-6 py-4 rounded-xl border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            aria-label="E-posta adresi"
-            required
-          />
-          <button type="submit" className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-            Abone Ol
-          </button>
-        </form>
+                    <NewsletterForm />
         
         <p className="text-sm text-gray-400 mt-4">
           Dilediğiniz zaman abonelikten çıkabilirsiniz. Gizlilik politikamızı okuyun.

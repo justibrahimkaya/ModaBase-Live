@@ -32,12 +32,12 @@ export default function Header() {
     // Admin kontrolünü sadece gerekli sayfalarında yap
     try {
       const path = window?.location?.pathname || ''
-      if (path.includes('/admin') || path.includes('/super-admin') || path === '/') {
+      if (path.includes('/admin') || path.includes('/super-admin')) {
         checkAdminAuth()
       }
     } catch (error) {
       // Silence any window access errors during SSR
-      console.log('SSR: Window access skipped')
+      // Window access skipped during SSR
     }
     
     // Initial auth check - admin info yüklendikten sonra yap
