@@ -1,178 +1,199 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-/* Tailwind CSS Directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  html {
-    font-family: 'Inter', sans-serif;
-    /* Mobile Optimization */
-    -webkit-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-  
-  body {
-    /* iOS Safe Area Support */
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-top: env(safe-area-inset-top);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-    
-    /* Mobile scroll optimization */
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-  }
-  
-  /* Mobile viewport height fix */
-  .min-h-screen {
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
-    min-height: stretch;
-  }
-  
-  /* Mobile touch optimization */
-  button, input, textarea, select {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-  
-  /* Mobile scroll fix */
-  * {
-    -webkit-overflow-scrolling: touch;
+/* Root variables */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
   }
 }
 
-@layer components {
-  .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
-    /* Mobile touch optimization */
-    min-height: 44px;
-    min-width: 44px;
-  }
-  
-  .btn-secondary {
-    @apply bg-secondary-200 hover:bg-secondary-300 text-secondary-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
-    /* Mobile touch optimization */
-    min-height: 44px;
-    min-width: 44px;
-  }
-  
-  .card {
-    @apply bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200;
-  }
-  
-  /* Mobile-specific styles */
-  .mobile-safe-bottom {
-    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-  }
-  
-  .mobile-safe-top {
-    padding-top: calc(1rem + env(safe-area-inset-top));
-  }
-  
-  /* Mobile header fix */
-  .mobile-header {
-    height: calc(5rem + env(safe-area-inset-top));
-    padding-top: env(safe-area-inset-top);
-  }
-  
-  /* Mobile footer fix */
-  .mobile-footer {
-    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-  }
-  
-  /* WhatsApp Button Mobile Optimization */
-  .whatsapp-button-mobile {
-    /* Minimum touch target size */
-    min-width: 44px;
-    min-height: 44px;
-    
-    /* Touch optimization */
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    
-    /* Safe area support */
-    margin-bottom: env(safe-area-inset-bottom);
-  }
-  
-  /* Mobile floating button positioning */
-  .whatsapp-floating-mobile {
-    bottom: calc(1rem + env(safe-area-inset-bottom));
-    right: 1rem;
-  }
-  
-  /* Mobile active state */
-  .whatsapp-active-mobile:active {
-    transform: scale(0.95);
-    background-color: #16a34a;
-  }
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
 
-  /* ✅ PROFESSIONAL MOBILE HEADER STYLES */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* WCAG AA Compliant Color Classes - High Contrast */
+@layer utilities {
+  /* Text colors with proper contrast ratios */
+  .text-high-contrast-gray {
+    @apply text-gray-800; /* Much darker for better contrast */
+  }
+  
+  .text-high-contrast-muted {
+    @apply text-gray-700; /* Darker muted text */
+  }
+  
+  /* Badge backgrounds with proper contrast */
+  .badge-discount {
+    @apply bg-red-700 text-white; /* Darker red for better contrast */
+  }
+  
+  .badge-success {
+    @apply bg-green-700 text-white; /* Darker green */
+  }
+  
+  .badge-warning {
+    @apply bg-yellow-600 text-gray-900; /* Dark text on yellow */
+  }
+  
+  /* Price colors */
+  .price-old {
+    @apply text-gray-700 line-through; /* Much darker for strikethrough text */
+  }
+  
+  .price-current {
+    @apply text-gray-900 font-bold; /* Maximum contrast */
+  }
+}
+
+/* Custom animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+/* Navbar styles */
+.nav-link {
+  @apply text-gray-800 font-medium hover:text-purple-700 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-purple-50;
+}
+
+/* Admin link styles */
+.admin-link {
+  @apply flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all;
+}
+
+.admin-link-site {
+  @apply bg-gradient-to-r from-amber-50 to-orange-50 text-amber-800 hover:from-amber-100 hover:to-orange-100 border border-amber-200;
+}
+
+.admin-link-business {
+  @apply bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 hover:from-green-100 hover:to-emerald-100 border border-green-200;
+}
+
+/* Mobile menu styles */
+.mobile-nav-item {
+  @apply block px-4 py-3 text-gray-800 font-medium hover:bg-gray-50 rounded-lg transition-colors;
+}
+
+/* Modern button styles */
+.btn-primary {
+  @apply px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-800 font-semibold rounded-xl hover:from-gray-100 hover:to-gray-200 transition-all duration-300 border border-gray-200;
+}
+
+/* Form styles */
+.form-input {
+  @apply w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-800 mb-2;
+}
+
+/* Card styles */
+.product-card {
+  @apply bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden;
+}
+
+/* Badge styles */
+.badge {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold;
+}
+
+.badge-red {
+  @apply bg-red-100 text-red-800;
+}
+
+.badge-green {
+  @apply bg-green-100 text-green-800;
+}
+
+.badge-blue {
+  @apply bg-blue-100 text-blue-800;
+}
+
+/* Mobile safe areas */
+.mobile-safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.mobile-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Touch optimizations */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles for accessibility */
+*:focus-visible {
+  @apply outline-2 outline-offset-2 outline-purple-600;
+}
+
+/* Skip to content link */
+.skip-to-content {
+  @apply absolute left-0 top-0 bg-purple-700 text-white px-4 py-2 transform -translate-y-full focus:translate-y-0 transition-transform duration-200;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
   .nav-link {
-    @apply text-gray-700 hover:text-purple-600 font-medium transition-colors duration-300 relative;
+    @apply text-black hover:text-purple-900;
   }
   
-  .nav-link:hover::after {
-    content: '';
-    @apply absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-600 to-pink-600;
-  }
-
-  .admin-link {
-    @apply flex items-center space-x-1 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105;
-    min-height: 44px; /* Touch target */
+  .text-muted {
+    @apply text-gray-900;
   }
   
-  .admin-link-site {
-    @apply border border-red-200 bg-red-50 text-red-700 hover:bg-red-600 hover:text-white;
+  .badge-discount {
+    @apply bg-black text-white;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    @apply hidden;
   }
   
-  .admin-link-business {
-    @apply border border-green-200 bg-green-50 text-green-700 hover:bg-green-600 hover:text-white;
-  }
-
-  .mobile-menu-item {
-    @apply flex items-center space-x-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200;
-    min-height: 48px; /* Larger touch target for mobile */
-  }
-
-  .mobile-nav-item {
-    @apply flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700 rounded-xl transition-all duration-300 font-medium;
-    min-height: 48px; /* Mobile touch target */
-  }
-
-  /* Professional Mobile Optimizations */
-  .touch-manipulation {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Improved button gradients */
-  .btn-primary {
-    @apply bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl;
-    min-height: 48px;
-  }
-  
-  .btn-secondary {
-    @apply bg-white text-gray-800 font-semibold py-3 px-6 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl;
-    min-height: 48px;
-  }
-
-  /* ✅ MODERN MOBILE BOTTOM NAVIGATION */
-  .pb-safe {
-    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
-  }
-  
-  .mb-safe {
-    margin-bottom: calc(4rem + env(safe-area-inset-bottom));
-  }
-  
-  /* Mobile content spacing for bottom nav */
-  .mobile-bottom-nav-space {
-    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  body {
+    @apply text-black bg-white;
   }
 }

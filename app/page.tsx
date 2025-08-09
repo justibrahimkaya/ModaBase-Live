@@ -1,10 +1,15 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
+import dynamicImport from 'next/dynamic'
 import Header from '@/components/Header'
-import FeaturedProducts from '@/components/FeaturedProducts'
-import Footer from '@/components/Footer'
 import WhatsAppButton from '@/components/WhatsAppButton'
 import { prisma } from '@/lib/prisma'
+
+// Lazy load heavy components
+const FeaturedProducts = dynamicImport(() => import('@/components/FeaturedProducts'), {
+  loading: () => <div className="animate-pulse bg-gray-200 h-96 rounded-lg"></div>
+})
+const Footer = dynamicImport(() => import('@/components/Footer'))
 import { 
   Star, 
   TruckIcon, 
@@ -54,8 +59,9 @@ export const metadata: Metadata = {
   }
 }
 
-// Force dynamic rendering to prevent build-time database access
+// Performance optimizations
 export const dynamic = 'force-dynamic'
+export const revalidate = 60 // Cache for 60 seconds
 
 // Loading komponenti
 function ProductsLoading() {
@@ -250,7 +256,7 @@ async function SpecialOffers() {
                       alt={product.name}
                       className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
                     />
-                    <div className="absolute top-2 left-2 bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full">
+                    <div className="absolute top-2 left-2 bg-red-700 text-white text-sm font-bold px-3 py-1.5 rounded-full shadow-md">
                       %{discount} İndirim
                     </div>
                   </div>
@@ -263,7 +269,7 @@ async function SpecialOffers() {
                     <div>
                       <div className="text-lg font-bold text-gray-900">₺{product.price}</div>
                       {product.originalPrice && (
-                        <div className="text-sm text-gray-500 line-through">₺{product.originalPrice}</div>
+                        <div className="text-sm text-gray-700 line-through font-medium">₺{product.originalPrice}</div>
                       )}
                     </div>
                     <div className="bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-1 rounded-full">
@@ -289,7 +295,7 @@ function Testimonials() {
       role: "Moda Bloggeri",
       content: "ModaBase'de alışveriş yapmak gerçekten keyifli. Ürün kalitesi harika ve teslimat çok hızlı!",
       rating: 5,
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b3fd?w=100&h=100&fit=crop&crop=face"
+      avatar: "/testimonial-1.jpg"
     },
     {
       id: 2,
@@ -297,7 +303,7 @@ function Testimonials() {
       role: "Müşteri",
       content: "Fiyat performans açısından çok memnunum. Sürekli kampanyalar var ve ürünler kaliteli.",
       rating: 5,
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
+      avatar: "/testimonial-2.jpg"
     },
     {
       id: 3,
@@ -305,7 +311,7 @@ function Testimonials() {
       role: "Tasarımcı",
       content: "Trend ürünleri herkesten önce burada buluyorum. Müşteri hizmetleri de çok ilgili.",
       rating: 5,
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face"
+      avatar: "/testimonial-3.jpg"
     }
   ]
 
@@ -371,16 +377,20 @@ function Newsletter() {
           </p>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
+        <form className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto" onSubmit={(e) => e.preventDefault()}>
+          <label htmlFor="newsletter-email" className="sr-only">E-posta adresiniz</label>
           <input
+            id="newsletter-email"
             type="email"
             placeholder="E-posta adresinizi girin"
             className="flex-1 px-6 py-4 rounded-xl border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            aria-label="E-posta adresi"
+            required
           />
-          <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+          <button type="submit" className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
             Abone Ol
           </button>
-        </div>
+        </form>
         
         <p className="text-sm text-gray-400 mt-4">
           Dilediğiniz zaman abonelikten çıkabilirsiniz. Gizlilik politikamızı okuyun.

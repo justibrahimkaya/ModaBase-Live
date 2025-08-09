@@ -33,7 +33,7 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
               {product.image ? (
                 <img
                   src={product.image}
-                  alt={product.name}
+                  alt={`${product.name} - ${product.category?.name || 'Ürün'} - ModaBase`}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   loading="lazy"
                   onError={(e) => {
@@ -41,13 +41,13 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
                     target.style.display = 'none';
                     const parent = target.parentElement;
                     if (parent) {
-                      parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gray-200"><span class="text-gray-500 text-sm">Resim Yüklenemedi</span></div>';
+                      parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gray-100"><span class="text-gray-700 text-sm font-medium">Resim Yüklenemedi</span></div>';
                     }
                   }}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                  <span className="text-gray-500 text-sm">Resim Yok</span>
+                <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                  <span className="text-gray-700 text-sm font-medium">Resim Yok</span>
                 </div>
               )}
               
@@ -64,10 +64,10 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
                 <Heart className="w-4 h-4 text-gray-600 hover:text-red-500" />
               </button>
 
-              {/* Simple Discount Badge */}
+              {/* Simple Discount Badge - WCAG AA Compliant */}
               {product.discount && product.discount > 0 && (
-                <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg">
-                  -{product.discount}%
+                <div className="absolute top-2 left-2 bg-red-700 text-white text-sm font-bold px-3 py-1.5 rounded-lg shadow-md" role="status" aria-label={`${product.discount}% indirim`}>
+                  -%{product.discount}
                 </div>
               )}
             </div>
@@ -85,7 +85,7 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
                   ₺{product.price.toLocaleString()}
                 </span>
                 {product.originalPrice && product.originalPrice > product.price && (
-                  <span className="text-sm text-gray-400 line-through">
+                  <span className="text-sm text-gray-700 line-through font-medium" aria-label={`Eski fiyat ${product.originalPrice} TL`}>
                     ₺{product.originalPrice.toLocaleString()}
                   </span>
                 )}
@@ -99,13 +99,13 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
                       key={i}
                       className={`w-3 h-3 ${
                         i < Math.floor(product.rating) 
-                          ? 'text-yellow-400 fill-current' 
-                          : 'text-gray-300'
+                          ? 'text-yellow-600 fill-current' 
+                          : 'text-gray-400'
                       }`}
                     />
                   ))}
                 </div>
-                <span className="text-xs text-gray-500">({product.reviews})</span>
+                <span className="text-sm text-gray-800 font-medium" aria-label={`${product.reviews} değerlendirme`}>({product.reviews})</span>
               </div>
             </div>
           </a>
