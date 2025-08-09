@@ -295,7 +295,7 @@ function Testimonials() {
       role: "Moda Bloggeri",
       content: "ModaBase'de alışveriş yapmak gerçekten keyifli. Ürün kalitesi harika ve teslimat çok hızlı!",
       rating: 5,
-      avatar: "/testimonial-1.jpg"
+      avatar: "data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='40' fill='%23e0e7ff'/%3E%3Ctext x='50' y='55' text-anchor='middle' font-size='24' fill='%234f46e5'%3EAD%3C/text%3E%3C/svg%3E"
     },
     {
       id: 2,
@@ -303,7 +303,7 @@ function Testimonials() {
       role: "Müşteri",
       content: "Fiyat performans açısından çok memnunum. Sürekli kampanyalar var ve ürünler kaliteli.",
       rating: 5,
-      avatar: "/testimonial-2.jpg"
+      avatar: "data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='40' fill='%23dbeafe'/%3E%3Ctext x='50' y='55' text-anchor='middle' font-size='24' fill='%232563eb'%3EMY%3C/text%3E%3C/svg%3E"
     },
     {
       id: 3,
@@ -311,7 +311,7 @@ function Testimonials() {
       role: "Tasarımcı",
       content: "Trend ürünleri herkesten önce burada buluyorum. Müşteri hizmetleri de çok ilgili.",
       rating: 5,
-      avatar: "/testimonial-3.jpg"
+      avatar: "data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='40' fill='%23fce7f3'/%3E%3Ctext x='50' y='55' text-anchor='middle' font-size='24' fill='%23ec4899'%3EZK%3C/text%3E%3C/svg%3E"
     }
   ]
 
