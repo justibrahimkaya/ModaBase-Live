@@ -18,6 +18,7 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",
+    "vercel-build": "prisma generate && next build",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:dev": "DATABASE_URL=file:./dev.db tsx prisma/seed.ts",
     "db:push": "prisma db push",
