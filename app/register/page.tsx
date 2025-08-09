@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'Üye Ol | ModaBase',
   description: 'ModaBase\'e ücretsiz üye olun. Güvenli alışveriş, özel indirimler ve hızlı teslimat avantajlarından yararlanın.',
   robots: {
-    index: false, // Auth pages should not be indexed
+    index: true, // Register sayfası indexlenebilir
     follow: true,
   }
 }

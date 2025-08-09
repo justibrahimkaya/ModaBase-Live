@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'Giriş Yap | ModaBase',
   description: 'ModaBase hesabınıza giriş yapın. Güvenli alışveriş, hızlı ödeme ve özel indirimler için üye girişi yapın.',
   robots: {
-    index: false, // Auth pages should not be indexed
+    index: true, // Login sayfası indexlenebilir
     follow: true,
   }
 }
