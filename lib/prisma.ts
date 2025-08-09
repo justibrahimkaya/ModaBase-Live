@@ -7,7 +7,9 @@ const globalForPrisma = globalThis as unknown as {
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient()
 
-// Veritabanı koruma middleware'ini ekle (development'ta devre dışı)
-prisma.$use(createDatabaseProtectionMiddleware())
+// Veritabanı koruma middleware'ini ekle (production'da devre dışı)
+if (process.env.NODE_ENV === 'development') {
+  prisma.$use(createDatabaseProtectionMiddleware())
+}
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma

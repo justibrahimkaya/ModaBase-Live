@@ -446,8 +446,13 @@ export default async function Home() {
         category: product.category
       }
     })
-  } catch (error) {
-    console.error('Database error in Home page:', error)
+  } catch (error: any) {
+    console.error('Database error in Home page:', {
+      message: error?.message || 'Unknown error',
+      code: error?.code,
+      name: error?.name,
+      stack: process.env.NODE_ENV === 'development' ? error?.stack : undefined
+    })
     hasError = true
   }
 
