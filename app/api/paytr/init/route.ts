@@ -42,9 +42,9 @@ export async function POST(request: NextRequest) {
     // PayTR parametrelerini hazırla
     const paymentAmount = Math.round(parseFloat(body.amount) * 100).toString(); // Kuruş cinsinden
     
-    // ✅ DÜZELTME: merchant_oid'den özel karakterleri temizle (PayTR alfanumerik istiyor)
-    // Alt çizgi (_) ve diğer özel karakterleri kaldır
-    const sanitizedMerchantOid = body.merchant_oid.replace(/[^a-zA-Z0-9]/g, '');
+    // Müşterinin mevcut kurulumuyla uyumluluk: merchant_oid'i olduğu gibi kullan
+    // (PayTR panelinizde daha önce bu şekilde satış yapılmış)
+    const merchantOid = String(body.merchant_oid);
     
     // IP adresini isteğin gerçek IP'sinden al (body'deki değeri kullanma)
     const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     const params = new URLSearchParams();
     params.append('merchant_id', PAYTR_MERCHANT_ID);
     params.append('user_ip', clientIp);
-    params.append('merchant_oid', sanitizedMerchantOid);
+    params.append('merchant_oid', merchantOid);
     params.append('email', body.email);
     params.append('payment_amount', paymentAmount); // ✅ DÜZELTME: payment_amount (kuruş)
     // params.append('paytr_token', ''); // PayTR token parametresi kaldırıldı
@@ -62,8 +62,8 @@ export async function POST(request: NextRequest) {
     params.append('user_address', body.user_address || 'Test Address');
     params.append('user_phone', body.user_phone || '05301234567');
     const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr').replace(/\/$/, '')
-    params.append('merchant_ok_url', body.merchant_ok_url || `${baseUrl}/order/${body.merchant_oid}?status=success`);
-    params.append('merchant_fail_url', body.merchant_fail_url || `${baseUrl}/order/${body.merchant_oid}?status=failed`);
+    params.append('merchant_ok_url', body.merchant_ok_url || `${baseUrl}/order/${merchantOid}?status=success`);
+    params.append('merchant_fail_url', body.merchant_fail_url || `${baseUrl}/order/${merchantOid}?status=failed`);
     // ✅ PAYTR RESMİ PARAMETRELERİ
     const testModeValue = PAYTR_TEST_MODE ? '1' : '0';
     const userBasket = JSON.stringify([['Sipariş', paymentAmount, 1]]);
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
     // ✅ PAYTR RESMİ NODE.JS HASH FORMÜLÜ:
     // var hashSTR = `${merchant_id}${user_ip}${merchant_oid}${email}${payment_amount}${user_basket}${no_installment}${max_installment}${currency}${test_mode}`;
     // user_basket BASE64 ENCODED olarak hash'e girer!
-    const hashStr = `${PAYTR_MERCHANT_ID}${body.user_ip || '127.0.0.1'}${sanitizedMerchantOid}${body.email}${paymentAmount}${userBasketBase64}${noInstallment}${maxInstallment}${currency}${testModeValue}`;
+    const hashStr = `${PAYTR_MERCHANT_ID}${clientIp}${merchantOid}${body.email}${paymentAmount}${userBasketBase64}${noInstallment}${maxInstallment}${currency}${testModeValue}`;
     
     // ✅ PAYTR RESMİ NODE.JS KODU (app.js'den birebir):
     // var paytr_token = hashSTR + merchant_salt;
@@ -95,8 +95,7 @@ export async function POST(request: NextRequest) {
     const paytrToken = crypto.createHmac('sha256', PAYTR_MERCHANT_KEY).update(paytrTokenStr).digest('base64');
     
     console.log('🔐 Hash hesaplama:');
-    console.log(`   Original merchant_oid: ${body.merchant_oid}`);
-    console.log(`   Sanitized merchant_oid: ${sanitizedMerchantOid}`);
+    console.log(`   merchant_oid: ${merchantOid}`);
     console.log(`   Test Mode: ${testModeValue}`);
     console.log(`   User Basket: ${userBasket}`);
     console.log(`   Hash String: [MASKED]`);
