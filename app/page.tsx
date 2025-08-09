@@ -60,9 +60,9 @@ export const metadata: Metadata = {
   }
 }
 
-// Performance optimizations
-export const dynamic = 'force-dynamic'
-export const revalidate = 60 // Cache for 60 seconds
+// Performance optimizations - Improved caching
+export const dynamic = 'force-static'
+export const revalidate = 300 // Cache for 5 minutes (300 seconds)
 
 // Loading komponenti
 function ProductsLoading() {
@@ -424,22 +424,26 @@ export default async function Home() {
       take: 8
     })
 
-    // Ortalama rating hesapla
-    featuredProducts = products.map((product: any) => {
-      const averageRating = product.reviews.length > 0
-        ? product.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / product.reviews.length
+    // Ortalama rating hesapla - Modern JS optimized
+    featuredProducts = products.map((product) => {
+      const reviews = product.reviews
+      const averageRating = reviews.length > 0
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
         : 0
-      const discount = product.originalPrice && product.originalPrice > product.price
-        ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+      
+      const { originalPrice, price } = product
+      const discount = originalPrice && originalPrice > price
+        ? Math.round(((originalPrice - price) / originalPrice) * 100)
         : 0
+      
       const images = JSON.parse(product.images || '[]')
       const imageUrl = images[0] || ''
 
       return {
         id: product.id,
         name: product.name,
-        price: product.price,
-        originalPrice: product.originalPrice,
+        price,
+        originalPrice,
         rating: Math.round(averageRating * 10) / 10,
         reviews: product._count.reviews,
         image: imageUrl,

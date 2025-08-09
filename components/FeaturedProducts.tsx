@@ -36,6 +36,9 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
                   alt={`${product.name} - ${product.category?.name || 'Ürün'} - ModaBase`}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   loading="lazy"
+                  decoding="async"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  style={{ aspectRatio: '1/1' }}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
