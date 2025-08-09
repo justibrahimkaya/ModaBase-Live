@@ -54,7 +54,14 @@ const nextConfig = {
       '@prisma/client',
       'react-hot-toast',
       'swiper'
-    ]
+    ],
+    // Prisma binary'lerini çıktıya dahil et
+    outputFileTracingIncludes: {
+      '/**/*': [
+        './node_modules/.prisma/client',
+        './node_modules/@prisma/client'
+      ],
+    },
   },
 
   async headers() {
