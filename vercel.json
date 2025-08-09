@@ -23,12 +23,5 @@
   "env": {
     "NEXT_BODY_SIZE_LIMIT": "100mb"
   },
-  "redirects": [
-
-    {
-      "source": "/api/paytr/(.*)",
-      "destination": "https://www.modabase.com.tr/api/paytr/$1",
-      "permanent": true
-    }
-  ]
+  "redirects": []
 }
