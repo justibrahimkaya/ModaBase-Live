@@ -57,6 +57,11 @@ const nextConfig = {
     ],
   },
 
+  // Modern JS target for smaller bundles
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error'] } : false,
+  },
+
   // Prisma binary'lerini output tracing'e açıkça dahil et (root-level key)
   outputFileTracingIncludes: {
     '/**/*': [

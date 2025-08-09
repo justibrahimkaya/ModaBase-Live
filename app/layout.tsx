@@ -121,12 +121,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <meta name="HandheldFriendly" content="true" />
         <meta name="MobileOptimized" content="width" />
         
-        {/* ⚡ SPEED: Preconnect to important domains */}
+        {/* ⚡ CRITICAL PATH OPTIMIZATION */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://images.unsplash.com" />
-        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" />
         {/* DNS prefetch removed temporarily */}
         
         {/* API prefetch removed temporarily */}
@@ -139,8 +139,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <link rel="icon" type="image/png" sizes="16x16" href="/ChatGPT Image 20 Haz 2025 14_16_10.png" />
         <link rel="mask-icon" href="/ChatGPT Image 20 Haz 2025 14_16_10.png" color="#000000" />
         
-        {/* PWA Manifest */}
-        <link rel="manifest" href="/site.webmanifest" />
+        {/* PWA Manifest - Fixed for React errors */}
+        <link rel="manifest" href="/site.webmanifest" crossOrigin="use-credentials" />
         
         {/* Structured Data */}
         <script
@@ -243,8 +243,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         
         {/* Content Security Policy - Removed temporarily to fix site */}
         
-        {/* Google Analytics (GA4) - Updated for WWW domain */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-VL9KCLBV3R"></script>
+        {/* Google Analytics (GA4) - Lazy loaded for performance */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -252,6 +251,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
               gtag('config', 'G-VL9KCLBV3R');
+              
+              // Lazy load GA script after page load
+              window.addEventListener('load', function() {
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://www.googletagmanager.com/gtag/js?id=G-VL9KCLBV3R';
+                document.head.appendChild(script);
+              });
             `,
           }}
         />
