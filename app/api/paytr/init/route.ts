@@ -5,12 +5,12 @@ import crypto from 'crypto';
 const PAYTR_MERCHANT_ID = process.env.PAYTR_MERCHANT_ID || '';
 const PAYTR_MERCHANT_KEY = process.env.PAYTR_MERCHANT_KEY || '';
 const PAYTR_MERCHANT_SALT = process.env.PAYTR_MERCHANT_SALT || '';
-const PAYTR_TEST_MODE = process.env.PAYTR_TEST_MODE === 'true';
+const PAYTR_TEST_MODE = false; // GERÇEK ORTAM - Test modu kapalı
 const PAYTR_BASE_URL = 'https://www.paytr.com/odeme/api/get-token';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔄 PayTR init başlatıldı - CANLI ORTAM');
+    console.log('🔄 PayTR init başlatıldı - GERÇEK SATIŞ ORTAMI');
     console.log('🌐 Request URL:', request.url);
     console.log('🔧 Request Method:', request.method);
     console.log('📋 Request Headers:', Object.fromEntries(request.headers.entries()));
@@ -61,7 +61,8 @@ export async function POST(request: NextRequest) {
     params.append('user_name', body.user_name || 'Test User');
     params.append('user_address', body.user_address || 'Test Address');
     params.append('user_phone', body.user_phone || '05301234567');
-    const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr').replace(/\/$/, '')
+    // PayTR panelinde ayarlı olan gerçek URL'i kullan
+    const baseUrl = 'https://moda-base-live.vercel.app';
     params.append('merchant_ok_url', body.merchant_ok_url || `${baseUrl}/order/${merchantOid}?status=success`);
     params.append('merchant_fail_url', body.merchant_fail_url || `${baseUrl}/order/${merchantOid}?status=failed`);
     // ✅ PAYTR RESMİ PARAMETRELERİ
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
     params.append('no_installment', noInstallment);
     params.append('max_installment', maxInstallment);
     params.append('user_basket', userBasketBase64); // ✅ Base64 encoded
-    params.append('debug_on', '1');
+    params.append('debug_on', '0'); // Gerçek ortamda debug kapalı
     params.append('test_mode', testModeValue);
     params.append('lang', 'tr'); // ✅ PAYTR RESMİ: lang parametresi
 
