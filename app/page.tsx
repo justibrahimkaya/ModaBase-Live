@@ -392,8 +392,7 @@ export default async function Home() {
   let featuredProducts: any[] = []
   let hasError = false
 
-  // GEÇİCİ: Database sorununu atlayıp siteyi aç
-  const SKIP_DATABASE = false
+  // GEÇİCİ değişken kaldırıldı (lint için)
   
   try {
     // ⚡ FAST: En popüler/öne çıkan ürünleri getir - OPTIMIZED
