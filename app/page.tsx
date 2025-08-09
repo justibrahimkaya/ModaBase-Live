@@ -392,7 +392,18 @@ export default async function Home() {
   let featuredProducts: any[] = []
   let hasError = false
 
-  try {
+  // GEÇİCİ: Database sorununu atlayıp siteyi aç
+  const SKIP_DATABASE = true
+  
+  if (SKIP_DATABASE || process.env.SKIP_DB_CHECK === 'true') {
+    featuredProducts = []
+    hasError = false
+  } else {
+    try {
+    // Database bağlantısını test et
+    const testConnection = await prisma.$queryRaw`SELECT 1 as test`
+    console.log('Database connection test:', testConnection)
+    
     // ⚡ FAST: En popüler/öne çıkan ürünleri getir - OPTIMIZED
     const products = await prisma.product.findMany({
       select: {
@@ -457,6 +468,7 @@ export default async function Home() {
       stack: process.env.NODE_ENV === 'development' ? error?.stack : undefined
     })
     hasError = true
+  }
   }
 
   // Database hatası varsa fallback UI göster

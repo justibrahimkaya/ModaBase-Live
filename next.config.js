@@ -2,6 +2,13 @@
 const path = require('path');
 
 const nextConfig = {
+  // Prisma için Vercel optimizasyonu
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push('_http_common');
+    }
+    return config;
+  },
   reactStrictMode: true,
   compress: true,
   poweredByHeader: false,
