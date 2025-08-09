@@ -9,6 +9,7 @@ const nextConfig = {
     }
     return config;
   },
+  // Prisma paketlerini server tarafında external tutma; Next 15 ile çakışıyor
   reactStrictMode: true,
   compress: true,
   poweredByHeader: false,
