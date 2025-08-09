@@ -3,24 +3,55 @@ import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { EmailService } from '@/lib/emailService';
 
-// PayTR Konfigürasyonu
-const PAYTR_MERCHANT_KEY = process.env.PAYTR_MERCHANT_KEY || 'srMxKnSgipN1Z1Td';
-const PAYTR_MERCHANT_SALT = process.env.PAYTR_MERCHANT_SALT || 'TzXLtjFSuyDPsi8B';
+// PayTR Konfigürasyonu (fallback KULLANMA!)
+const PAYTR_MERCHANT_KEY = process.env.PAYTR_MERCHANT_KEY || '';
+const PAYTR_MERCHANT_SALT = process.env.PAYTR_MERCHANT_SALT || '';
 
 export async function POST(request: NextRequest) {
   // PayTR notification için rate limiting tamamen devre dışı
   console.log('🔄 PayTR notification başlatıldı - Rate limiting devre dışı');
   
   try {
-    const formData = await request.formData();
+    // Env kontrolü
+    if (!PAYTR_MERCHANT_KEY || !PAYTR_MERCHANT_SALT) {
+      console.error('❌ PayTR credentials not set on server (KEY/SALT)');
+      return new NextResponse('Server credentials missing', { status: 500 });
+    }
+
+    // PayTR, content-type olarak application/x-www-form-urlencoded gönderir
+    // Hem urlencoded hem multipart formları destekle
+    const contentType = request.headers.get('content-type') || '';
+    let merchant_oid = '' as string;
+    let status = '' as string;
+    let total_amount = '' as string;
+    let hash = '' as string;
+    let payment_type = '' as string;
+    let failed_reason_msg = '' as string;
+
+    if (contentType.includes('application/x-www-form-urlencoded')) {
+      const text = await request.text();
+      const params = new URLSearchParams(text);
+      merchant_oid = params.get('merchant_oid') || '';
+      status = params.get('status') || '';
+      total_amount = params.get('total_amount') || '';
+      hash = params.get('hash') || '';
+      payment_type = params.get('payment_type') || '';
+      failed_reason_msg = params.get('failed_reason_msg') || '';
+    } else {
+      const formData = await request.formData();
+      merchant_oid = (formData.get('merchant_oid') as string) || '';
+      status = (formData.get('status') as string) || '';
+      total_amount = (formData.get('total_amount') as string) || '';
+      hash = (formData.get('hash') as string) || '';
+      payment_type = (formData.get('payment_type') as string) || '';
+      failed_reason_msg = (formData.get('failed_reason_msg') as string) || '';
+    }
     
-    // PayTR'den gelen parametreler
-    const merchant_oid = formData.get('merchant_oid') as string;
-    const status = formData.get('status') as string;
-    const total_amount = formData.get('total_amount') as string;
-    const hash = formData.get('hash') as string;
-    const payment_type = formData.get('payment_type') as string;
-    const failed_reason_msg = formData.get('failed_reason_msg') as string;
+    // Basit doğrulama
+    if (!merchant_oid || !status || !total_amount || !hash) {
+      console.error('❌ PayTR notification missing fields');
+      return new NextResponse('Bad Request', { status: 400 });
+    }
 
     // Hash doğrulama - PayTR resmi formülü
     const hashStr = `${merchant_oid}${PAYTR_MERCHANT_SALT}${status}${total_amount}`;
@@ -28,7 +59,7 @@ export async function POST(request: NextRequest) {
 
     if (hash !== calculatedHash) {
       console.error('PayTR hash verification failed');
-      return NextResponse.json({ status: 'error', message: 'Hash verification failed' }, { status: 400 });
+      return new NextResponse('Hash verification failed', { status: 400 });
     }
 
     // Siparişi veritabanından bul
@@ -167,10 +198,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('PayTR notification error:', error);
-    return NextResponse.json({ 
-      status: 'error', 
-      message: 'Notification processing failed' 
-    }, { status: 500 });
+    return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
 
