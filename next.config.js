@@ -52,7 +52,6 @@ const nextConfig = {
     optimizePackageImports: [
       '@headlessui/react',
       'lucide-react', 
-      '@prisma/client',
       'react-hot-toast',
       'swiper'
     ],
