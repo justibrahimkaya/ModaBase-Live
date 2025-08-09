@@ -451,6 +451,9 @@ export default async function Home() {
       message: error?.message || 'Unknown error',
       code: error?.code,
       name: error?.name,
+      cause: error?.cause,
+      databaseUrl: process.env.DATABASE_URL ? 'SET' : 'NOT SET',
+      nodeEnv: process.env.NODE_ENV,
       stack: process.env.NODE_ENV === 'development' ? error?.stack : undefined
     })
     hasError = true
