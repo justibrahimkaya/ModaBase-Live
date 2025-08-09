@@ -9,31 +9,6 @@
       "memory": 3008
     }
   },
-  "headers": [
-    {
-      "source": "/api/admin/products",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/json"
-        }
-      ]
-    }
-  ],
-  "redirects": [
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "header",
-          "key": "x-forwarded-proto",
-          "value": "http"
-        }
-      ],
-      "destination": "https://www.modabase.com.tr/$1",
-      "permanent": true
-    }
-  ],
   "env": {
     "NEXT_BODY_SIZE_LIMIT": "100mb"
   }

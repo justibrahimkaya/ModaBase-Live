@@ -106,20 +106,7 @@ const nextConfig = {
   },
 
   async redirects() {
-    return process.env.NODE_ENV === 'production' ? [
-      {
-        source: '/:path*',
-        has: [
-          {
-            type: 'header',
-            key: 'x-forwarded-proto',
-            value: 'http',
-          },
-        ],
-        destination: 'https://www.modabase.com.tr/:path*',
-        permanent: true,
-      },
-    ] : []
+    return []
   },
 
   async rewrites() {
