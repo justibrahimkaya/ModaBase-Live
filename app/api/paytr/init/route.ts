@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 
-// PayTR Konfigürasyonu
-const PAYTR_MERCHANT_ID = process.env.PAYTR_MERCHANT_ID || '596379';
-const PAYTR_MERCHANT_KEY = process.env.PAYTR_MERCHANT_KEY || 'srMxKnSgipN1Z1Td';
-const PAYTR_MERCHANT_SALT = process.env.PAYTR_MERCHANT_SALT || 'TzXLtjFSuyDPsi8B';
+// PayTR Konfigürasyonu (Gizli anahtarlarda ASLA fallback kullanma)
+const PAYTR_MERCHANT_ID = process.env.PAYTR_MERCHANT_ID || '';
+const PAYTR_MERCHANT_KEY = process.env.PAYTR_MERCHANT_KEY || '';
+const PAYTR_MERCHANT_SALT = process.env.PAYTR_MERCHANT_SALT || '';
 const PAYTR_TEST_MODE = process.env.PAYTR_TEST_MODE === 'true';
-const PAYTR_BASE_URL = PAYTR_TEST_MODE 
-  ? 'https://www.paytr.com/odeme/api/get-token' 
-  : 'https://www.paytr.com/odeme/api/get-token';
+const PAYTR_BASE_URL = 'https://www.paytr.com/odeme/api/get-token';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,10 +15,18 @@ export async function POST(request: NextRequest) {
     console.log('🔧 Request Method:', request.method);
     console.log('📋 Request Headers:', Object.fromEntries(request.headers.entries()));
     console.log('📋 Environment değerleri:');
-    console.log(`   PAYTR_MERCHANT_ID: ${PAYTR_MERCHANT_ID}`);
-    console.log(`   PAYTR_MERCHANT_KEY: ${PAYTR_MERCHANT_KEY ? 'SET' : 'NOT SET'}`);
-    console.log(`   PAYTR_MERCHANT_SALT: ${PAYTR_MERCHANT_SALT ? 'SET' : 'NOT SET'}`);
+    console.log(`   PAYTR_MERCHANT_ID: ${PAYTR_MERCHANT_ID ? '[SET]' : '[NOT SET]'}`);
+    console.log(`   PAYTR_MERCHANT_KEY: ${PAYTR_MERCHANT_KEY ? '[SET]' : '[NOT SET]'}`);
+    console.log(`   PAYTR_MERCHANT_SALT: ${PAYTR_MERCHANT_SALT ? '[SET]' : '[NOT SET]'}`);
     console.log(`   PAYTR_TEST_MODE: ${PAYTR_TEST_MODE}`);
+
+    // Zorunlu env kontrolü
+    if (!PAYTR_MERCHANT_ID || !PAYTR_MERCHANT_KEY || !PAYTR_MERCHANT_SALT) {
+      return NextResponse.json({
+        success: false,
+        error: 'Missing PayTR credentials on server (merchant_id/key/salt)'
+      }, { status: 500 });
+    }
     
     const body = await request.json();
     console.log('📥 Request body:', JSON.stringify(body, null, 2));
@@ -42,8 +48,6 @@ export async function POST(request: NextRequest) {
     
     const params = new URLSearchParams();
     params.append('merchant_id', PAYTR_MERCHANT_ID);
-    params.append('merchant_key', PAYTR_MERCHANT_KEY); // ✅ PAYTR RESMİ: merchant_key gönderilmeli
-    params.append('merchant_salt', PAYTR_MERCHANT_SALT); // ✅ PAYTR RESMİ: merchant_salt gönderilmeli
     params.append('user_ip', body.user_ip || '127.0.0.1');
     params.append('merchant_oid', sanitizedMerchantOid);
     params.append('email', body.email);
@@ -89,18 +93,18 @@ export async function POST(request: NextRequest) {
     console.log(`   Sanitized merchant_oid: ${sanitizedMerchantOid}`);
     console.log(`   Test Mode: ${testModeValue}`);
     console.log(`   User Basket: ${userBasket}`);
-    console.log(`   Hash String: ${hashStr.substring(0, 100)}...`);
-    console.log(`   PayTR Token: ${paytrToken.substring(0, 20)}...`);
+    console.log(`   Hash String: [MASKED]`);
+    console.log(`   PayTR Token: [MASKED]`);
     
     params.append('paytr_token', paytrToken);
 
     console.log('📤 PayTR API\'ye gönderilen parametreler:');
     for (const [key, value] of params.entries()) {
-      if (key === 'hash') {
-        console.log(`   ${key}: ${value.substring(0, 20)}...`);
-      } else {
-        console.log(`   ${key}: ${value}`);
+      if (key === 'paytr_token') {
+        console.log(`   ${key}: [MASKED]`);
+        continue;
       }
+      console.log(`   ${key}: ${value}`);
     }
 
     // PayTR API'ye istek gönder
