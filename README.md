@@ -4,7 +4,8 @@ Modern, responsive ve tam özellikli e-ticaret platformu. Next.js 15, TypeScript
 
 ## 🌟 Canlı Demo
 
-**Production Site**: [https://moda-base-live.vercel.app](https://moda-base-live.vercel.app)
+**Production Site**: [https://www.modabase.com.tr](https://www.modabase.com.tr)
+**Vercel URL**: [https://moda-base-live.vercel.app](https://moda-base-live.vercel.app)
 
 ## 🚀 Tam Özellik Listesi
 
