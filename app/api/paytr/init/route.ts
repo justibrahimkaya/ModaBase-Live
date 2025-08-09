@@ -46,9 +46,14 @@ export async function POST(request: NextRequest) {
     // Alt çizgi (_) ve diğer özel karakterleri kaldır
     const sanitizedMerchantOid = body.merchant_oid.replace(/[^a-zA-Z0-9]/g, '');
     
+    // IP adresini isteğin gerçek IP'sinden al (body'deki değeri kullanma)
+    const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]
+      || request.headers.get('x-real-ip')
+      || '127.0.0.1'
+
     const params = new URLSearchParams();
     params.append('merchant_id', PAYTR_MERCHANT_ID);
-    params.append('user_ip', body.user_ip || '127.0.0.1');
+    params.append('user_ip', clientIp);
     params.append('merchant_oid', sanitizedMerchantOid);
     params.append('email', body.email);
     params.append('payment_amount', paymentAmount); // ✅ DÜZELTME: payment_amount (kuruş)
@@ -56,8 +61,9 @@ export async function POST(request: NextRequest) {
     params.append('user_name', body.user_name || 'Test User');
     params.append('user_address', body.user_address || 'Test Address');
     params.append('user_phone', body.user_phone || '05301234567');
-    params.append('merchant_ok_url', body.merchant_ok_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/order/${body.merchant_oid}?status=success`);
-    params.append('merchant_fail_url', body.merchant_fail_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'https://modabase.com.tr'}/order/${body.merchant_oid}?status=failed`);
+    const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://www.modabase.com.tr').replace(/\/$/, '')
+    params.append('merchant_ok_url', body.merchant_ok_url || `${baseUrl}/order/${body.merchant_oid}?status=success`);
+    params.append('merchant_fail_url', body.merchant_fail_url || `${baseUrl}/order/${body.merchant_oid}?status=failed`);
     // ✅ PAYTR RESMİ PARAMETRELERİ
     const testModeValue = PAYTR_TEST_MODE ? '1' : '0';
     const userBasket = JSON.stringify([['Sipariş', paymentAmount, 1]]);

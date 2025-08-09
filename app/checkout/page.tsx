@@ -381,7 +381,7 @@ export default function CheckoutPage() {
         console.log('📄 PayTR API Ham Yanıt:', responseText)
         
         if (!responseText || responseText.trim() === '') {
-          throw new Error('PayTR API boş yanıt döndü')
+          throw new Error(`PayTR API boş yanıt döndü (HTTP ${res.status})`)
         }
         
         data = JSON.parse(responseText)
@@ -418,22 +418,22 @@ export default function CheckoutPage() {
         
         if (data.error) {
           // API'den gelen hata mesajını kontrol et
-          if (data.error.includes('JSON')) {
+          if (typeof data.error === 'string' && data.error.includes('JSON')) {
             errorMessage = 'Ödeme sistemi geçici olarak kullanılamıyor. Lütfen havale yöntemi ile ödeme yapın.'
-          } else if (data.error.includes('hash')) {
+          } else if (typeof data.error === 'string' && data.error.includes('hash')) {
             errorMessage = 'Güvenlik doğrulaması başarısız. Lütfen sayfayı yenileyip tekrar deneyin.'
-          } else if (data.error.includes('merchant')) {
+          } else if (typeof data.error === 'string' && data.error.includes('merchant')) {
             errorMessage = 'Ödeme sistemi yapılandırma hatası. Lütfen havale yöntemi kullanın.'
-          } else if (data.error.includes('payment_amount')) {
+          } else if (typeof data.error === 'string' && data.error.includes('payment_amount')) {
             errorMessage = 'Ödeme tutarı hatası. Lütfen sepetinizi kontrol edin.'
-          } else if (data.error.includes('merchant_oid')) {
+          } else if (typeof data.error === 'string' && data.error.includes('merchant_oid')) {
             errorMessage = 'Sipariş numarası hatası. Lütfen sayfayı yenileyin.'
           } else {
-            errorMessage = `PayTR Hatası: ${data.error}`
+            errorMessage = `PayTR Hatası: ${typeof data.error === 'string' ? data.error : JSON.stringify(data.error)}`
           }
         } else if (data.reason) {
           // PayTR API'den gelen reason mesajını kullan
-          errorMessage = `PayTR Hatası: ${data.reason}`
+          errorMessage = `PayTR Hatası: ${typeof data.reason === 'string' ? data.reason : JSON.stringify(data.reason)}`
         }
         
         throw new Error(errorMessage)
