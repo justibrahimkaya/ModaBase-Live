@@ -5,7 +5,6 @@ const nextConfig = {
   reactStrictMode: true,
   compress: true,
   poweredByHeader: false,
-  productionBrowserSourceMaps: false,
   
   images: {
     domains: ['localhost', 'modabase.com.tr', 'www.modabase.com.tr'],
@@ -36,7 +35,7 @@ const nextConfig = {
       },
     ],
     formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 604800, // 7 days cache
+    minimumCacheTTL: 604800,
     deviceSizes: [420, 640, 750, 828, 1080, 1200],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
@@ -47,60 +46,10 @@ const nextConfig = {
       'lucide-react', 
       '@prisma/client',
       'react-hot-toast',
-      'swiper',
-      'framer-motion',
-      '@tanstack/react-query'
+      'swiper'
     ]
   },
 
-  // Webpack optimizasyonları
-  webpack: (config, { dev, isServer }) => {
-    // Production optimizasyonları
-    if (!dev && !isServer) {
-      config.optimization = {
-        ...config.optimization,
-        moduleIds: 'deterministic',
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            default: false,
-            vendors: false,
-            framework: {
-              name: 'framework',
-              chunks: 'all',
-              test: /[\\/]node_modules[\\/](react|react-dom|scheduler|prop-types|use-subscription)[\\/]/,
-              priority: 40,
-              enforce: true,
-            },
-            lib: {
-              test(module) {
-                return module.size() > 160000 &&
-                  /node_modules[\\/]/.test(module.identifier());
-              },
-              name(module) {
-                const hash = require('crypto').createHash('sha1');
-                hash.update(module.identifier());
-                return hash.digest('hex').substring(0, 8);
-              },
-              priority: 30,
-              minChunks: 1,
-              reuseExistingChunk: true,
-            },
-            commons: {
-              name: 'commons',
-              chunks: 'all',
-              minChunks: 2,
-              priority: 20,
-            },
-          },
-        },
-      };
-    }
-    
-    return config;
-  },
-
-  // Headers için daha esnek CSP
   async headers() {
     return [
       {
@@ -132,10 +81,6 @@ const nextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin'
-          },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable'
           }
         ],
       },
@@ -160,7 +105,6 @@ const nextConfig = {
     ]
   },
 
-  // HTTPS redirect
   async redirects() {
     return process.env.NODE_ENV === 'production' ? [
       {
@@ -178,7 +122,6 @@ const nextConfig = {
     ] : []
   },
 
-  // PayTR iframe için frame-ancestors
   async rewrites() {
     return [
       {
