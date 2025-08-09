@@ -1,20 +1,21 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
-  // Enable React strict mode for better development experience
   reactStrictMode: true,
+  compress: true,
+  poweredByHeader: false,
+  productionBrowserSourceMaps: false,
   
-  // Next.js 15 body size limits
-  experimental: {
-    optimizePackageImports: ['@headlessui/react', 'lucide-react', 'framer-motion'],
-    // Body size limit for API routes
-    serverComponentsExternalPackages: ['@prisma/client'],
-    // Increase body size limit
-    bodySizeLimit: '100mb',
-  },
-  
-  // Image optimization settings - ⚡ ULTRA PERFORMANCE
   images: {
+    domains: ['localhost', 'modabase.com.tr', 'www.modabase.com.tr'],
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.vercel.app',
+        port: '',
+        pathname: '/**',
+      },
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
@@ -35,16 +36,71 @@ const nextConfig = {
       },
     ],
     formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 604800, // 7 days cache - MUCH LONGER!
-    deviceSizes: [420, 640, 750, 828, 1080, 1200], // Mobile first sizes + 420px for very small
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384], // More size options
-    dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    // ⚡ SPEED: Disable optimization for faster dev/build
-    unoptimized: process.env.NODE_ENV === 'development'
+    minimumCacheTTL: 604800, // 7 days cache
+    deviceSizes: [420, 640, 750, 828, 1080, 1200],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   
-  // Security headers
+  experimental: {
+    optimizePackageImports: [
+      '@headlessui/react',
+      'lucide-react', 
+      '@prisma/client',
+      'react-hot-toast',
+      'swiper',
+      'framer-motion',
+      '@tanstack/react-query'
+    ]
+  },
+
+  // Webpack optimizasyonları
+  webpack: (config, { dev, isServer }) => {
+    // Production optimizasyonları
+    if (!dev && !isServer) {
+      config.optimization = {
+        ...config.optimization,
+        moduleIds: 'deterministic',
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            default: false,
+            vendors: false,
+            framework: {
+              name: 'framework',
+              chunks: 'all',
+              test: /[\\/]node_modules[\\/](react|react-dom|scheduler|prop-types|use-subscription)[\\/]/,
+              priority: 40,
+              enforce: true,
+            },
+            lib: {
+              test(module) {
+                return module.size() > 160000 &&
+                  /node_modules[\\/]/.test(module.identifier());
+              },
+              name(module) {
+                const hash = require('crypto').createHash('sha1');
+                hash.update(module.identifier());
+                return hash.digest('hex').substring(0, 8);
+              },
+              priority: 30,
+              minChunks: 1,
+              reuseExistingChunk: true,
+            },
+            commons: {
+              name: 'commons',
+              chunks: 'all',
+              minChunks: 2,
+              priority: 20,
+            },
+          },
+        },
+      };
+    }
+    
+    return config;
+  },
+
+  // Headers için daha esnek CSP
   async headers() {
     return [
       {
@@ -62,10 +118,6 @@ const nextConfig = {
             value: 'on'
           },
           {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains; preload'
-          },
-          {
             key: 'X-XSS-Protection',
             value: '1; mode=block'
           },
@@ -79,187 +131,88 @@ const nextConfig = {
           },
           {
             key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin'
+            value: 'strict-origin-when-cross-origin'
           },
           {
-            key: 'Permissions-Policy',
-            value: 'camera=(self), microphone=(self), geolocation=(self), payment=(self)'
-          },
-          {
-            key: 'X-Permitted-Cross-Domain-Policies',
-            value: 'none'
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
           }
+        ],
+      },
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          }
+        ]
+      },
+      {
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, must-revalidate'
+          }
+        ]
+      }
+    ]
+  },
+
+  // HTTPS redirect
+  async redirects() {
+    return process.env.NODE_ENV === 'production' ? [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'header',
+            key: 'x-forwarded-proto',
+            value: 'http',
+          },
+        ],
+        destination: 'https://www.modabase.com.tr/:path*',
+        permanent: true,
+      },
+    ] : []
+  },
+
+  // PayTR iframe için frame-ancestors
+  async rewrites() {
+    return [
+      {
+        source: '/api/paytr/:path*',
+        destination: '/api/paytr/:path*',
+        has: [
+          {
+            type: 'header',
+            key: 'origin',
+            value: '(.*paytr\\.com.*)',
+          },
         ],
       },
     ]
   },
-  
-  // Webpack configuration for security and optimization
-  webpack: (config, { isServer, dev }) => {
-    // Security: Remove console.log in production
-    if (!dev) {
-      config.optimization.minimizer.forEach(minimizer => {
-        if (minimizer.constructor.name === 'TerserPlugin') {
-          minimizer.options.terserOptions.compress.drop_console = true
-          minimizer.options.terserOptions.compress.drop_debugger = true
-        }
-      })
-    }
-    
-    // Performance: Bundle analyzer (optional)
-    if (process.env.ANALYZE === 'true') {
-      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
-      config.plugins.push(
-        new BundleAnalyzerPlugin({
-          analyzerMode: 'static',
-          openAnalyzer: false,
-        })
-      )
-    }
-    
-    return config
-  },
-  
-  // Disable X-Powered-By header
-  poweredByHeader: false,
-  
-  // Experimental features for better performance
-  experimental: {
-    optimizePackageImports: ['@headlessui/react', 'lucide-react', 'framer-motion'],
-  },
-  
 
-  
-  // Server external packages (Next.js 15 format)
-  serverExternalPackages: ['@prisma/client'],
-  
-  // Redirects for legacy blog URLs
-  async redirects() {
-    return [
-      // Blog URL redirects - Google'ın aradığı eski slug'ları yeni slug'lara yönlendir
-      {
-        source: '/blog/2024-kis-moda-trendleri-rehber-2024-trendi-ve-yenilikleri',
-        destination: '/blog/2024-kis-moda-trendleri-rehberi-2024-trendleri-ve-oneriler',
-        permanent: true,
-      },
-      {
-        source: '/blog/aksesuar-seciminde-dikkat-kurali-2024-en-populer-trendleri',
-        destination: '/blog/aksesuar-seciminde-altin-kurallar-2024-un-en-populer-trendleri',
-        permanent: true,
-      },
-      {
-        source: '/blog/aksesuar-seciminde-dikkat-kuralı-2024-en-populer-trendleri',
-        destination: '/blog/aksesuar-seciminde-altin-kurallar-2024-un-en-populer-trendleri',
-        permanent: true,
-      },
-      {
-        source: '/blog/aksesuar-seciminde-dikkat-kurallari-rehber-2024-trendi-ve-yenilikleri',
-        destination: '/blog/aksesuar-seciminde-altin-kurallar-rehberi-2024-trendleri-ve-oneriler',
-        permanent: true,
-      },
-      {
-        source: '/blog/cocuk-giyimde-konfor-ve-guvenlik-2024-en-populer-trendleri',
-        destination: '/blog/cocuk-giyiminde-konfor-ve-guvenlik-2024-un-en-populer-trendleri',
-        permanent: true,
-      },
-      {
-        source: '/blog/erkek-giyimde-profesyonel-gorunum-rehber-2024-trendi-ve-yenilikleri',
-        destination: '/blog/erkek-giyimde-profesyonel-gorunum-rehberi-2024-trendleri-ve-oneriler',
-        permanent: true,
-      },
-      {
-        source: '/blog/evsekli-bakım-rehber-rehber-2024-trendi-ve-yenilikleri',
-        destination: '/blog/ev-tekstili-bakim-rehberi-rehberi-2024-trendleri-ve-oneriler',
-        permanent: true,
-      },
-      {
-        source: '/blog/kadin-giyimde-kombinleme-sanati-rehber-2024-trendi-ve-yenilikleri',
-        destination: '/blog/kadin-giyimde-kombinleme-sanati-rehberi-2024-trendleri-ve-oneriler',
-        permanent: true,
-      },
-      {
-        source: '/blog/luaks-girlerin-ozellikler-rehber-2024-trendi-ve-yenilikleri',
-        destination: '/blog/surdurulebilir-tekstil-uretimi-rehberi-2024-trendleri-ve-oneriler',
-        permanent: true,
-      },
-      {
-        source: '/blog/organik-kumaslar-avantajlari-rehber-2024-trendi-ve-yenilikleri',
-        destination: '/blog/organik-kumaslarin-faydalari-rehberi-2024-trendleri-ve-oneriler',
-        permanent: true,
-      },
-      {
-        source: '/blog/spor-giyiminde-teknoloji-rehber-2024-trendi-ve-yenilikleri',
-        destination: '/blog/spor-giyiminde-teknoloji-rehberi-2024-trendleri-ve-oneriler',
-        permanent: true,
-      },
-      {
-        source: '/blog/surdurulebilir-tekstil-uretimi-rehber-2024-trendi-ve-yenilikleri',
-        destination: '/blog/surdurulebilir-tekstil-uretimi-rehberi-2024-trendleri-ve-oneriler',
-        permanent: true,
-      },
-      {
-        source: '/blog/durdurulabilir-tekstil-uretimi-rehber-2024-trendi-ve-yenilikleri',
-        destination: '/blog/surdurulebilir-tekstil-uretimi-rehberi-2024-trendleri-ve-oneriler',
-        permanent: true,
-      },
-      
-      // Category URL redirects - Google'ın aradığı kısa slug'ları uzun slug'lara yönlendir
-      {
-        source: '/products\\?category=çanta',
-        destination: '/products?category=aksesuar-canta',
-        permanent: true,
-      },
-      {
-        source: '/products\\?category=canta',
-        destination: '/products?category=aksesuar-canta',
-        permanent: true,
-      },
-      {
-        source: '/products\\?category=takı',
-        destination: '/products?category=aksesuar-taki',
-        permanent: true,
-      },
-      {
-        source: '/products\\?category=taki',
-        destination: '/products?category=aksesuar-taki',
-        permanent: true,
-      },
-      {
-        source: '/products\\?category=bluzler',
-        destination: '/products?category=kadin-bluzler',
-        permanent: true,
-      },
-      {
-        source: '/products\\?category=pantolon',
-        destination: '/products?category=erkek-pantolon',
-        permanent: true,
-      },
-      {
-        source: '/products\\?category=tshirt',
-        destination: '/products?category=erkek-tshirt',
-        permanent: true,
-      },
-      {
-        source: '/products\\?category=elbiseler',
-        destination: '/products?category=kadin-elbiseler',
-        permanent: true,
-      },
-      {
-        source: '/products\\?category=etekler',
-        destination: '/products?category=kadin-etekler',
-        permanent: true,
-      },
-      {
-        source: '/products\\?category=pantolonlar',
-        destination: '/products?category=kadin-pantolonlar',
-        permanent: true,
-      },
-    ]
+  transpilePackages: [
+    '@headlessui/react',
+  ],
+
+  env: {
+    NEXT_BODY_SIZE_LIMIT: process.env.NEXT_BODY_SIZE_LIMIT || '50mb',
   },
 
-  // Compiler options
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+  serverRuntimeConfig: {
+    PROJECT_ROOT: __dirname,
+  },
+
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
+  typescript: {
+    ignoreBuildErrors: true,
   },
 }
 

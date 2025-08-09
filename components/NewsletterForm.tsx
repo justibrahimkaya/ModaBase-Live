@@ -42,7 +42,7 @@ export default function NewsletterForm() {
         {loading ? 'Gönderiliyor...' : 'Abone Ol'}
       </button>
       {message && (
-        <p className="absolute -bottom-8 left-0 right-0 text-center text-green-400 text-sm">{message}</p>
+        <p className="text-center text-green-400 text-sm mt-2">{message}</p>
       )}
     </form>
   )
