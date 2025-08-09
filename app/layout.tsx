@@ -127,6 +127,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" />
+        
+        {/* Critical above-the-fold CSS */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            .category-grid { min-height: 200px; }
+            .category-item { height: 180px; min-height: 180px; }
+            .featured-products { min-height: 400px; }
+            .hero-section { min-height: 50vh; }
+            img { image-rendering: auto; }
+          `
+        }} />
         {/* DNS prefetch removed temporarily */}
         
         {/* API prefetch removed temporarily */}
@@ -243,7 +254,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         
         {/* Content Security Policy - Removed temporarily to fix site */}
         
-        {/* Google Analytics (GA4) - Lazy loaded for performance */}
+        {/* Google Analytics (GA4) - Ultra lazy for mobile performance */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -252,12 +263,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               gtag('js', new Date());
               gtag('config', 'G-VL9KCLBV3R');
               
-              // Lazy load GA script after page load
-              window.addEventListener('load', function() {
+              // Ultra lazy: Load GA only after user interaction
+              let gaLoaded = false;
+              function loadGA() {
+                if (gaLoaded) return;
+                gaLoaded = true;
                 const script = document.createElement('script');
                 script.async = true;
                 script.src = 'https://www.googletagmanager.com/gtag/js?id=G-VL9KCLBV3R';
                 document.head.appendChild(script);
+              }
+              
+              // Load GA on first user interaction or after 5 seconds
+              setTimeout(loadGA, 5000);
+              ['click', 'scroll', 'keydown', 'touchstart'].forEach(event => {
+                document.addEventListener(event, loadGA, { once: true, passive: true });
               });
             `,
           }}

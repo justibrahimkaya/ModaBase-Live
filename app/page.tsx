@@ -60,9 +60,10 @@ export const metadata: Metadata = {
   }
 }
 
-// Performance optimizations - Improved caching
+// Performance optimizations - Aggressive caching for mobile
 export const dynamic = 'force-static'
-export const revalidate = 300 // Cache for 5 minutes (300 seconds)
+export const revalidate = 600 // Cache for 10 minutes (600 seconds)
+export const fetchCache = 'force-cache'
 
 // Loading komponenti
 function ProductsLoading() {
@@ -169,22 +170,25 @@ async function CategoriesShowcase() {
           </p>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6" suppressHydrationWarning>
           {categories.map((category) => (
             <a
               key={category.id}
               href={`/products?category=${category.slug}`}
               className="group block text-center"
             >
-              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 aspect-square mb-4 group-hover:scale-105 transition-transform duration-300 shadow-lg group-hover:shadow-xl">
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 aspect-square mb-4 group-hover:scale-105 transition-transform duration-300 shadow-lg group-hover:shadow-xl" style={{ minHeight: '180px', height: '180px' }}>
                 {category.image ? (
                   <img
                     src={category.image}
                     alt={category.name}
                     className="w-full h-full object-cover"
+                    style={{ width: '100%', height: '180px' }}
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-full h-full flex items-center justify-center" style={{ height: '180px' }}>
                     <ShoppingBag className="w-12 h-12 text-gray-400" />
                   </div>
                 )}
