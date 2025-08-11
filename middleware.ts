@@ -47,7 +47,7 @@ function isRateLimited(
 const securityHeaders = {
   'X-DNS-Prefetch-Control': 'on',
   'X-XSS-Protection': '1; mode=block',
-  'X-Frame-Options': 'DENY',
+  'X-Frame-Options': 'DENY', // Clickjacking koruması
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'origin-when-cross-origin',
   'X-Permitted-Cross-Domain-Policies': 'none',
@@ -56,7 +56,7 @@ const securityHeaders = {
 
 // Production security headers
 const productionHeaders = {
-  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload', // 2 years
 }
 
 export function middleware(request: NextRequest) {

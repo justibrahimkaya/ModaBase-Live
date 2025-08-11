@@ -59,7 +59,7 @@ const nextConfig = {
 
   // Modern JS target for smaller bundles
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error'] } : false,
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
   },
 
   // Prisma binary'lerini output tracing'e açıkça dahil et (root-level key)
@@ -78,7 +78,17 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value: [
-              "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:",
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "font-src 'self' https://fonts.gstatic.com data:",
+              "img-src 'self' data: blob: https: http:",
+              "connect-src 'self' https://api.paytr.com https://www.paytr.com https://vitals.vercel-insights.com https://www.google-analytics.com",
+              "frame-src 'self' https://www.paytr.com",
+              "frame-ancestors 'none'",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self' https://www.paytr.com",
               "upgrade-insecure-requests"
             ].join('; ')
           },
@@ -101,6 +111,14 @@ const nextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin'
+          },
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin'
+          },
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp'
           }
         ],
       },

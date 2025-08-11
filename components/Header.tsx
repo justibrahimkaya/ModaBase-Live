@@ -188,7 +188,10 @@ export default function Header() {
             <button
               className="lg:hidden p-2 rounded-xl hover:bg-gray-50 transition-colors touch-manipulation"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Menüyü aç/kapat"
+              aria-label={isMenuOpen ? "Menüyü kapat" : "Menüyü aç"}
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-menu"
+              type="button"
             >
               <Menu className="h-6 w-6 text-gray-700" />
             </button>
@@ -203,7 +206,7 @@ export default function Header() {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8 flex-1 justify-center">
+            <nav className="hidden lg:flex items-center space-x-8 flex-1 justify-center" aria-label="Ana navigasyon">
               <a href="/" className="nav-link">Ana Sayfa</a>
               <a href="/products" className="nav-link">Ürünler</a>
               <a href="/blog" className="nav-link">Blog</a>
@@ -281,8 +284,8 @@ export default function Header() {
 
         {/* Mobile Navigation Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden bg-white/98 backdrop-blur-xl border-t border-gray-100 shadow-lg">
-            <div className="px-4 py-4 space-y-2">
+          <div id="mobile-menu" className="lg:hidden bg-white/98 backdrop-blur-xl border-t border-gray-100 shadow-lg" role="navigation" aria-label="Mobil navigasyon menüsü">
+            <nav className="px-4 py-4 space-y-2">
               <a href="/" className="mobile-nav-item" onClick={() => setIsMenuOpen(false)}>
                 Ana Sayfa
               </a>
@@ -327,7 +330,7 @@ export default function Header() {
                   </a>
                 </div>
               )}
-            </div>
+            </nav>
           </div>
         )}
       </header>

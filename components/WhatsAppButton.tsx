@@ -159,6 +159,8 @@ export default function WhatsAppButton({
             group
           `}
           title={isBusinessAdmin ? "ModaBase ile iletişime geç" : "İşletme ile iletişime geç"}
+          aria-label={isBusinessAdmin ? "ModaBase destek WhatsApp hattı" : "WhatsApp ile iletişime geç"}
+          type="button"
         >
           <MessageCircle className={getIconSize()} />
           
@@ -187,6 +189,8 @@ export default function WhatsAppButton({
         ${className}
       `}
       title={isBusinessAdmin ? "ModaBase ile iletişime geç" : "İşletme ile iletişime geç"}
+      aria-label={isBusinessAdmin ? "ModaBase destek WhatsApp hattı" : "WhatsApp ile iletişime geç"}
+      type="button"
     >
       <MessageCircle className="w-5 h-5" />
       <span className="font-medium">

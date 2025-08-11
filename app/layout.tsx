@@ -292,6 +292,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             height="0" 
             width="0" 
             style={{display: 'none', visibility: 'hidden'}}
+            title="Google Tag Manager"
+            aria-hidden="true"
           />
         </noscript>
         
@@ -302,9 +304,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         
         <AuthSessionProvider>
           <CartProvider>
-            <div id="main-content" className="mobile-bottom-nav-space">
+            <main id="main-content" className="mobile-bottom-nav-space" role="main">
               {children}
-            </div>
+            </main>
             <MobileBottomNav />
           </CartProvider>
         </AuthSessionProvider>
