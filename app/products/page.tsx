@@ -222,6 +222,40 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               "@type": "Organization",
               "name": "ModaBase",
               "url": "https://www.modabase.com.tr"
+            },
+            "shippingDetails": {
+              "@type": "OfferShippingDetails",
+              "shippingRate": {
+                "@type": "MonetaryAmount",
+                "value": "0",
+                "currency": "TRY"
+              },
+              "shippingDestination": {
+                "@type": "DefinedRegion",
+                "addressCountry": "TR"
+              },
+              "deliveryTime": {
+                "@type": "ShippingDeliveryTime",
+                "handlingTime": {
+                  "@type": "QuantitativeValue",
+                  "minValue": "1",
+                  "maxValue": "2",
+                  "unitCode": "DAY"
+                },
+                "transitTime": {
+                  "@type": "QuantitativeValue",
+                  "minValue": "1",
+                  "maxValue": "3",
+                  "unitCode": "DAY"
+                }
+              }
+            },
+            "hasMerchantReturnPolicy": {
+              "@type": "MerchantReturnPolicy",
+              "applicableCountry": "TR",
+              "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+              "returnMethod": "https://schema.org/ReturnByMail",
+              "merchantReturnDays": "14"
             }
           },
           "aggregateRating": {
