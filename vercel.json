@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "app/api/admin/products/route.ts": {
+      "maxDuration": 300
+    },
+    "app/api/admin/products/[id]/route.ts": {
+      "maxDuration": 300
+    }
+  },
+  "env": {
+    "NEXT_BODY_SIZE_LIMIT": "100mb"
+  }
+}
