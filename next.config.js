@@ -1,11 +1,50 @@
 /** @type {import('next').NextConfig} */
 const path = require('path');
+const crypto = require('crypto');
 
 const nextConfig = {
   // Prisma için Vercel optimizasyonu
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals.push('_http_common');
+    } else {
+      // Client-side bundle optimization
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            default: false,
+            vendors: false,
+            framework: {
+              name: 'framework',
+              chunks: 'all',
+              test: /[\\/]node_modules[\\/](react|react-dom|scheduler|prop-types|use-subscription)[\\/]/,
+              priority: 40,
+              enforce: true,
+            },
+            commons: {
+              name: 'commons',
+              chunks: 'all',
+              minChunks: 2,
+              priority: 20,
+            },
+            lib: {
+              test(module) {
+                return module.size() > 160000 && /node_modules[/\\]/.test(module.identifier())
+              },
+              name(module) {
+                const hash = crypto.createHash('sha1')
+                hash.update(module.identifier())
+                return 'lib-' + hash.digest('hex').substring(0, 8)
+              },
+              priority: 30,
+              minChunks: 1,
+              reuseExistingChunk: true,
+            },
+          },
+        },
+      }
     }
     return config;
   },
@@ -79,19 +118,19 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://*.google-analytics.com https://googletagmanager.com https://*.googletagmanager.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               "img-src 'self' data: blob: https: http:",
-              "connect-src 'self' https://api.paytr.com https://www.paytr.com https://vitals.vercel-insights.com https://www.google-analytics.com",
+              "connect-src 'self' https://api.paytr.com https://www.paytr.com https://vitals.vercel-insights.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://*.googletagmanager.com",
               "frame-src 'self' https://www.paytr.com",
               "frame-ancestors 'none'",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self' https://www.paytr.com",
-              "upgrade-insecure-requests"
-            ].join('; ')
-          },
+                          "upgrade-insecure-requests"
+          ].join('; ')
+        },
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on'
@@ -112,10 +151,10 @@ const nextConfig = {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin'
           },
-          {
-            key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin'
-          },
+                  {
+          key: 'Cross-Origin-Opener-Policy',
+          value: 'same-origin-allow-popups'
+        },
           {
             key: 'Cross-Origin-Embedder-Policy',
             value: 'require-corp'
