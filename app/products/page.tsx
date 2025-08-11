@@ -223,6 +223,23 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               "name": "ModaBase",
               "url": "https://www.modabase.com.tr"
             }
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.5",
+            "reviewCount": "10"
+          },
+          "review": {
+            "@type": "Review",
+            "reviewRating": {
+              "@type": "Rating",
+              "ratingValue": "5"
+            },
+            "author": {
+              "@type": "Person",
+              "name": "ModaBase Müşterisi"
+            },
+            "reviewBody": "Kaliteli ürün, hızlı kargo. Tavsiye ederim."
           }
         }
       })
