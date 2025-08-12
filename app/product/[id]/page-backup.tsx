@@ -12,37 +12,37 @@ interface ProductPageProps {
 // Dynamic Metadata for Product Pages
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   try {
-    // Ürünü getir - önce slug ile dene
-    let product = await prisma.product.findFirst({
-      where: {
-        OR: [
-          { slug: params.id },
-          { id: params.id }
-        ]
-      },
+    // Ürünü getir
+    let product = await prisma.product.findUnique({
+      where: { id: params.id },
       include: {
         category: true
       }
     })
 
+    // Slug ile dene
+    if (!product) {
+      product = await prisma.product.findUnique({
+        where: { slug: params.id },
+        include: {
+          category: true
+        }
+      })
+    }
+
     if (!product) {
       return {
         title: 'Ürün Bulunamadı | ModaBase',
-        description: 'Aradığınız ürün bulunamadı.'
+        description: 'Aradığınız ürün bulunamadı. ModaBase\'de binlerce farklı ürün seçeneği sizleri bekliyor.'
       }
     }
 
-    // Images güvenli parse
-    let images: string[] = []
-    if (product.images) {
-      try {
-        images = JSON.parse(product.images)
-      } catch (e) {
-        console.log('Image parse error in metadata')
-        images = []
-      }
+    let images = [];
+    try {
+      images = JSON.parse(product.images || '[]');
+    } catch (e) {
+      images = [];
     }
-    
     const mainImage = images[0] || '/default-product.jpg'
 
     return {
@@ -50,14 +50,12 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       description: product.description || `${product.name} ürününü ModaBase'den güvenle satın alın.`,
       openGraph: {
         title: `${product.name} | ModaBase`,
-        description: product.description || product.name,
+        description: product.description || `${product.name} - En uygun fiyatlarla ModaBase'de!`,
         images: [mainImage],
-        type: 'website',
-        locale: 'tr_TR',
       }
     }
   } catch (error) {
-    console.error('Metadata error:', error)
+    console.error('Generate metadata error:', error)
     return {
       title: 'Ürün | ModaBase',
       description: 'ModaBase - En kaliteli moda ürünleri'
@@ -67,16 +65,9 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductPage({ params }: ProductPageProps) {
   try {
-    console.log('Product page params:', params.id)
-    
-    // Ürünü getir - önce slug ile dene
-    let product = await prisma.product.findFirst({
-      where: {
-        OR: [
-          { slug: params.id },
-          { id: params.id }
-        ]
-      },
+    // Ürünü veritabanından getir - önce ID ile dene, sonra slug ile
+    let product = await prisma.product.findUnique({
+      where: { id: params.id },
       include: {
         category: {
           include: {
@@ -108,8 +99,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           },
           orderBy: {
             createdAt: 'desc'
-          },
-          take: 10
+          }
         },
         _count: {
           select: {
@@ -119,24 +109,63 @@ export default async function ProductPage({ params }: ProductPageProps) {
       }
     })
 
-    console.log('Product found:', product?.name)
+    // Eğer ID ile bulunamazsa slug ile dene
+    if (!product) {
+      product = await prisma.product.findUnique({
+        where: { slug: params.id },
+        include: {
+          category: {
+            include: {
+              business: {
+                select: {
+                  id: true,
+                  businessName: true
+                }
+              }
+            }
+          },
+          variants: {
+            where: {
+              isActive: true
+            },
+            orderBy: [
+              { size: 'asc' },
+              { color: 'asc' }
+            ]
+          },
+          reviews: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                  surname: true
+                }
+              }
+            }
+          },
+          _count: {
+            select: {
+              reviews: true
+            }
+          }
+        }
+      })
+    }
 
     if (!product) {
-      console.log('Product not found for:', params.id)
       notFound()
     }
 
-    // Ortalama rating
+    // Ortalama rating hesapla
     const averageRating = product.reviews.length > 0
-      ? product.reviews.reduce((sum, review) => sum + review.rating, 0) / product.reviews.length
+      ? product.reviews.reduce((sum: number, review: { rating: number }) => sum + review.rating, 0) / product.reviews.length
       : 0
 
-    // Benzer ürünler - basit tutuyoruz
+    // Benzer ürünleri getir
     const similarProducts = await prisma.product.findMany({
       where: {
         categoryId: product.categoryId,
-        id: { not: product.id },
-        stock: { gt: 0 }
+        id: { not: product.id }
       },
       take: 4,
       include: {
@@ -157,46 +186,48 @@ export default async function ProductPage({ params }: ProductPageProps) {
       }
     })
 
-    // Images güvenli parse
-    let productImages: string[] = []
-    if (product.images) {
-      try {
-        productImages = JSON.parse(product.images)
-      } catch (e) {
-        console.error('Image parse error:', e)
-        productImages = []
-      }
+    // Parse images safely
+    let images = [];
+    try {
+      images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images || [];
+    } catch (e) {
+      console.error('Error parsing images:', e);
+      images = [];
     }
 
-    // Benzer ürünler için processing
-    const processedSimilarProducts = similarProducts.map(p => ({
-      ...p,
-      originalPrice: p.originalPrice || 0
-    }))
-
-    // Structured data
+    // Product structured data JSON-LD
     const getValidImageUrl = () => {
-      if (productImages && productImages.length > 0) {
-        const firstImage = productImages[0]
+      if (images && images.length > 0) {
+        const firstImage = images[0];
         if (firstImage && firstImage.startsWith('http') && !firstImage.startsWith('data:image/')) {
-          return firstImage
+          return firstImage;
         }
       }
-      return 'https://www.modabase.com.tr/default-product.svg'
-    }
+      return 'https://www.modabase.com.tr/default-product.svg';
+    };
 
     const productStructuredData = {
       "@context": "https://schema.org/",
       "@type": "Product",
       "name": product.name,
-      "description": product.description || product.name,
+      "description": product.description || `${product.name} - En uygun fiyatlarla ModaBase'de!`,
       "image": getValidImageUrl(),
+      "brand": {
+        "@type": "Brand", 
+        "name": product.category?.business?.businessName || "ModaBase"
+      },
+      "category": product.category?.name,
       "offers": {
         "@type": "Offer",
         "price": product.price,
         "priceCurrency": "TRY",
         "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
         "url": `https://www.modabase.com.tr/product/${product.slug || product.id}`,
+        "seller": {
+          "@type": "Organization",
+          "name": "ModaBase",
+          "url": "https://www.modabase.com.tr"
+        },
         "hasMerchantReturnPolicy": {
           "@type": "MerchantReturnPolicy",
           "applicableCountry": "TR",
@@ -206,7 +237,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           "returnFees": "https://schema.org/OriginalShippingFees"
         }
       }
-    }
+    };
 
     return (
       <>
@@ -225,13 +256,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
             }}
             variants={product.variants}
             averageRating={averageRating}
-            similarProducts={processedSimilarProducts}
+            similarProducts={similarProducts.map((p: any) => ({
+              ...p,
+              originalPrice: p.originalPrice || 0
+            }))}
           />
         </main>
       </>
     )
   } catch (error) {
-    console.error('Product page critical error:', error)
+    console.error('Product page error:', error)
     notFound()
   }
 }
