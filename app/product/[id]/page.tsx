@@ -152,7 +152,13 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       }
     }
 
-    const images = JSON.parse(product.images || '[]')
+    let images = [];
+    try {
+      images = JSON.parse(product.images || '[]');
+    } catch (error) {
+      console.error('Error parsing product images:', error);
+      images = [];
+    }
     const mainImage = images[0] || '/default-product.jpg'
 
     return {
@@ -273,9 +279,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
       : 0
 
     // Prepare structured data
-    const images = typeof product.images === 'string' 
-      ? JSON.parse(product.images) 
-      : product.images
+    let images = [];
+    try {
+      images = typeof product.images === 'string' 
+        ? JSON.parse(product.images) 
+        : product.images || [];
+    } catch (error) {
+      console.error('Error parsing product images in structured data:', error);
+      images = [];
+    }
 
     const getValidImageUrl = () => {
       if (images && images.length > 0) {
@@ -367,12 +379,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
             product={fullProduct}
             variants={variants}
             averageRating={averageRating}
-            similarProducts={similarProducts.map((p) => ({
-              ...p,
-              originalPrice: p.originalPrice || 0,
-              images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images,
-              reviewCount: p._count.reviews
-            }))}
+            similarProducts={similarProducts.map((p) => {
+              let productImages = [];
+              try {
+                productImages = typeof p.images === 'string' ? JSON.parse(p.images) : p.images || [];
+              } catch (error) {
+                console.error('Error parsing similar product images:', error);
+                productImages = [];
+              }
+              return {
+                ...p,
+                originalPrice: p.originalPrice || 0,
+                images: productImages,
+                reviewCount: p._count.reviews
+              };
+            })}
           />
         </main>
       </>

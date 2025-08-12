@@ -311,7 +311,7 @@ export default async function TrikoPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {products.map((product) => (
               <article key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
-                <Link href={`/product/${product.id}`}>
+                <Link href={`/product/${product.slug || product.id}`}>
                   <div className="relative">
                     <img
                       src={product.imageUrl}

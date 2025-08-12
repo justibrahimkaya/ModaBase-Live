@@ -296,7 +296,7 @@ export default async function YazlikElbisePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {products.map((product) => (
               <article key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <Link href={`/product/${product.id}`}>
+                <Link href={`/product/${product.slug || product.id}`}>
                   <div className="relative group">
                     <img
                       src={product.imageUrl}

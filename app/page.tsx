@@ -251,7 +251,7 @@ async function SpecialOffers() {
             return (
               <a
                 key={product.id}
-                href={`/product/${product.id}`}
+                href={`/product/${product.slug || product.id}`}
                 className="group block"
               >
                 <div className="bg-white rounded-2xl p-6 shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2">

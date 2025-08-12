@@ -513,7 +513,7 @@ export default async function KadinTisortPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {products.map((product) => (
               <article key={product.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group border border-gray-200">
-                <Link href={`/product/${product.id}`}>
+                <Link href={`/product/${product.slug || product.id}`}>
                   <div className="relative">
                     <img
                       src={product.imageUrl}

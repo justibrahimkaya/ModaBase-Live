@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTM Kontrol</title>
+</head>
+<body>
+    <h1>GTM Entegrasyon Kontrolü</h1>
+    
+    <h2>Console'da Kontrol Edilecekler:</h2>
+    <ol>
+        <li>Sitenizi açın: https://www.modabase.com.tr</li>
+        <li>Sağ tık → İncele (Inspect)</li>
+        <li>Console sekmesine geçin</li>
+        <li>Aşağıdaki komutları yazın:</li>
+    </ol>
+
+    <h3>Komut 1: dataLayer Kontrolü</h3>
+    <pre>
+console.log('dataLayer var mı?', typeof dataLayer !== 'undefined');
+console.log('dataLayer:', dataLayer);
+    </pre>
+
+    <h3>Komut 2: GTM Yüklendi mi?</h3>
+    <pre>
+console.log('GTM yüklendi mi?', typeof google_tag_manager !== 'undefined');
+console.log('GTM ID:', Object.keys(google_tag_manager || {}));
+    </pre>
+
+    <h3>Komut 3: GTM Script Kontrolü</h3>
+    <pre>
+// GTM script tag'ini kontrol et
+const gtmScript = document.querySelector('script[src*="googletagmanager.com/gtm.js"]');
+console.log('GTM Script:', gtmScript ? gtmScript.src : 'Bulunamadı');
+
+// GTM noscript iframe kontrolü
+const gtmIframe = document.querySelector('iframe[src*="googletagmanager.com/ns.html"]');
+console.log('GTM Iframe:', gtmIframe ? gtmIframe.src : 'Bulunamadı');
+    </pre>
+
+    <h3>Beklenen Sonuçlar:</h3>
+    <ul>
+        <li>✅ dataLayer var mı?: true</li>
+        <li>✅ GTM yüklendi mi?: true</li>
+        <li>✅ GTM ID: ['GTM-KLXBLCV6']</li>
+        <li>✅ GTM Script: https://www.googletagmanager.com/gtm.js?id=GTM-KLXBLCV6</li>
+        <li>✅ GTM Iframe: https://www.googletagmanager.com/ns.html?id=GTM-KLXBLCV6</li>
+    </ul>
+
+    <h2>Network Tab Kontrolü:</h2>
+    <ol>
+        <li>İncele → Network sekmesi</li>
+        <li>Sayfayı yenile (F5)</li>
+        <li>Filter'a "gtm" yazın</li>
+        <li>Şunları görmelisiniz:
+            <ul>
+                <li>gtm.js?id=GTM-KLXBLCV6 (Status: 200)</li>
+                <li>Eğer AdBlocker varsa kapatın</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h2>Google Search Console Doğrulama:</h2>
+    <p>Görüntüdeki ekrandan "Google Analytics" yöntemini seçerseniz:</p>
+    <ol>
+        <li>GTM'de Google Analytics etiketi aktif olmalı</li>
+        <li>GA4 property'si oluşturulmuş olmalı</li>
+        <li>GA4 kodu GTM üzerinden yayınlanmış olmalı</li>
+    </ol>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        h1 { color: #2c3e50; }
+        h2 { color: #34495e; }
+        h3 { color: #7f8c8d; }
+        li { margin: 5px 0; }
+    </style>
+</body>
+</html>
