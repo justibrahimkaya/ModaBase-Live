@@ -73,7 +73,17 @@ export default function ProductDetail({ product, variants, averageRating, simila
   const [quantity, setQuantity] = useState(1)
 
   // Ürün resimlerini parse et
-  const images = JSON.parse(product.images || '[]')
+  let images = []
+  try {
+    if (typeof product.images === 'string') {
+      images = JSON.parse(product.images || '[]')
+    } else if (Array.isArray(product.images)) {
+      images = product.images
+    }
+  } catch (error) {
+    console.error('Error parsing product images:', error)
+    images = []
+  }
 
   return (
     <>

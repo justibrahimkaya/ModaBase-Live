@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAdmin } from '@/lib/adminAuth'
+import { processProductImages } from '@/lib/imageProcessor'
 
 export const dynamic = 'force-dynamic'
 
@@ -243,28 +244,35 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ Validasyon başarılı')
 
-    // Fotoğraf validasyonu - DEBUG eklendi
+    // Fotoğraf validasyonu ve işleme
     let imageArray: string[] = []
     try {
       imageArray = typeof images === 'string' ? JSON.parse(images) : images || []
-      console.log('🖼️ DEBUG: API de alinan resimler:')
+      console.log('🖼️ Resim işleme başlatılıyor...')
       console.log('Resim sayisi:', imageArray.length)
-      imageArray.forEach((img, index) => {
-        console.log(`API Resim ${index + 1}:`, img.length, 'bytes')
-        console.log(`API Resim ${index + 1} preview:`, img.substring(0, 100))
-      })
+      
+      // Base64 resimleri kontrol et
+      const base64Count = imageArray.filter(img => img.startsWith('data:image')).length
+      console.log('Base64 resim sayisi:', base64Count)
+      
+      if (base64Count > 0) {
+        console.log('🔄 Base64 resimler optimize ediliyor...')
+        imageArray = await processProductImages(imageArray)
+        console.log('✅ Resimler optimize edildi!')
+      }
+      
     } catch (error) {
-      console.error('❌ API Resim parse hatası:', error)
+      console.error('❌ Resim işleme hatası:', error)
       return NextResponse.json({ error: 'Fotoğraf verisi geçersiz.' }, { status: 400 })
     }
 
     if (imageArray.length === 0) {
-      console.log('❌ API: Hiç resim yok')
+      console.log('❌ Hiç resim yok')
       return NextResponse.json({ error: 'En az 1 fotoğraf yüklemelisiniz.' }, { status: 400 })
     }
 
     if (imageArray.length > 20) {
-      console.log('❌ API: Çok fazla resim:', imageArray.length)
+      console.log('❌ Çok fazla resim:', imageArray.length)
       return NextResponse.json({ error: 'En fazla 20 fotoğraf yükleyebilirsiniz.' }, { status: 400 })
     }
 
@@ -288,7 +296,7 @@ export async function POST(request: NextRequest) {
           description: description || '',
           price: parseFloat(price),
           originalPrice: originalPrice ? parseFloat(originalPrice) : null,
-          images: typeof images === 'string' ? images : JSON.stringify(images || []),
+          images: JSON.stringify(imageArray),
           stock: parseInt(stock) || 0,
           minStockLevel: parseInt(minStockLevel) || 5,
           maxStockLevel: maxStockLevel ? parseInt(maxStockLevel) : null,
