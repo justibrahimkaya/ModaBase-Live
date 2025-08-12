@@ -1,0 +1,61 @@
+# Vercel Environment Variables - ModaBase (GÜNCEL)
+# Bu değişkenleri Vercel Dashboard → Settings → Environment Variables bölümüne ekleyin
+
+# Database
+DATABASE_URL=postgresql://postgres:08513628-JUst@db.wcutymcedxgeyrnpuyvt.supabase.co:5432/postgres
+
+# NextAuth
+NEXTAUTH_URL=https://www.modabase.com.tr
+NEXTAUTH_SECRET=production-secret-key-minimum-32-characters-long-for-security
+
+# Application Settings
+NODE_ENV=production
+NEXT_PUBLIC_APP_URL=https://www.modabase.com.tr
+NEXT_PUBLIC_COMPANY_NAME=ModaBase
+NEXT_PUBLIC_BASE_URL=https://www.modabase.com.tr
+
+# Email Configuration
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=info@modabase.com.tr
+SMTP_PASS=yqarfkyevahfnenq
+EMAIL_FROM=ModaBase <info@modabase.com.tr>
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=info@modabase.com.tr
+EMAIL_PASS=yqarfkyevahfnenq
+
+# Security
+ENCRYPTION_KEY=a1b2c3d4e5f678901234567890123456
+JWT_SECRET=super-secure-jwt-secret-key-2024-modabase
+API_KEY=modabase-api-key-2024-secure-32-chars
+
+# PayTR Configuration
+PAYTR_MERCHANT_ID=596379
+PAYTR_MERCHANT_KEY=srMxKnSgipN1Z1Td
+PAYTR_MERCHANT_SALT=TzXLtjFSuyDPsi8B
+PAYTR_TEST_MODE=false
+PAYTR_NOTIFICATION_URL=https://www.modabase.com.tr/api/paytr/notification
+
+# WhatsApp Configuration
+WHATSAPP_SUPPORT_NUMBER=905362971255
+WHATSAPP_BUSINESS_NUMBER=905362971255
+WHATSAPP_ADMIN_NUMBER=905362971255
+
+# Site Configuration
+SITE_NAME=ModaBase
+SITE_DESCRIPTION=Modern E-Ticaret Platformu
+MAX_FILE_SIZE=5120
+ALLOWED_FILE_TYPES=jpg,jpeg,png,gif,webp
+CURRENCY=TRY
+TIMEZONE=Europe/Istanbul
+
+# Social Login (Opsiyonel)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+FACEBOOK_CLIENT_ID=
+FACEBOOK_CLIENT_SECRET=
+
+# Kargonomi API Configuration
+KARGONOMI_BASE_URL=https://app.kargonomi.com.tr/api/v1
+KARGONOMI_BEARER_TOKEN=sk-proj-oqL2HhJyiBQ8j3GLhRW4MkuLo3y19wRYPZ9C4Rfy196db063 

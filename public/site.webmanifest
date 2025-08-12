@@ -1,0 +1,33 @@
+{
+  "name": "ModaBase - Modern E-Ticaret Platformu",
+  "short_name": "ModaBase",
+  "description": "En yeni moda trendleri, premium markalar ve güvenli alışveriş deneyimi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "tr",
+  "categories": ["shopping", "lifestyle", "fashion"],
+  "icons": [
+    {
+      "src": "/ChatGPT Image 20 Haz 2025 14_16_10.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/ChatGPT Image 20 Haz 2025 14_16_10.png",
+      "sizes": "512x512", 
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/ChatGPT Image 20 Haz 2025 14_16_10.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

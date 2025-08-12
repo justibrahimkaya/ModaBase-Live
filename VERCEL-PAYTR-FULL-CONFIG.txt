@@ -1,0 +1,22 @@
+# VERCEL PAYTR YAPILANDIRMASI - GERÇEK/CANLI ORTAM
+
+## 1. VERCEL ENVIRONMENT VARIABLES (Dashboard'dan eklenecek)
+PAYTR_MERCHANT_ID=596379
+PAYTR_MERCHANT_KEY=srMxKnSgipN1Z1Td
+PAYTR_MERCHANT_SALT=TzXLtjFSuyDPsi8B
+PAYTR_TEST_MODE=false
+
+## 2. PAYTR PANELİNDE AYARLI URL'LER
+- Site Adresi: https://www.modabase.com.tr/
+- Bildirim URL: https://moda-base-live.vercel.app/api/paytr/notification
+
+## 3. KODDA YAPILAN DÜZELTMELER
+- Base URL: https://moda-base-live.vercel.app (PayTR paneli ile uyumlu)
+- Test Mode: false (gerçek satış modu)
+- Debug: 0 (kapalı)
+
+## 4. ÖNEMLİ NOTLAR
+- PayTR panelinde bildirim URL'i moda-base-live.vercel.app olarak ayarlı
+- Kodda da aynı URL'i kullanıyoruz
+- Başarılı/başarısız dönüş URL'leri de aynı domain'e yönleniyor
+- Bu gerçek bir satış sistemi, test verisi yok
