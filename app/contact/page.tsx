@@ -396,7 +396,7 @@ export default function ContactPage() {
         variant="floating"
         size="lg"
         isBusinessAdmin={false}
-        className="bottom-6 right-6"
+        className="whatsapp-floating"
       />
       </main>
     </>

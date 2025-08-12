@@ -20,6 +20,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --mobile-bottom-nav-height: 56px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -85,9 +86,89 @@ body {
   }
 }
 
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  /* Prevent layout shift */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* WhatsApp button positioning above bottom nav */
+  .whatsapp-floating {
+    bottom: calc(var(--mobile-bottom-nav-height) + 1rem) !important;
+    right: 1rem !important;
+  }
+  
+  /* Optimize touch targets */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent horizontal overflow */
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Image optimization */
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+/* Desktop WhatsApp positioning */
+@media (min-width: 769px) {
+  .whatsapp-floating {
+    bottom: 2rem !important;
+    right: 2rem !important;
+  }
+}
+
 /* Navbar styles */
 .nav-link {
   @apply text-gray-800 font-medium hover:text-purple-700 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-purple-50;
+}
+
+/* Prevent CLS - Reserve space for images */
+.image-container {
+  position: relative;
+  overflow: hidden;
+  background-color: #f3f4f6;
+}
+
+.image-container img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Aspect ratio utilities for images */
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+.aspect-product {
+  aspect-ratio: 3 / 4;
+}
+
+/* Font loading optimization */
+@font-face {
+  font-family: 'System';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('BlinkMacSystemFont'), local('Segoe UI'), local('Roboto'), local('Oxygen'), local('Ubuntu'), local('Cantarell'), local('Fira Sans'), local('Droid Sans'), local('Helvetica Neue'), local('sans-serif');
 }
 
 /* Admin link styles */

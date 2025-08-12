@@ -608,7 +608,7 @@ export default function AdminLayout({
           variant="floating"
           size="lg"
           isBusinessAdmin={true}
-          className="bottom-6 right-6"
+          className="whatsapp-floating"
         />
       )}
 

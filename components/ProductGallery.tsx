@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react'
+import OptimizedImage from './OptimizedImage'
 
 interface ProductGalleryProps {
   images: string[]
@@ -35,11 +36,16 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
       {/* Main Image */}
       <div className="relative group">
         <div className="aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden">
-          <img
-            src={productImages[selectedImage]?.src || productImages[0]?.src}
-            alt={productImages[selectedImage]?.alt || productImages[0]?.alt}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
+          <div className="relative w-full h-full">
+            <OptimizedImage
+              src={productImages[selectedImage]?.src || productImages[0]?.src || '/default-product.svg'}
+              alt={productImages[selectedImage]?.alt || productImages[0]?.alt || 'Ürün Görseli'}
+              width={600}
+              height={800}
+              priority={true}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          </div>
         </div>
         
         {/* Zoom Button */}
@@ -90,10 +96,13 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
-              <img
+              <OptimizedImage
                 src={image.src}
                 alt={image.alt}
+                width={100}
+                height={100}
                 className="w-full h-full object-cover"
+                sizes="(max-width: 768px) 20vw, 10vw"
               />
             </button>
           ))}

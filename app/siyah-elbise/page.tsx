@@ -176,7 +176,8 @@ export default async function SiyahElbisePage() {
               "applicableCountry": "TR",
               "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
               "returnMethod": "https://schema.org/ReturnByMail",
-              "merchantReturnDays": "14"
+              "merchantReturnDays": "14",
+              "returnFees": "https://schema.org/OriginalShippingFees"
             }
           },
           "aggregateRating": {

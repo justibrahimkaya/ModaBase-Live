@@ -6,7 +6,12 @@ import AuthSessionProvider from '@/components/SessionProvider'
 import MobileBottomNav from '@/components/MobileBottomNav'
 
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Arial', 'sans-serif']
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://modabase.com.tr'),
@@ -279,6 +284,67 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               ['click', 'scroll', 'keydown', 'touchstart'].forEach(event => {
                 document.addEventListener(event, loadGA, { once: true, passive: true });
               });
+            `,
+          }}
+        />
+        
+        {/* Critical CSS for preventing layout shift */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              :root {
+                --background: #ffffff;
+                --foreground: #171717;
+                --mobile-bottom-nav-height: 56px;
+              }
+              * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+              }
+              html {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                -webkit-text-size-adjust: 100%;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+              }
+              body {
+                color: var(--foreground);
+                background: var(--background);
+                overflow-x: hidden;
+                min-height: 100vh;
+              }
+              img {
+                max-width: 100%;
+                height: auto;
+                display: block;
+              }
+              @media (max-width: 768px) {
+                body {
+                  padding-bottom: var(--mobile-bottom-nav-height);
+                }
+                .whatsapp-floating {
+                  bottom: calc(var(--mobile-bottom-nav-height) + 1rem) !important;
+                  right: 1rem !important;
+                }
+              }
+              @media (min-width: 769px) {
+                .whatsapp-floating {
+                  bottom: 2rem !important;
+                  right: 2rem !important;
+                }
+              }
+              .aspect-square { aspect-ratio: 1 / 1; }
+              .aspect-product { aspect-ratio: 3 / 4; }
+              .skeleton {
+                background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+                background-size: 200% 100%;
+                animation: loading 1.5s infinite;
+              }
+              @keyframes loading {
+                0% { background-position: 200% 0; }
+                100% { background-position: -200% 0; }
+              }
             `,
           }}
         />

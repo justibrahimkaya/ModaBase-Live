@@ -1,0 +1,357 @@
+{
+    "exportFormatVersion": 2,
+    "exportTime": "2025-08-12 13:43:54",
+    "containerVersion": {
+        "path": "accounts/6307322389/containers/226807567/versions/4",
+        "accountId": "6307322389",
+        "containerId": "226807567",
+        "containerVersionId": "4",
+        "name": "setup2",
+        "description": "yenileme",
+        "container": {
+            "path": "accounts/6307322389/containers/226807567",
+            "accountId": "6307322389",
+            "containerId": "226807567",
+            "name": "www.modabase.com.tr",
+            "publicId": "GTM-KLXBLCV6",
+            "usageContext": [
+                "WEB"
+            ],
+            "fingerprint": "1755006020300",
+            "tagManagerUrl": "https://tagmanager.google.com/#/container/accounts/6307322389/containers/226807567/workspaces?apiLink=container",
+            "features": {
+                "supportUserPermissions": true,
+                "supportEnvironments": true,
+                "supportWorkspaces": true,
+                "supportGtagConfigs": false,
+                "supportBuiltInVariables": true,
+                "supportClients": false,
+                "supportFolders": true,
+                "supportTags": true,
+                "supportTemplates": true,
+                "supportTriggers": true,
+                "supportVariables": true,
+                "supportVersions": true,
+                "supportZones": true,
+                "supportTransformations": false
+            },
+            "tagIds": [
+                "GTM-KLXBLCV6"
+            ]
+        },
+        "tag": [
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "tagId": "5",
+                "name": "modabase2",
+                "type": "html",
+                "priority": {
+                    "type": "INTEGER",
+                    "value": "1"
+                },
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "html",
+                        "value": "https://www.modabase.com.tr"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "supportDocumentWrite",
+                        "value": "true"
+                    }
+                ],
+                "fingerprint": "1755005856301",
+                "firingTriggerId": [
+                    "3"
+                ],
+                "tagFiringOption": "ONCE_PER_EVENT",
+                "monitoringMetadata": {
+                    "type": "MAP"
+                },
+                "consentSettings": {
+                    "consentStatus": "NOT_SET"
+                }
+            }
+        ],
+        "trigger": [
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "triggerId": "3",
+                "name": "modabase",
+                "type": "INIT",
+                "fingerprint": "1754918711947"
+            }
+        ],
+        "builtInVariable": [
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "PAGE_URL",
+                "name": "Page URL"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "PAGE_HOSTNAME",
+                "name": "Page Hostname"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "PAGE_PATH",
+                "name": "Page Path"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "REFERRER",
+                "name": "Referrer"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "EVENT",
+                "name": "Event"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "CLICK_ELEMENT",
+                "name": "Click Element"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "CLICK_CLASSES",
+                "name": "Click Classes"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "CLICK_ID",
+                "name": "Click ID"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "CLICK_TARGET",
+                "name": "Click Target"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "CLICK_URL",
+                "name": "Click URL"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "CLICK_TEXT",
+                "name": "Click Text"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "FORM_ELEMENT",
+                "name": "Form Element"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "FORM_CLASSES",
+                "name": "Form Classes"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "FORM_ID",
+                "name": "Form ID"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "FORM_TARGET",
+                "name": "Form Target"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "FORM_URL",
+                "name": "Form URL"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "FORM_TEXT",
+                "name": "Form Text"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "ERROR_MESSAGE",
+                "name": "Error Message"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "ERROR_URL",
+                "name": "Error URL"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "ERROR_LINE",
+                "name": "Error Line"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "NEW_HISTORY_FRAGMENT",
+                "name": "New History Fragment"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "OLD_HISTORY_FRAGMENT",
+                "name": "Old History Fragment"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "NEW_HISTORY_STATE",
+                "name": "New History State"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "OLD_HISTORY_STATE",
+                "name": "Old History State"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "HISTORY_SOURCE",
+                "name": "History Source"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "CONTAINER_VERSION",
+                "name": "Container Version"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "DEBUG_MODE",
+                "name": "Debug Mode"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "RANDOM_NUMBER",
+                "name": "Random Number"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "CONTAINER_ID",
+                "name": "Container ID"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "HTML_ID",
+                "name": "HTML ID"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "ENVIRONMENT_NAME",
+                "name": "Environment Name"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "VIDEO_PROVIDER",
+                "name": "Video Provider"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "VIDEO_URL",
+                "name": "Video URL"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "VIDEO_TITLE",
+                "name": "Video Title"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "VIDEO_DURATION",
+                "name": "Video Duration"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "VIDEO_PERCENT",
+                "name": "Video Percent"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "VIDEO_VISIBLE",
+                "name": "Video Visible"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "VIDEO_STATUS",
+                "name": "Video Status"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "VIDEO_CURRENT_TIME",
+                "name": "Video Current Time"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "SCROLL_DEPTH_THRESHOLD",
+                "name": "Scroll Depth Threshold"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "SCROLL_DEPTH_UNITS",
+                "name": "Scroll Depth Units"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "SCROLL_DEPTH_DIRECTION",
+                "name": "Scroll Direction"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "ELEMENT_VISIBILITY_RATIO",
+                "name": "Percent Visible"
+            },
+            {
+                "accountId": "6307322389",
+                "containerId": "226807567",
+                "type": "ELEMENT_VISIBILITY_TIME",
+                "name": "On-Screen Duration"
+            }
+        ],
+        "fingerprint": "1755005959479",
+        "tagManagerUrl": "https://tagmanager.google.com/#/versions/accounts/6307322389/containers/226807567/versions/4?apiLink=version"
+    }
+}
