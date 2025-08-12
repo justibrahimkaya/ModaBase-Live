@@ -10,8 +10,9 @@ export async function processProductImages(images: string[]): Promise<string[]> 
   const productsDir = path.join(process.cwd(), 'public', 'products')
   try {
     await fs.mkdir(productsDir, { recursive: true })
+    console.log('✅ Products klasörü hazır:', productsDir)
   } catch (error) {
-    console.error('Klasör oluşturma hatası:', error)
+    console.error('❌ Klasör oluşturma hatası:', error)
   }
 
   for (let i = 0; i < images.length; i++) {
