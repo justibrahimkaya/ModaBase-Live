@@ -211,7 +211,7 @@ model Order {
   status                String                 @default("PENDING")
   total                 Float
   subtotal              Float?
-  taxBase               Float?
+  subtotalWithTax       Float?
   taxRate               Float?
   taxAmount             Float?
   shippingCost          Float?
