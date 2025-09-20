@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Calendar, Clock, User, ArrowLeft, Share2, Eye } from 'lucide-react'
 import Link from 'next/link'
-import { prisma } from '@/lib/prisma'
+import { buildSafePrisma } from '@/lib/buildSafePrisma'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 

@@ -1,5 +1,5 @@
 import ProductDetail from '@/components/ProductDetail'
-import { prisma } from '@/lib/prisma'
+import { buildSafePrisma } from '@/lib/buildSafePrisma'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 
