@@ -18,12 +18,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily' as const,
       priority: 0.9,
     },
-    // SEO Landing Pages - Yüksek öncelikli anahtar kelime sayfaları
+    // SEO Landing Pages - ERKEK TRİKO ÖNCELİKLİ
+    {
+      url: `${baseUrl}/erkek-triko`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.98,  // En yüksek öncelik erkek triko'ya
+    },
     {
       url: `${baseUrl}/triko`,
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
-      priority: 0.95,
+      priority: 0.97,
+    },
+    {
+      url: `${baseUrl}/erkek-kazak`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.96,
+    },
+    {
+      url: `${baseUrl}/erkek-suveter`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.96,
+    },
+    {
+      url: `${baseUrl}/erkek-hirka`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.96,
     },
     {
       url: `${baseUrl}/kadin-elbise`,

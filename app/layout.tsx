@@ -11,15 +11,16 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   metadataBase: new URL('https://modabase.com.tr'),
   title: {
-    default: 'ModaBase - Modern E-Ticaret Platformu | En Yeni Moda Trendleri',
+    default: 'ModaBase - Erkek ve Kadın Triko Modelleri | Kazak, Süveter, Hırka',
     template: '%s | ModaBase'
   },
-  description: 'ModaBase ile en yeni moda trendlerini keşfedin. Kaliteli markalar, özel indirimler ve güvenli alışveriş deneyimi. 500+ marka, 50K+ mutlu müşteri. Ücretsiz kargo ve 30 gün iade garantisi.',
+  description: 'ModaBase\'de en kaliteli erkek triko, erkek kazak, erkek süveter ve kadın triko modelleri. Premium kalite triko giyim ürünleri, ücretsiz kargo, hızlı teslimat. 2025 kış sezonu triko trendleri.',
   keywords: [
-    'moda', 'e-ticaret', 'alışveriş', 'giyim', 'aksesuar', 'kadın giyim', 'erkek giyim', 
-    'çocuk giyim', 'ayakkabı', 'çanta', 'mücevher', 'kozmetik', 'trend', 'marka',
-    'indirim', 'kampanya', 'online alışveriş', 'güvenli ödeme', 'hızlı teslimat',
-    'ModaBase', 'kaliteli moda', 'uygun fiyat', 'fashion', 'style', 'designer'
+    'erkek triko', 'erkek kazak', 'erkek süveter', 'erkek hırka', 'triko', 'triko modelleri',
+    'erkek giyim', 'erkek triko modelleri', 'boğazlı kazak', 'v yaka kazak', 'yarım balıkçı',
+    'kadın triko', 'kadın kazak', 'triko elbise', 'kışlık giyim', 'triko giyim',
+    'moda', 'e-ticaret', 'online alışveriş', 'güvenli ödeme', 'hızlı teslimat',
+    'ModaBase', 'kaliteli triko', 'uygun fiyat', 'premium kazak', '2025 triko trendleri'
   ],
   authors: [{ name: 'ModaBase Team' }],
   creator: 'ModaBase',
@@ -44,8 +45,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'tr_TR',
     url: 'https://modabase.com.tr',
-    title: 'ModaBase - Premium E-Ticaret Platformu',
-    description: 'En yeni moda trendleri, premium markalar ve güvenli alışveriş deneyimi. 500+ marka, ücretsiz kargo ve 30 gün iade garantisi.',
+    title: 'ModaBase - Erkek ve Kadın Triko Modelleri | Premium Kazak & Süveter',
+    description: 'En kaliteli erkek triko, erkek kazak, süveter modelleri. Premium triko giyim ürünleri, ücretsiz kargo ve hızlı teslimat. 2025 kış sezonu trendleri.',
     siteName: 'ModaBase',
     images: [
       {
