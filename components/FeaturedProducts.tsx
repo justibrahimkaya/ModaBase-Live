@@ -1,6 +1,7 @@
 'use client'
 
 import { Heart, Star } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 interface Product {
   id: string;
@@ -23,6 +24,40 @@ interface FeaturedProductsProps {
 }
 
 export default function FeaturedProducts({ products }: FeaturedProductsProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Component mounted successfully
+
+  if (!mounted) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
+        {products.map((product) => (
+          <div key={product.id} className="group relative bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+            <div className="relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 aspect-square">
+              <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                <span className="text-gray-700 text-sm font-medium">Yükleniyor...</span>
+              </div>
+            </div>
+            <div className="p-3">
+              <h3 className="text-sm font-semibold text-gray-900 mb-2 line-clamp-2 leading-tight">
+                {product.name}
+              </h3>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg font-bold text-gray-900">
+                  ₺{product.price.toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
       {products.map((product) => (

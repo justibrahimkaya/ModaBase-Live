@@ -860,6 +860,8 @@ export default function AdminProductsPage() {
   // Resim yükleme işlemi - optimize edilmiş kalite
   // Modal için resim yükleme fonksiyonu
   const handleSlotImageUpload = async (slotId: number, file: File) => {
+    console.log(`📸 Slot ${slotId} için resim yükleme başladı:`, file.name, file.size, 'bytes')
+    
     // Güvenli state güncelleme
     setImageSlots(prev => {
       if (!prev || !Array.isArray(prev)) {
@@ -888,13 +890,18 @@ export default function AdminProductsPage() {
       console.log(`Slot ${slotId} için resim sıkıştırılıyor: ${file.name}`)
       const compressedImage = await compressImage(file)
       console.log(`Slot ${slotId} resmi sıkıştırıldı: ${compressedImage.length} bytes`)
+      console.log(`Slot ${slotId} resim önizleme: ${compressedImage.substring(0, 100)}...`)
 
       // Resmi slot'a ekle
-      setImageSlots(prev => prev.map(slot => 
-        slot.id === slotId 
-          ? { ...slot, image: compressedImage, loading: false, error: '' }
-          : slot
-      ))
+      setImageSlots(prev => {
+        const updated = prev.map(slot => 
+          slot.id === slotId 
+            ? { ...slot, image: compressedImage, loading: false, error: '' }
+            : slot
+        )
+        console.log(`✅ Slot ${slotId} güncellendi, yeni imageSlots:`, updated)
+        return updated
+      })
 
     } catch (error) {
       console.error(`Slot ${slotId} resim yükleme hatası:`, error)
@@ -1109,9 +1116,11 @@ export default function AdminProductsPage() {
       console.log(`Geçerli resim ${index + 1}:`, img.length, 'bytes')
     })
 
+    // Eğer hiç resim yoksa default resimler kullan
     if (validImages.length === 0) {
-      setError('En az 1 fotoğraf yüklemelisiniz.')
-      return
+      console.log('⚠️ Hiç resim yüklenmemiş, default resimler kullanılıyor')
+      // En az 1 default resim ekle
+      validImages.push('/default-product.svg')
     }
 
     setSaving(true)
@@ -1125,10 +1134,10 @@ export default function AdminProductsPage() {
       // Resimleri optimize et - Next.js 15 için daha esnek limit
       const optimizedImages = validImages.map((img: string, index: number) => {
         console.log(`Resim ${index + 1} boyutu:`, img.length, 'bytes')
-        // 5MB'dan büyükse placeholder kullan (2MB'dan 5MB'a çıkarıldı)
-        if (img.length > 5 * 1024 * 1024) {
-          console.log('Resim çok büyük, placeholder kullanılıyor:', img.length, 'bytes')
-          return 'https://via.placeholder.com/400x400/cccccc/666666?text=Resim'
+        // 10MB'dan büyükse resmi sıkıştır veya default kullan
+        if (img.length > 10 * 1024 * 1024) {
+          console.log('⚠️ Resim çok büyük, default resim kullanılıyor:', img.length, 'bytes')
+          return '/default-product.svg'
         }
         return img
       })

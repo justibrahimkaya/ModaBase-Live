@@ -42,8 +42,8 @@ async function checkBase64Images() {
     console.log(`   Boş images: ${emptyCount}`);
     
     if (base64Count > 0) {
-      console.log('\n⚠️  Base64 image'lar Google tarafından kabul edilmiyor!');
-      console.log('✅ Çözüm: Base64 image'ları HTTP URL'ye çevirmeli veya default image kullanmalıyız.');
+      console.log('\n⚠️  Base64 imagelar Google tarafından kabul edilmiyor!');
+      console.log('✅ Çözüm: Base64 imageları HTTP URLye çevirmeli veya default image kullanmalıyız.');
     }
     
   } catch (error) {
