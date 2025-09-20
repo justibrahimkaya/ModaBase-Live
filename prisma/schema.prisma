@@ -210,7 +210,12 @@ model Order {
   invoiceAddressId      String?
   status                String                 @default("PENDING")
   total                 Float
+  subtotal              Float?
   discount              Float?
+  discountAmount        Float?
+  taxBase               Float?
+  taxRate               Float?
+  taxAmount             Float?
   shippingCost          Float?
   shippingMethod        String?
   paymentMethod         String?

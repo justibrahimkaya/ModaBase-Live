@@ -283,6 +283,18 @@ export default function CheckoutPage() {
   const subtotal = getTotal()
   const shippingCost = getShippingCost()
   const discountedSubtotal = subtotal * (1 - discount)
+  
+  // KDV Hesaplaması (Türkiye'de fiyatlar genelde KDV dahil gösterilir)
+  // Giyim ürünleri için KDV oranı %8 (bazı ürünlerde %1, %18 olabilir)
+  const TAX_RATE = 0.08 // %8 KDV (giyim ürünleri için standart)
+  
+  // KDV dahil fiyattan KDV'yi hesapla
+  // KDV Matrahı = KDV Dahil Fiyat / (1 + KDV Oranı)
+  // KDV Tutarı = KDV Dahil Fiyat - KDV Matrahı
+  const taxBase = discountedSubtotal / (1 + TAX_RATE) // KDV matrahı
+  const taxAmount = discountedSubtotal - taxBase // KDV tutarı
+  
+  // Toplam tutar (KDV dahil ürün fiyatı + kargo)
   const total = discountedSubtotal + shippingCost
 
   // PayTR ile ödeme başlat
@@ -300,14 +312,19 @@ export default function CheckoutPage() {
       // Önce siparişi oluştur
       const orderData = {
         items: items.map(item => ({
-          productId: item.id,
+          productId: item.product.id,
           quantity: item.quantity,
           price: item.product.price,
           size: item.size,
           color: item.color
         })),
         total: total,
+        subtotal: subtotal,
         discount: discount,
+        discountAmount: subtotal * discount,
+        taxBase: taxBase,
+        taxRate: TAX_RATE,
+        taxAmount: taxAmount,
         shippingCost: getShippingCost(),
         shippingMethod: selectedCargoCompany || 'cargo',
         paymentMethod: 'PAYTR',
@@ -478,14 +495,19 @@ export default function CheckoutPage() {
       // Önce siparişi oluştur
       const orderData = {
         items: items.map(item => ({
-          productId: item.id,
+          productId: item.product.id,
           quantity: item.quantity,
           price: item.product.price,
           size: item.size,
           color: item.color
         })),
         total: total,
+        subtotal: subtotal,
         discount: discount,
+        discountAmount: subtotal * discount,
+        taxBase: taxBase,
+        taxRate: TAX_RATE,
+        taxAmount: taxAmount,
         shippingCost: getShippingCost(),
         shippingMethod: selectedCargoCompany || 'cargo',
         paymentMethod: 'BANK_TRANSFER',
@@ -657,9 +679,12 @@ export default function CheckoutPage() {
                     <div>✅ Seçili Kargo: {selectedCargoCompany || 'Yok'}</div>
                     <div>⏳ Loading: {isLoadingCargo ? 'Evet' : 'Hayır'}</div>
                     <div>📦 Ürün Sayısı: {items.length}</div>
-                    <div>💰 Toplam Tutar: {subtotal.toFixed(2)}₺</div>
+                    <div>💰 Ara Toplam: {subtotal.toFixed(2)}₺</div>
+                    <div>📊 KDV Matrahı: {taxBase.toFixed(2)}₺</div>
+                    <div>🧾 KDV (%{TAX_RATE * 100}): {taxAmount.toFixed(2)}₺</div>
                     <div>🎯 Kargo Ücreti: {getShippingCost().toFixed(2)}₺</div>
                     <div>🎁 Ücretsiz Kargo: {subtotal >= 2500 ? 'Evet (2500₺+)' : 'Hayır'}</div>
+                    <div>💳 Toplam (KDV Dahil): {total.toFixed(2)}₺</div>
                   </div>
                   <div className="mt-2 space-x-2">
                     <button
@@ -1136,12 +1161,20 @@ export default function CheckoutPage() {
                     <span className="font-bold text-md text-green-700">-₺{(subtotal * discount).toFixed(2)}</span>
                   </div>
                 )}
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600">KDV Matrahı:</span>
+                  <span className="text-gray-600">₺{taxBase.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600">KDV (%{TAX_RATE * 100}):</span>
+                  <span className="text-gray-600">₺{taxAmount.toFixed(2)}</span>
+                </div>
                 <div className="flex justify-between items-center">
                   <span className="font-semibold text-gray-900">Kargo:</span>
                   <span className="font-bold text-md text-gray-900">₺{shippingCost.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-gray-900">Toplam Tutar:</span>
+                <div className="flex justify-between items-center pt-2 border-t">
+                  <span className="font-semibold text-gray-900">Toplam Tutar (KDV Dahil):</span>
                   <span className="font-bold text-lg text-primary-600">₺{total.toFixed(2)}</span>
                 </div>
               </div>
