@@ -6,7 +6,8 @@ import { getUserIdFromRequest } from '../utils';
 export async function GET(request: NextRequest) {
   const userId = getUserIdFromRequest(request);
   if (!userId) {
-    return NextResponse.json({ error: 'Giriş yapmalısınız.' }, { status: 401 });
+    // Giriş yapmamış kullanıcılar için boş array dön
+    return NextResponse.json([]);
   }
   const wishlist = await prisma.wishlist.findMany({
     where: { userId },
