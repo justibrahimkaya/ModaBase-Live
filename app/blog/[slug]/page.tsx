@@ -30,7 +30,7 @@ interface BlogPostPageProps {
 // Dynamic Metadata for Blog Posts
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   try {
-    const post = await prisma.blogPost.findUnique({
+    const post = await buildSafePrisma.blogPost.findUnique({
       where: { 
         slug: params.slug,
         isPublished: true
@@ -98,7 +98,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
 async function getBlogPost(slug: string): Promise<BlogPost | null> {
   try {
-    const post = await prisma.blogPost.findUnique({
+    const post = await buildSafePrisma.blogPost.findUnique({
       where: { 
         slug: slug,
         isPublished: true
@@ -107,7 +107,7 @@ async function getBlogPost(slug: string): Promise<BlogPost | null> {
 
     if (post) {
       // View count'u artır
-      await prisma.blogPost.update({
+      await buildSafePrisma.blogPost.update({
         where: { id: post.id },
         data: { viewCount: { increment: 1 } }
       })
@@ -122,7 +122,7 @@ async function getBlogPost(slug: string): Promise<BlogPost | null> {
 
 async function getRelatedPosts(category: string, currentPostId: string): Promise<BlogPost[]> {
   try {
-    const posts = await prisma.blogPost.findMany({
+    const posts = await buildSafePrisma.blogPost.findMany({
       where: {
         category: category,
         isPublished: true,

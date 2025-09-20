@@ -13,7 +13,7 @@ interface ProductPageProps {
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   try {
     // Ürünü getir
-    let product = await prisma.product.findUnique({
+    let product = await buildSafePrisma.product.findUnique({
       where: { id: params.id },
       include: {
         category: true
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
     // Slug ile dene
     if (!product) {
-      product = await prisma.product.findUnique({
+      product = await buildSafePrisma.product.findUnique({
         where: { slug: params.id },
         include: {
           category: true
@@ -93,7 +93,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 export default async function ProductPage({ params }: ProductPageProps) {
   try {
     // Ürünü veritabanından getir - önce ID ile dene, sonra slug ile
-    let product = await prisma.product.findUnique({
+    let product = await buildSafePrisma.product.findUnique({
       where: { id: params.id },
       include: {
         category: {
@@ -138,7 +138,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
     // Eğer ID ile bulunamazsa slug ile dene
     if (!product) {
-      product = await prisma.product.findUnique({
+      product = await buildSafePrisma.product.findUnique({
         where: { slug: params.id },
         include: {
           category: {
@@ -189,7 +189,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       : 0
 
     // Benzer ürünleri getir
-    const similarProducts = await prisma.product.findMany({
+    const similarProducts = await buildSafePrisma.product.findMany({
       where: {
         categoryId: product.categoryId,
         id: { not: product.id }
