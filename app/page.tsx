@@ -17,9 +17,10 @@ import {
   Shield, 
   CreditCard, 
   Clock, 
-  Quote,
-  ShoppingBag
+  Quote
 } from 'lucide-react'
+import CategoryImage from '@/components/CategoryImage'
+import SpecialOfferImage from '@/components/SpecialOfferImage'
 
 // Ana Sayfa SEO Metadata
 export const metadata: Metadata = {
@@ -178,26 +179,7 @@ async function CategoriesShowcase() {
               className="group block text-center"
             >
               <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 aspect-square mb-4 group-hover:scale-105 transition-transform duration-300 shadow-lg group-hover:shadow-xl" style={{ minHeight: '180px', height: '180px' }}>
-                {category.image ? (
-                  <img
-                    src={category.image.startsWith('data:') || category.image.startsWith('http') || category.image.startsWith('/') 
-                      ? category.image 
-                      : '/default-product.svg'}
-                    alt={category.name}
-                    className="w-full h-full object-cover"
-                    style={{ width: '100%', height: '180px' }}
-                    loading="lazy"
-                    decoding="async"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/default-product.svg';
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center" style={{ height: '180px' }}>
-                    <ShoppingBag className="w-12 h-12 text-gray-400" />
-                  </div>
-                )}
+                <CategoryImage image={category.image} name={category.name} />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
                 <div className="absolute bottom-2 left-2 right-2">
                   <div className="bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
@@ -262,17 +244,7 @@ async function SpecialOffers() {
               >
                 <div className="bg-white rounded-2xl p-6 shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2">
                   <div className="relative overflow-hidden rounded-xl mb-4">
-                    <img
-                      src={images[0] && (images[0].startsWith('data:') || images[0].startsWith('http') || images[0].startsWith('/')) 
-                        ? images[0] 
-                        : '/default-product.svg'}
-                      alt={product.name}
-                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/default-product.svg';
-                      }}
-                    />
+                    <SpecialOfferImage images={images} productName={product.name} />
                     <div className="absolute top-2 left-2 bg-red-700 text-white text-sm font-bold px-3 py-1.5 rounded-full shadow-md">
                       %{discount} İndirim
                     </div>
