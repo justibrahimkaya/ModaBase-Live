@@ -32,7 +32,9 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
             <div className="relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 aspect-square">
               {product.image ? (
                 <img
-                  src={product.image}
+                  src={product.image.startsWith('data:') || product.image.startsWith('http') || product.image.startsWith('/') 
+                    ? product.image 
+                    : `/default-product.svg`}
                   alt={`${product.name} - ${product.category?.name || 'Ürün'} - ModaBase`}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   loading="lazy"
@@ -41,16 +43,16 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
                   style={{ aspectRatio: '1/1' }}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent) {
-                      parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gray-100"><span class="text-gray-700 text-sm font-medium">Resim Yüklenemedi</span></div>';
-                    }
+                    target.src = '/default-product.svg';
                   }}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                  <span className="text-gray-700 text-sm font-medium">Resim Yok</span>
+                  <img
+                    src="/default-product.svg"
+                    alt="Ürün görseli"
+                    className="w-16 h-16 opacity-50"
+                  />
                 </div>
               )}
               

@@ -180,12 +180,18 @@ async function CategoriesShowcase() {
               <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 aspect-square mb-4 group-hover:scale-105 transition-transform duration-300 shadow-lg group-hover:shadow-xl" style={{ minHeight: '180px', height: '180px' }}>
                 {category.image ? (
                   <img
-                    src={category.image}
+                    src={category.image.startsWith('data:') || category.image.startsWith('http') || category.image.startsWith('/') 
+                      ? category.image 
+                      : '/default-product.svg'}
                     alt={category.name}
                     className="w-full h-full object-cover"
                     style={{ width: '100%', height: '180px' }}
                     loading="lazy"
                     decoding="async"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/default-product.svg';
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center" style={{ height: '180px' }}>
@@ -257,9 +263,15 @@ async function SpecialOffers() {
                 <div className="bg-white rounded-2xl p-6 shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2">
                   <div className="relative overflow-hidden rounded-xl mb-4">
                     <img
-                      src={images[0] || '/placeholder.jpg'}
+                      src={images[0] && (images[0].startsWith('data:') || images[0].startsWith('http') || images[0].startsWith('/')) 
+                        ? images[0] 
+                        : '/default-product.svg'}
                       alt={product.name}
                       className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/default-product.svg';
+                      }}
                     />
                     <div className="absolute top-2 left-2 bg-red-700 text-white text-sm font-bold px-3 py-1.5 rounded-full shadow-md">
                       %{discount} İndirim

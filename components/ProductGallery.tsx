@@ -14,11 +14,11 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
   // Eğer resim yoksa varsayılan resim kullan - Güvenli kontrol
   const productImages = (images && Array.isArray(images) && images.length > 0) ? images.map((src, index) => ({
     id: index,
-    src: src,
+    src: (src && (src.startsWith('data:') || src.startsWith('http') || src.startsWith('/'))) ? src : '/default-product.svg',
     alt: `Ürün Görseli ${index + 1}`
   })) : [{
     id: 0,
-    src: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=600&h=800&fit=crop',
+    src: '/default-product.svg',
     alt: 'Varsayılan Ürün Görseli'
   }]
 
@@ -39,6 +39,10 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
             src={productImages[selectedImage]?.src || productImages[0]?.src}
             alt={productImages[selectedImage]?.alt || productImages[0]?.alt}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/default-product.svg';
+            }}
           />
         </div>
         
@@ -94,6 +98,10 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
                 src={image.src}
                 alt={image.alt}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/default-product.svg';
+                }}
               />
             </button>
           ))}
@@ -108,6 +116,10 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
               src={productImages[selectedImage]?.src || productImages[0]?.src}
               alt={productImages[selectedImage]?.alt || productImages[0]?.alt}
               className="w-full h-auto max-h-[90vh] object-contain"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/default-product.svg';
+              }}
             />
             <button
               onClick={() => setIsZoomed(false)}
