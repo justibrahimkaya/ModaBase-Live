@@ -1072,18 +1072,9 @@ export default function AdminProductsPage() {
       
     } catch (error) {
       console.error('❌ imageSlots güvenlik hatası:', error)
-      // Güvenli fallback değer
-      safeImageSlots = [
-        { id: 1, image: '', loading: false, error: '' },
-        { id: 2, image: '', loading: false, error: '' },
-        { id: 3, image: '', loading: false, error: '' },
-        { id: 4, image: '', loading: false, error: '' },
-        { id: 5, image: '', loading: false, error: '' },
-        { id: 6, image: '', loading: false, error: '' },
-        { id: 7, image: '', loading: false, error: '' },
-        { id: 8, image: '', loading: false, error: '' }
-      ]
-      console.log('🔄 Güvenli fallback imageSlots kullanılıyor')
+      // Boş array kullan, boş slotlar DEĞİL!
+      safeImageSlots = []
+      console.log('🔄 Boş array kullanılıyor (default slotlar DEĞİL)')
     }
     
     // Her slot'u detaylı kontrol et - GÜVENLİ
@@ -1116,11 +1107,28 @@ export default function AdminProductsPage() {
       console.log(`Geçerli resim ${index + 1}:`, img.length, 'bytes')
     })
 
-    // Eğer hiç resim yoksa default resimler kullan
+    // Eğer hiç resim yoksa, imageSlots'tan default olmayanları al
     if (validImages.length === 0) {
-      console.log('⚠️ Hiç resim yüklenmemiş, default resimler kullanılıyor')
-      // En az 1 default resim ekle
-      validImages.push('/default-product.svg')
+      console.log('⚠️ ValidImages boş, imageSlots kontrol ediliyor...')
+      console.log('Current imageSlots:', imageSlots)
+      
+      // imageSlots'tan resim olmayan slotları filtrele
+      const allSlotImages = imageSlots
+        .filter(slot => slot.image && slot.image !== '' && !slot.error)
+        .map(slot => slot.image)
+      
+      console.log('Filtered slot images:', allSlotImages)
+      
+      if (allSlotImages.length > 0) {
+        validImages.push(...allSlotImages)
+        console.log('✅ imageSlots\'tan', allSlotImages.length, 'resim alındı')
+      } else {
+        // Hiç resim yoksa en az 8 default resim ekle
+        for (let i = 0; i < 8; i++) {
+          validImages.push('/default-product.svg')
+        }
+        console.log('⚠️ Hiç resim yok, 8 default resim eklendi')
+      }
     }
 
     setSaving(true)
