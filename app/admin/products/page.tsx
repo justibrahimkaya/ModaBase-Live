@@ -1247,8 +1247,11 @@ export default function AdminProductsPage() {
       // Başarı mesajı
       setSuccess(`Ürün başarıyla ${isEdit ? 'güncellendi' : 'eklendi'}!`)
       
-      // 3 saniye sonra success mesajını temizle
-      setTimeout(() => setSuccess(''), 3000)
+      // Modal'ı kapat
+      setTimeout(() => {
+        closeModal()
+        setSuccess('')
+      }, 2000)
       
       // Form'u temizle
       setForm({
@@ -2035,9 +2038,14 @@ export default function AdminProductsPage() {
                                           accept="image/*"
                                           className="hidden"
                                           onChange={(e) => {
+                                            console.log('🔴 FILE INPUT CHANGED!')
                                             const file = e.target.files?.[0]
+                                            console.log('🔴 Selected file:', file)
                                             if (file) {
+                                              console.log('🔴 Calling handleSlotImageUpload for slot:', slotId)
                                               handleSlotImageUpload(slotId, file)
+                                            } else {
+                                              console.log('🔴 No file selected')
                                             }
                                           }}
                                         />
