@@ -45,18 +45,18 @@ async function getBuyukBedenProducts() {
     const products = await prisma.product.findMany({
       where: {
         OR: [
-          { name: { contains: 'büyük beden', mode: 'insensitive' } },
-          { name: { contains: 'XL', mode: 'insensitive' } },
-          { name: { contains: 'XXL', mode: 'insensitive' } },
-          { name: { contains: '3XL', mode: 'insensitive' } },
-          { name: { contains: '4XL', mode: 'insensitive' } },
-          { name: { contains: '5XL', mode: 'insensitive' } },
-          { name: { contains: 'plus size', mode: 'insensitive' } },
-          { description: { contains: 'büyük beden', mode: 'insensitive' } },
-          { description: { contains: 'plus size', mode: 'insensitive' } },
+          { name: { contains: 'büyük beden' } },
+          { name: { contains: 'XL' } },
+          { name: { contains: 'XXL' } },
+          { name: { contains: '3XL' } },
+          { name: { contains: '4XL' } },
+          { name: { contains: '5XL' } },
+          { name: { contains: 'plus size' } },
+          { description: { contains: 'büyük beden' } },
+          { description: { contains: 'plus size' } },
           { 
             category: {
-              name: { contains: 'büyük beden', mode: 'insensitive' }
+              name: { contains: 'büyük beden' }
             }
           }
         ]

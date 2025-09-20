@@ -34,14 +34,14 @@ async function getYazlikElbiseProducts() {
     const products = await prisma.product.findMany({
       where: {
         OR: [
-          { name: { contains: 'yazlık', mode: 'insensitive' } },
-          { name: { contains: 'yaz', mode: 'insensitive' } },
-          { name: { contains: 'plaj', mode: 'insensitive' } },
-          { description: { contains: 'yazlık', mode: 'insensitive' } },
-          { description: { contains: 'yaz', mode: 'insensitive' } },
+          { name: { contains: 'yazlık' } },
+          { name: { contains: 'yaz' } },
+          { name: { contains: 'plaj' } },
+          { description: { contains: 'yazlık' } },
+          { description: { contains: 'yaz' } },
           { 
             category: {
-              name: { contains: 'yazlık', mode: 'insensitive' }
+              name: { contains: 'yazlık' }
             }
           }
         ]

@@ -83,8 +83,8 @@ async function getProducts(searchParams: ProductsPageProps['searchParams']) {
     // Arama filtresi
     if (searchParams.search) {
       where.OR = [
-        { name: { contains: searchParams.search, mode: 'insensitive' } },
-        { description: { contains: searchParams.search, mode: 'insensitive' } }
+        { name: { contains: searchParams.search } },
+        { description: { contains: searchParams.search } }
       ]
     }
 

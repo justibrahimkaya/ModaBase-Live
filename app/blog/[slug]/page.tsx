@@ -14,7 +14,7 @@ interface BlogPost {
   content: string
   author: string
   publishedAt: Date | null
-  tags: string[]
+  tags: string | null
   image: string
   readTime: number
   category: string
@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       keywords: [
         post.title,
         post.category,
-        ...post.tags,
+        ...(post.tags ? post.tags.split(',') : []),
         'moda blog',
         'modabase',
         'moda trendleri'
@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
         publishedTime: post.publishedAt?.toISOString(),
         authors: [post.author],
         section: post.category,
-        tags: post.tags
+        tags: post.tags ? post.tags.split(',') : []
       },
       twitter: {
         card: 'summary_large_image',
@@ -176,7 +176,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       "@id": `https://modabase.com.tr/blog/${post.slug}`
     },
     "articleSection": post.category,
-    "keywords": post.tags.join(", "),
+    "keywords": post.tags || "",
     "wordCount": post.readTime * 200,
     "timeRequired": `PT${post.readTime}M`
   }
@@ -269,7 +269,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <div className="mt-12 pt-8 border-t border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Etiketler</h3>
               <div className="flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
+                {(post.tags ? post.tags.split(',') : []).map((tag) => (
                   <span
                     key={tag}
                     className="bg-gray-100 text-gray-700 px-3 py-1 rounded-md text-sm hover:bg-gray-200 transition-colors"

@@ -1,0 +1,64 @@
+# NATRO MYSQL BAĞLANTI AYARLARI
+# ================================
+
+# MySQL Bağlantı Formatı:
+DATABASE_URL="mysql://KULLANICI:SIFRE@HOST:3306/VERITABANI_ADI"
+
+# Örnek Natro MySQL Bağlantıları:
+# --------------------------------
+# Localhost bağlantısı (cPanel'den erişim için):
+# DATABASE_URL="mysql://modabase_user:guclu_sifre_123@localhost:3306/modabase_db"
+
+# Uzak bağlantı (dış erişim için):
+# DATABASE_URL="mysql://modabase_user:guclu_sifre_123@mysql.siteniz.com:3306/modabase_db"
+
+# SSL'li bağlantı:
+# DATABASE_URL="mysql://modabase_user:guclu_sifre_123@mysql.siteniz.com:3306/modabase_db?ssl-mode=REQUIRED"
+
+# UYGULAMA AYARLARI
+# ================================
+NODE_ENV="production"
+NEXTAUTH_URL="https://www.siteniz.com"
+NEXTAUTH_SECRET="rastgele-guclu-secret-key-olusturun"
+
+# EMAIL AYARLARI (NATRO SMTP)
+# ================================
+EMAIL_HOST="mail.siteniz.com"
+EMAIL_PORT="587"
+EMAIL_SECURE="false"
+EMAIL_USER="bilgi@siteniz.com"
+EMAIL_PASSWORD="email_sifresi"
+EMAIL_FROM="ModaBase <bilgi@siteniz.com>"
+
+# PAYTR AYARLARI
+# ================================
+NEXT_PUBLIC_PAYTR_MERCHANT_ID="merchant_id"
+PAYTR_MERCHANT_KEY="merchant_key"
+PAYTR_MERCHANT_SALT="merchant_salt"
+PAYTR_MERCHANT_OK_URL="https://www.siteniz.com/api/payment/success"
+PAYTR_MERCHANT_FAIL_URL="https://www.siteniz.com/api/payment/fail"
+
+# GOOGLE AYARLARI
+# ================================
+GOOGLE_CLIENT_ID="google_client_id"
+GOOGLE_CLIENT_SECRET="google_client_secret"
+
+# E-ARŞIV FATURA
+# ================================
+EARSIV_USERNAME="earsiv_kullanici"
+EARSIV_PASSWORD="earsiv_sifre"
+EARSIV_TEST_MODE="false"
+
+# WHATSAPP AYARLARI
+# ================================
+WHATSAPP_API_URL="https://api.whatsapp.com/..."
+WHATSAPP_API_TOKEN="whatsapp_token"
+WHATSAPP_PHONE_NUMBER_ID="phone_number_id"
+
+# REDIS CACHE (Opsiyonel - Natro Redis desteği varsa)
+# ================================
+# REDIS_URL="redis://localhost:6379"
+
+# CDN AYARLARI (Opsiyonel)
+# ================================
+# CDN_URL="https://cdn.siteniz.com"

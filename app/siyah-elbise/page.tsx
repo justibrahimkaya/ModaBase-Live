@@ -45,26 +45,26 @@ async function getSiyahElbiseProducts() {
     const products = await prisma.product.findMany({
       where: {
         OR: [
-          { name: { contains: 'siyah elbise', mode: 'insensitive' } },
-          { name: { contains: 'black dress', mode: 'insensitive' } },
+          { name: { contains: 'siyah elbise' } },
+          { name: { contains: 'black dress' } },
           { 
             AND: [
-              { name: { contains: 'siyah', mode: 'insensitive' } },
-              { name: { contains: 'elbise', mode: 'insensitive' } }
+              { name: { contains: 'siyah' } },
+              { name: { contains: 'elbise' } }
             ]
           },
           { 
             AND: [
-              { description: { contains: 'siyah', mode: 'insensitive' } },
-              { description: { contains: 'elbise', mode: 'insensitive' } }
+              { description: { contains: 'siyah' } },
+              { description: { contains: 'elbise' } }
             ]
           },
           { 
             AND: [
-              { name: { contains: 'black', mode: 'insensitive' } },
+              { name: { contains: 'black' } },
               { 
                 category: {
-                  name: { contains: 'elbise', mode: 'insensitive' }
+                  name: { contains: 'elbise' }
                 }
               }
             ]

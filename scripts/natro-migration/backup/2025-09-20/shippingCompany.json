@@ -1,0 +1,52 @@
+[
+  {
+    "id": "cmdg3h65p0010tilc3iq0vkqn",
+    "name": "PTT Kargo",
+    "code": "ptt",
+    "apiUrl": "https://api.pttkargo.com",
+    "apiKey": null,
+    "isActive": true,
+    "createdAt": "2025-07-23T15:04:39.278Z",
+    "updatedAt": "2025-07-23T15:04:39.278Z"
+  },
+  {
+    "id": "cmdg3h65p000ytilciwwu5sg1",
+    "name": "UPS Kargo",
+    "code": "ups",
+    "apiUrl": "https://api.ups.com",
+    "apiKey": null,
+    "isActive": true,
+    "createdAt": "2025-07-23T15:04:39.278Z",
+    "updatedAt": "2025-07-23T15:04:39.278Z"
+  },
+  {
+    "id": "cmdg3h65p000ztilck8nal4xz",
+    "name": "Hepsijet",
+    "code": "hepsijet",
+    "apiUrl": "https://api.hepsijet.com",
+    "apiKey": null,
+    "isActive": true,
+    "createdAt": "2025-07-23T15:04:39.278Z",
+    "updatedAt": "2025-07-23T15:04:39.278Z"
+  },
+  {
+    "id": "cmdg3h65p000wtilcteran0qi",
+    "name": "Aras Kargo",
+    "code": "aras",
+    "apiUrl": "https://api.araskargo.com",
+    "apiKey": null,
+    "isActive": true,
+    "createdAt": "2025-07-23T15:04:39.278Z",
+    "updatedAt": "2025-07-23T15:04:39.278Z"
+  },
+  {
+    "id": "cmdg3h65p000xtilcl7g9rvrh",
+    "name": "Sürat Kargo",
+    "code": "surat",
+    "apiUrl": "https://api.suratkargo.com",
+    "apiKey": null,
+    "isActive": true,
+    "createdAt": "2025-07-23T15:04:39.278Z",
+    "updatedAt": "2025-07-23T15:04:39.278Z"
+  }
+]

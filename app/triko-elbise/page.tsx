@@ -47,14 +47,14 @@ async function getTrikoElbiseProducts() {
         AND: [
           {
             OR: [
-              { name: { contains: 'triko', mode: 'insensitive' } },
-              { description: { contains: 'triko', mode: 'insensitive' } }
+              { name: { contains: 'triko' } },
+              { description: { contains: 'triko' } }
             ]
           },
           {
             OR: [
-              { name: { contains: 'elbise', mode: 'insensitive' } },
-              { description: { contains: 'elbise', mode: 'insensitive' } }
+              { name: { contains: 'elbise' } },
+              { description: { contains: 'elbise' } }
             ]
           }
         ]

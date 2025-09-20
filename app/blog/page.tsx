@@ -18,7 +18,7 @@ interface BlogPost {
   excerpt: string
   author: string
   publishedAt: Date | null
-  tags: string[]
+  tags: string | null
   image: string
   readTime: number
   category: string
@@ -214,7 +214,7 @@ export default async function BlogPage() {
 
                     {/* Tags */}
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {post.tags.slice(0, 3).map((tag) => (
+                      {(post.tags ? post.tags.split(',').slice(0, 3) : []).map((tag) => (
                         <span
                           key={tag}
                           className="bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-sm"

@@ -1,0 +1,13 @@
+# NATRO MYSQL BAĞLANTI AYARLARI
+# ================================
+# ÖNEMLİ: SIFRENIZ yazan yere Natro'dan aldığınız şifreyi yazın!
+
+# Natro MySQL Bağlantısı
+DATABASE_URL="mysql://user8D2:SIFRENIZ@94.73.150.249:3306/db8D2"
+NATRO_DATABASE_URL="mysql://user8D2:SIFRENIZ@94.73.150.249:3306/db8D2"
+
+# Alternatif bağlantı (eğer IP çalışmazsa deneyin)
+# DATABASE_URL="mysql://user8D2:SIFRENIZ@mysql69.natro.com:3306/db8D2"
+
+# Eski Supabase (backup için)
+SUPABASE_DATABASE_URL="postgresql://postgres:08513628-JUst@db.wcutymcedxgeyrnpuyvt.supabase.co:5432/postgres"

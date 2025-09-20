@@ -1,0 +1,104 @@
+{
+  "date": "2025-09-20T19:56:40.109Z",
+  "source": "Supabase",
+  "database": "PostgreSQL",
+  "tables": [
+    "user",
+    "category",
+    "product",
+    "productVariant",
+    "orderItem",
+    "address",
+    "review",
+    "cart",
+    "cartItem",
+    "favorite",
+    "wishlist",
+    "business",
+    "blogPost",
+    "sEOSettings",
+    "shippingCompany",
+    "stockMovement",
+    "userStockNotification",
+    "transferNotification",
+    "contactMessage"
+  ],
+  "recordCounts": [
+    {
+      "table": "user",
+      "count": 4
+    },
+    {
+      "table": "category",
+      "count": 13
+    },
+    {
+      "table": "product",
+      "count": 1
+    },
+    {
+      "table": "productVariant",
+      "count": 28
+    },
+    {
+      "table": "orderItem",
+      "count": 1
+    },
+    {
+      "table": "address",
+      "count": 0
+    },
+    {
+      "table": "review",
+      "count": 0
+    },
+    {
+      "table": "cart",
+      "count": 0
+    },
+    {
+      "table": "cartItem",
+      "count": 0
+    },
+    {
+      "table": "favorite",
+      "count": 0
+    },
+    {
+      "table": "wishlist",
+      "count": 0
+    },
+    {
+      "table": "business",
+      "count": 1
+    },
+    {
+      "table": "blogPost",
+      "count": 14
+    },
+    {
+      "table": "sEOSettings",
+      "count": 1
+    },
+    {
+      "table": "shippingCompany",
+      "count": 5
+    },
+    {
+      "table": "stockMovement",
+      "count": 0
+    },
+    {
+      "table": "userStockNotification",
+      "count": 0
+    },
+    {
+      "table": "transferNotification",
+      "count": 11
+    },
+    {
+      "table": "contactMessage",
+      "count": 0
+    }
+  ]
+}

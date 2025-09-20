@@ -45,15 +45,15 @@ async function getTrikoProducts() {
     const products = await prisma.product.findMany({
       where: {
         OR: [
-          { name: { contains: 'triko', mode: 'insensitive' } },
-          { name: { contains: 'kazak', mode: 'insensitive' } },
-          { name: { contains: 'hırka', mode: 'insensitive' } },
-          { description: { contains: 'triko', mode: 'insensitive' } },
+          { name: { contains: 'triko' } },
+          { name: { contains: 'kazak' } },
+          { name: { contains: 'hırka' } },
+          { description: { contains: 'triko' } },
           { 
             category: {
               OR: [
-                { name: { contains: 'triko', mode: 'insensitive' } },
-                { name: { contains: 'kazak', mode: 'insensitive' } }
+                { name: { contains: 'triko' } },
+                { name: { contains: 'kazak' } }
               ]
             }
           }

@@ -1,0 +1,611 @@
+generator client {
+  provider     = "prisma-client-js"
+  engineType   = "binary"
+  binaryTargets = ["native", "rhel-openssl-3.0.x", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String                  @id @default(cuid())
+  email              String                  @unique @db.VarChar(255)
+  passwordHash       String?                 @db.Text
+  resetToken         String?                 @db.VarChar(255)
+  resetTokenExpiry   DateTime?
+  name               String?                 @db.VarChar(255)
+  surname            String?                 @db.VarChar(255)
+  phone              String?                 @db.VarChar(50)
+  image              String?                 @db.Text
+  emailVerified      DateTime?
+  provider           String?                 @db.VarChar(100)
+  role               String                  @default("USER") @db.VarChar(50)
+  adminStatus        String?                 @db.VarChar(50)
+  appliedAt          DateTime?
+  approvedAt         DateTime?
+  rejectedAt         DateTime?
+  rejectionReason    String?                 @db.Text
+  businessInfo       String?                 @db.Text
+  isActive           Boolean                 @default(true)
+  lastLoginAt        DateTime?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  accounts           Account[]
+  addresses          Address[]
+  cartHistories      CartHistory[]
+  favorites          Favorite[]
+  orders             Order[]
+  reviews            Review[]
+  reviewHelpfulVotes ReviewHelpful[]
+  sessions           Session[]
+  stockNotifications UserStockNotification[]
+  wishlists          Wishlist[]
+  contactMessages    ContactMessage[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String  @db.VarChar(100)
+  provider          String  @db.VarChar(100)
+  providerAccountId String  @db.VarChar(255)
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String? @db.VarChar(100)
+  scope             String? @db.Text
+  id_token          String? @db.Text
+  session_state     String? @db.Text
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @db.VarChar(255)
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String   @db.VarChar(255)
+  token      String   @unique @db.VarChar(255)
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Address {
+  id           String   @id @default(cuid())
+  userId       String
+  title        String   @db.VarChar(255)
+  name         String   @db.VarChar(255)
+  surname      String   @db.VarChar(255)
+  email        String   @db.VarChar(255)
+  phone        String   @db.VarChar(50)
+  city         String   @db.VarChar(100)
+  district     String   @db.VarChar(100)
+  neighborhood String   @db.VarChar(100)
+  address      String   @db.Text
+  type         String   @db.VarChar(50)
+  isDefault    Boolean  @default(false)
+  invoiceType  String?  @db.VarChar(50)
+  tcKimlikNo   String?  @db.VarChar(11)
+  vergiNo      String?  @db.VarChar(20)
+  vergiDairesi String?  @db.VarChar(255)
+  companyName  String?  @db.VarChar(255)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
+  orders       Order[]
+
+  @@index([userId])
+}
+
+model Category {
+  id             String       @id @default(cuid())
+  name           String       @unique @db.VarChar(255)
+  slug           String       @unique @db.VarChar(255)
+  description    String?      @db.Text
+  image          String?      @db.Text
+  defaultTaxRate Float        @default(10.0)
+  isActive       Boolean      @default(true)
+  parentId       String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  businessId     String?
+  business       Business?    @relation("BusinessCategories", fields: [businessId], references: [id])
+  parent         Category?    @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children       Category[]   @relation("CategoryHierarchy")
+  products       Product[]
+  seoSettings    SEOSettings? @relation("CategorySEO")
+
+  @@index([parentId])
+  @@index([businessId])
+}
+
+model Product {
+  id                 String                  @id @default(cuid())
+  name               String                  @db.VarChar(255)
+  slug               String                  @unique @db.VarChar(255)
+  description        String                  @db.Text
+  price              Float
+  originalPrice      Float?
+  images             String                  @db.Text
+  stock              Int                     @default(0)
+  minStockLevel      Int                     @default(5)
+  maxStockLevel      Int?
+  reservedStock      Int                     @default(0)
+  taxRate            Float                   @default(10.0)
+  categoryId         String
+  metaTitle          String?                 @db.VarChar(255)
+  metaDescription    String?                 @db.Text
+  keywords           String?                 @db.Text
+  altText            String?                 @db.Text
+  brand              String?                 @db.VarChar(255)
+  sku                String?                 @db.VarChar(100)
+  gtin               String?                 @db.VarChar(50)
+  mpn                String?                 @db.VarChar(100)
+  condition          String?                 @db.VarChar(50)
+  availability       String?                 @db.VarChar(50)
+  material           String?                 @db.VarChar(255)
+  color              String?                 @db.VarChar(100)
+  size               String?                 @db.VarChar(100)
+  weight             String?                 @db.VarChar(50)
+  dimensions         String?                 @db.VarChar(255)
+  warranty           String?                 @db.VarChar(255)
+  countryOfOrigin    String?                 @db.VarChar(100)
+  ogTitle            String?                 @db.VarChar(255)
+  ogDescription      String?                 @db.Text
+  ogImage            String?                 @db.Text
+  ogType             String?                 @db.VarChar(100)
+  twitterCard        String?                 @db.VarChar(100)
+  twitterTitle       String?                 @db.VarChar(255)
+  twitterDescription String?                 @db.Text
+  twitterImage       String?                 @db.Text
+  structuredData     String?                 @db.LongText
+  canonicalUrl       String?                 @db.Text
+  hreflang           String?                 @db.Text
+  googleAnalyticsId  String?                 @db.VarChar(100)
+  googleTagManagerId String?                 @db.VarChar(100)
+  facebookPixelId    String?                 @db.VarChar(100)
+  robotsMeta         String?                 @db.VarChar(255)
+  sitemapPriority    Float?
+  changeFrequency    String?                 @db.VarChar(50)
+  lastModified       DateTime?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  cartItems          CartItem[]              @relation("ProductCartItems")
+  favorites          Favorite[]              @relation("ProductFavorites")
+  orderItems         OrderItem[]             @relation("ProductOrderItems")
+  category           Category                @relation(fields: [categoryId], references: [id])
+  variants           ProductVariant[]
+  reviews            Review[]                @relation("ProductReviews")
+  seoSettings        SEOSettings?            @relation("ProductSEO")
+  stockMovements     StockMovement[]         @relation("ProductStockMovements")
+  stockNotifications UserStockNotification[] @relation("ProductStockNotifications")
+  wishlists          Wishlist[]              @relation("ProductWishlists")
+
+  @@index([categoryId])
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  productId String
+  size      String?  @db.VarChar(50)
+  color     String?  @db.VarChar(100)
+  colorCode String?  @db.VarChar(10)
+  stock     Int      @default(0)
+  price     Float?
+  sku       String?  @db.VarChar(100)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, size, color])
+  @@index([productId])
+}
+
+model Order {
+  id                    String                 @id @default(cuid())
+  userId                String?
+  addressId             String?
+  invoiceAddressId      String?
+  status                String                 @default("PENDING") @db.VarChar(50)
+  total                 Float
+  subtotal              Float?
+  subtotalWithTax       Float?
+  taxRate               Float?
+  taxAmount             Float?
+  shippingCost          Float?
+  shippingMethod        String?                @db.VarChar(100)
+  paymentMethod         String?                @db.VarChar(100)
+  note                  String?                @db.Text
+  trackingNumber        String?                @db.VarChar(255)
+  shippingCompany       String?                @db.VarChar(100)
+  shippingTrackingUrl   String?                @db.Text
+  shippedAt             DateTime?
+  deliveredAt           DateTime?
+  adminNotes            String?                @db.Text
+  guestName             String?                @db.VarChar(255)
+  guestSurname          String?                @db.VarChar(255)
+  guestEmail            String?                @db.VarChar(255)
+  guestPhone            String?                @db.VarChar(50)
+  invoiceType           String?                @db.VarChar(50)
+  tcKimlikNo            String?                @db.VarChar(11)
+  vergiNo               String?                @db.VarChar(20)
+  vergiDairesi          String?                @db.VarChar(255)
+  unvan                 String?                @db.VarChar(255)
+  einvoiceStatus        String?                @db.VarChar(50)
+  einvoiceUuid          String?                @db.VarChar(255)
+  einvoicePdfUrl        String?                @db.Text
+  einvoiceError         String?                @db.Text
+  canCancel             Boolean                @default(true)
+  canReturn             Boolean                @default(true)
+  canExchange           Boolean                @default(true)
+  cancelReason          String?                @db.Text
+  returnReason          String?                @db.Text
+  exchangeReason        String?                @db.Text
+  cancelRequestedAt     DateTime?
+  returnRequestedAt     DateTime?
+  exchangeRequestedAt   DateTime?
+  cancelApprovedAt      DateTime?
+  returnApprovedAt      DateTime?
+  exchangeApprovedAt    DateTime?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  address               Address?               @relation(fields: [addressId], references: [id])
+  user                  User?                  @relation(fields: [userId], references: [id])
+  items                 OrderItem[]
+  stockMovements        StockMovement[]
+  transferNotifications TransferNotification[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([addressId])
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+  taxRate   Float    @default(10.0)
+  size      String?  @db.VarChar(50)
+  color     String?  @db.VarChar(100)
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation("ProductOrderItems", fields: [productId], references: [id], onDelete: Cascade)
+  reviews   Review[]
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Review {
+  id                 String          @id @default(cuid())
+  userId             String
+  productId          String
+  orderItemId        String?
+  rating             Int
+  title              String?         @db.VarChar(255)
+  comment            String?         @db.Text
+  images             String?         @db.Text
+  isApproved         Boolean         @default(false)
+  isVerifiedPurchase Boolean         @default(false)
+  helpfulCount       Int             @default(0)
+  unhelpfulCount     Int             @default(0)
+  adminReply         String?         @db.Text
+  adminReplyDate     DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  orderItem          OrderItem?      @relation(fields: [orderItemId], references: [id])
+  product            Product         @relation("ProductReviews", fields: [productId], references: [id], onDelete: Cascade)
+  user               User            @relation(fields: [userId], references: [id])
+  helpfulVotes       ReviewHelpful[]
+
+  @@unique([userId, productId])
+  @@index([productId])
+  @@index([orderItemId])
+}
+
+model ReviewHelpful {
+  id        String   @id @default(cuid())
+  reviewId  String
+  userId    String
+  isHelpful Boolean
+  createdAt DateTime @default(now())
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([reviewId, userId])
+  @@index([reviewId])
+  @@index([userId])
+}
+
+model Cart {
+  id          String       @id @default(cuid())
+  userId      String?
+  isArchived  Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  cartHistory CartHistory?
+  items       CartItem[]
+
+  @@index([userId])
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  productId String
+  quantity  Int     @default(1)
+  size      String? @db.VarChar(50)
+  color     String? @db.VarChar(100)
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  product   Product @relation("ProductCartItems", fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([cartId])
+  @@index([productId])
+}
+
+model CartHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  cartId    String   @unique
+  name      String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  product   Product  @relation("ProductFavorites", fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  product   Product  @relation("ProductWishlists", fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
+}
+
+model StockMovement {
+  id          String   @id @default(cuid())
+  productId   String
+  orderId     String?
+  type        String   @db.VarChar(50)
+  quantity    Int
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  order       Order?   @relation(fields: [orderId], references: [id])
+  product     Product  @relation("ProductStockMovements", fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([orderId])
+}
+
+model ShippingCompany {
+  id        String   @id @default(cuid())
+  name      String   @unique @db.VarChar(255)
+  code      String   @unique @db.VarChar(100)
+  apiUrl    String?  @db.Text
+  apiKey    String?  @db.Text
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserStockNotification {
+  id         String    @id @default(cuid())
+  userId     String?
+  guestEmail String?   @db.VarChar(255)
+  productId  String
+  isActive   Boolean   @default(true)
+  notifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  product    Product   @relation("ProductStockNotifications", fields: [productId], references: [id], onDelete: Cascade)
+  user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@unique([guestEmail, productId])
+  @@index([productId])
+}
+
+model Business {
+  id                      String                 @id @default(cuid())
+  businessName            String                 @db.VarChar(255)
+  businessType            String                 @db.VarChar(100)
+  taxNumber               String                 @unique @db.VarChar(20)
+  tradeRegistryNumber     String?                @db.VarChar(50)
+  email                   String                 @unique @db.VarChar(255)
+  phone                   String                 @db.VarChar(50)
+  website                 String?                @db.Text
+  address                 String                 @db.Text
+  city                    String                 @db.VarChar(100)
+  district                String?                @db.VarChar(100)
+  postalCode              String?                @db.VarChar(10)
+  contactName             String                 @db.VarChar(255)
+  contactSurname          String                 @db.VarChar(255)
+  contactTitle            String?                @db.VarChar(100)
+  contactPhone            String?                @db.VarChar(50)
+  contactEmail            String                 @db.VarChar(255)
+  password                String                 @db.Text
+  termsAccepted           Boolean                @default(false)
+  privacyAccepted         Boolean                @default(false)
+  marketingAccepted       Boolean                @default(false)
+  bankName                String?                @db.VarChar(255)
+  bankBranch              String?                @db.VarChar(255)
+  accountHolderName       String?                @db.VarChar(255)
+  ibanNumber              String?                @db.VarChar(50)
+  accountType             String?                @db.VarChar(50)
+  taxOffice               String?                @db.VarChar(255)
+  registrationDate        DateTime?
+  activityCode            String?                @db.VarChar(50)
+  activityDescription     String?                @db.Text
+  contactTcKimlik         String?                @db.VarChar(11)
+  contactBirthDate        DateTime?
+  adminStatus             String                 @default("PENDING") @db.VarChar(50)
+  appliedAt               DateTime               @default(now())
+  approvedAt              DateTime?
+  rejectedAt              DateTime?
+  rejectionReason         String?                @db.Text
+  approvedBy              String?                @db.VarChar(255)
+  isActive                Boolean                @default(false)
+  emailVerified           Boolean                @default(false)
+  emailVerificationToken  String?                @db.VarChar(255)
+  emailVerificationExpiry DateTime?
+  resetToken              String?                @db.VarChar(255)
+  resetTokenExpiry        DateTime?
+  lastLoginAt             DateTime?
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  categories              Category[]             @relation("BusinessCategories")
+  transferNotifications   TransferNotification[]
+  contactMessages         ContactMessage[]
+}
+
+model SEOSettings {
+  id                 String    @id @default(cuid())
+  pageType           String    @db.VarChar(50)
+  pageId             String?   @db.VarChar(255)
+  productId          String?   @unique
+  categoryId         String?   @unique
+  pageSlug           String?   @db.VarChar(255)
+  metaTitle          String    @db.VarChar(255)
+  metaDescription    String    @db.Text
+  keywords           String    @db.Text
+  ogTitle            String?   @db.VarChar(255)
+  ogDescription      String?   @db.Text
+  ogImage            String?   @db.Text
+  ogType             String?   @db.VarChar(100)
+  twitterCard        String?   @db.VarChar(100)
+  twitterTitle       String?   @db.VarChar(255)
+  twitterDescription String?   @db.Text
+  twitterImage       String?   @db.Text
+  structuredData     String?   @db.LongText
+  canonicalUrl       String?   @db.Text
+  robotsMeta         String?   @db.VarChar(255)
+  hreflang           String?   @db.Text
+  googleAnalyticsId  String?   @db.VarChar(100)
+  googleTagManagerId String?   @db.VarChar(100)
+  facebookPixelId    String?   @db.VarChar(100)
+  isActive           Boolean   @default(true)
+  priority           Int       @default(0)
+  lastAuditDate      DateTime?
+  seoScore           Int?
+  auditNotes         String?   @db.Text
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  category           Category? @relation("CategorySEO", fields: [categoryId], references: [id], onDelete: Cascade)
+  product            Product?  @relation("ProductSEO", fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([pageType, pageId])
+  @@unique([pageType, pageSlug])
+}
+
+model BlogPost {
+  id          String    @id @default(cuid())
+  title       String    @db.VarChar(255)
+  slug        String    @unique @db.VarChar(255)
+  excerpt     String    @db.Text
+  content     String    @db.LongText
+  author      String    @db.VarChar(255)
+  publishedAt DateTime?
+  tags        Json      // MySQL'de array yerine JSON kullanıyoruz
+  image       String    @db.Text
+  readTime    Int
+  category    String    @db.VarChar(100)
+  viewCount   Int       @default(0)
+  isPublished Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([category])
+  @@index([publishedAt])
+  @@index([isPublished])
+}
+
+model TransferNotification {
+  id             String    @id @default(cuid())
+  orderId        String
+  customerName   String    @db.VarChar(255)
+  customerEmail  String    @db.VarChar(255)
+  customerPhone  String    @db.VarChar(50)
+  transferAmount Float
+  transferDate   DateTime
+  transferNote   String?   @db.Text
+  status         String    @default("PENDING") @db.VarChar(50)
+  adminNote      String?   @db.Text
+  confirmedAt    DateTime?
+  businessId     String
+  iban           String    @db.VarChar(50)
+  accountHolder  String    @db.VarChar(255)
+  bankName       String    @db.VarChar(255)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  business       Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  order          Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([status])
+  @@index([businessId])
+}
+
+model ContactMessage {
+  id           String                @id @default(cuid())
+  firstName    String                @db.VarChar(255)
+  lastName     String                @db.VarChar(255)
+  email        String                @db.VarChar(255)
+  phone        String?               @db.VarChar(50)
+  subject      String                @db.VarChar(255)
+  message      String                @db.Text
+  businessId   String?
+  status       ContactMessageStatus  @default(PENDING)
+  adminReply   String?               @db.Text
+  adminId      String?
+  repliedAt    DateTime?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  
+  admin        User?                 @relation(fields: [adminId], references: [id])
+  business     Business?             @relation(fields: [businessId], references: [id])
+  
+  @@index([status])
+  @@index([createdAt])
+  @@index([email])
+  @@index([businessId])
+}
+
+enum ContactMessageStatus {
+  PENDING
+  READ
+  REPLIED
+  CLOSED
+}

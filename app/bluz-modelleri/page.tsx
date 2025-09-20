@@ -45,15 +45,15 @@ async function getBluzProducts() {
     const products = await prisma.product.findMany({
       where: {
         OR: [
-          { name: { contains: 'bluz', mode: 'insensitive' } },
-          { name: { contains: 'gömlek', mode: 'insensitive' } },
-          { name: { contains: 'üst', mode: 'insensitive' } },
-          { description: { contains: 'bluz', mode: 'insensitive' } },
+          { name: { contains: 'bluz' } },
+          { name: { contains: 'gömlek' } },
+          { name: { contains: 'üst' } },
+          { description: { contains: 'bluz' } },
           { 
             category: {
               OR: [
-                { name: { contains: 'bluz', mode: 'insensitive' } },
-                { name: { contains: 'üst', mode: 'insensitive' } }
+                { name: { contains: 'bluz' } },
+                { name: { contains: 'üst' } }
               ]
             }
           }

@@ -45,15 +45,15 @@ async function getKadinElbiseProducts() {
     const products = await prisma.product.findMany({
       where: {
         OR: [
-          { name: { contains: 'elbise', mode: 'insensitive' } },
-          { name: { contains: 'dress', mode: 'insensitive' } },
-          { description: { contains: 'elbise', mode: 'insensitive' } },
+          { name: { contains: 'elbise' } },
+          { name: { contains: 'dress' } },
+          { description: { contains: 'elbise' } },
           { 
             category: {
               OR: [
-                { name: { contains: 'elbise', mode: 'insensitive' } },
-                { name: { contains: 'dress', mode: 'insensitive' } },
-                { name: { contains: 'kadın', mode: 'insensitive' } }
+                { name: { contains: 'elbise' } },
+                { name: { contains: 'dress' } },
+                { name: { contains: 'kadın' } }
               ]
             }
           }
