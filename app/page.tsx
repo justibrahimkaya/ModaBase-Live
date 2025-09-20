@@ -148,7 +148,7 @@ async function CategoriesShowcase() {
   let categories: any[] = []
   
   try {
-    categories = await prisma.category.findMany({
+    categories = await buildSafePrisma.category.findMany({
       where: { isActive: true },
       include: {
         _count: { select: { products: true } }
