@@ -1,0 +1,17 @@
+# VERCEL'DE EKLENECEK PAYTR DEĞİŞKENLERİ (GERÇEK/CANLI)
+# Bu değişkenleri Vercel Dashboard → Settings → Environment Variables bölümüne ekleyin
+
+# PayTR Gerçek Hesap Bilgileri
+PAYTR_MERCHANT_ID=596379
+PAYTR_MERCHANT_KEY=srMxKnSgipN1Z1Td
+PAYTR_MERCHANT_SALT=TzXLtjFSuyDPsi8B
+PAYTR_TEST_MODE=false
+
+# PayTR Notification URL (değiştirmeyin)
+PAYTR_NOTIFICATION_URL=https://www.modabase.com.tr/api/paytr/notification
+
+# ÖNEMLİ NOTLAR:
+# 1. Bu bilgiler GERÇEK PayTR hesabınıza ait
+# 2. TEST_MODE mutlaka "false" olmalı
+# 3. Tüm değişkenleri Production environment'a ekleyin
+# 4. Deploy sonrası gerçek ödeme alabilirsiniz

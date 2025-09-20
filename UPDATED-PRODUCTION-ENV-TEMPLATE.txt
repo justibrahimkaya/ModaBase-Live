@@ -1,0 +1,85 @@
+# ===========================================
+# MODABASE - UPDATED PRODUCTION ENVIRONMENT VARIABLES
+# ===========================================
+# Projenin son haline göre GÜNCEL ve TAM liste
+
+# Database (Production) - SUPABASE POSTGRESQL
+DATABASE_URL="postgresql://postgres.[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres"
+
+# NextAuth Configuration
+NEXTAUTH_SECRET="modabase-2024-production-secret-key-lorem-ipsum-dolor-sit-amet-32-chars"
+NEXTAUTH_URL="https://www.modabase.com.tr"
+
+# Application Settings
+NODE_ENV="production"
+NEXT_PUBLIC_APP_URL="https://www.modabase.com.tr"
+NEXT_PUBLIC_COMPANY_NAME="ModaBase"
+
+# Email Service (SMTP) - GMAIL APP PASSWORD GEREKLI
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_USER="info@modabase.com.tr"
+SMTP_PASS="xxxx xxxx xxxx xxxx"
+EMAIL_FROM="ModaBase <info@modabase.com.tr>"
+
+# Email Alternative Variables (Kod tutarlılığı için - aynı değerler)
+EMAIL_HOST="smtp.gmail.com"
+EMAIL_PORT="587"
+EMAIL_USER="info@modabase.com.tr"
+EMAIL_PASS="xxxx xxxx xxxx xxxx"
+
+# Payment Gateway (PayTR)
+PAYTR_MERCHANT_ID="test-merchant-id"
+PAYTR_MERCHANT_KEY="test-merchant-key"
+PAYTR_MERCHANT_SALT="test-merchant-salt"
+
+# Security
+ENCRYPTION_KEY="your-32-character-encryption-key"
+JWT_SECRET="your-jwt-secret-key"
+
+# Social Login (Şu anda disabled - boş bırakılabilir)
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+FACEBOOK_CLIENT_ID=""
+FACEBOOK_CLIENT_SECRET=""
+
+# File Upload (Cloudinary) - OPSİYONEL
+CLOUDINARY_URL="cloudinary://api_key:api_secret@cloud_name"
+
+# Analytics & Monitoring - OPSİYONEL
+NEXT_PUBLIC_GA_ID="GA-MEASUREMENT-ID"
+SENTRY_DSN="your-sentry-dsn"
+
+# Social Media - OPSİYONEL
+NEXT_PUBLIC_INSTAGRAM_URL="https://instagram.com/modabase"
+NEXT_PUBLIC_FACEBOOK_URL="https://facebook.com/modabase"
+NEXT_PUBLIC_TWITTER_URL="https://twitter.com/modabase"
+
+# ===========================================
+# KULLANICININ LİSTESİ KARŞILAŞTIRMASI:
+# ===========================================
+
+# ✅ SİZİN LİSTENİZDE DOĞRU OLANLAR (16/19):
+# DATABASE_URL ✅
+# NEXTAUTH_SECRET ✅  
+# NEXTAUTH_URL ✅
+# NODE_ENV ✅
+# NEXT_PUBLIC_APP_URL ✅
+# NEXT_PUBLIC_COMPANY_NAME ✅
+# SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS ✅
+# EMAIL_FROM ✅
+# PAYTR_MERCHANT_ID, PAYTR_MERCHANT_KEY, PAYTR_MERCHANT_SALT ✅
+# ENCRYPTION_KEY ✅
+# JWT_SECRET ✅
+# CLOUDINARY_URL ✅ (opsiyonel)
+# NEXT_PUBLIC_GA_ID ✅ (opsiyonel)  
+# SENTRY_DSN ✅ (opsiyonel)
+
+# ❌ EKSİK OLANLAR (Sadece 4 adet):
+# EMAIL_HOST="smtp.gmail.com"
+# EMAIL_PORT="587"
+# EMAIL_USER="info@modabase.com.tr" 
+# EMAIL_PASS="xxxx xxxx xxxx xxxx"
+
+# 🎯 SONUÇ: Sizin listeniz %84 DOĞRU!
+# Sadece EMAIL_* değişkenlerini eklerseniz %100 tam olur. 
