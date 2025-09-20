@@ -800,60 +800,68 @@ export default function AdminProductsPage() {
   // Resim sıkıştırma fonksiyonu - çok agresif optimizasyon
   const compressImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
-      const img = new window.Image()
+      const reader = new FileReader()
       
-      img.onload = () => {
-        try {
-          // Daha büyük boyutlar - daha iyi kalite
-          const maxWidth = 800
-          const maxHeight = 800
-          
-          let { width, height } = img
-          
-          // En-boy oranını koru
-          if (width > height) {
-            if (width > maxWidth) {
-              height = (height * maxWidth) / width
-              width = maxWidth
+      reader.onload = (e) => {
+        const img = new window.Image()
+        
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+            
+            // Daha büyük boyutlar - daha iyi kalite
+            const maxWidth = 800
+            const maxHeight = 800
+            
+            let { width, height } = img
+            
+            // En-boy oranını koru
+            if (width > height) {
+              if (width > maxWidth) {
+                height = (height * maxWidth) / width
+                width = maxWidth
+              }
+            } else {
+              if (height > maxHeight) {
+                width = (width * maxHeight) / height
+                height = maxHeight
+              }
             }
-          } else {
-            if (height > maxHeight) {
-              width = (width * maxHeight) / height
-              height = maxHeight
+            
+            canvas.width = width
+            canvas.height = height
+            
+            if (!ctx) {
+              reject(new Error('Canvas context oluşturulamadı'))
+              return
             }
+            
+            ctx.drawImage(img, 0, 0, width, height)
+            
+            // Daha yüksek kalitede JPEG sıkıştır (0.8 kalite - %80)
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8)
+            
+            // Boyut kontrolü - 2MB limit (500KB'dan 2MB'a çıkarıldı)
+            if (compressedDataUrl.length > 2 * 1024 * 1024) {
+              console.warn(`Resim çok büyük: ${compressedDataUrl.length} bytes`)
+              // Daha düşük kalitede tekrar dene
+              const lowQualityDataUrl = canvas.toDataURL('image/jpeg', 0.6)
+              resolve(lowQualityDataUrl)
+            } else {
+              resolve(compressedDataUrl)
+            }
+          } catch (error) {
+            reject(new Error(`Resim işleme hatası: ${error}`))
           }
-          
-          canvas.width = width
-          canvas.height = height
-          
-          if (!ctx) {
-            reject(new Error('Canvas context oluşturulamadı'))
-            return
-          }
-          
-          ctx.drawImage(img, 0, 0, width, height)
-          
-          // Daha yüksek kalitede JPEG sıkıştır (0.8 kalite - %80)
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8)
-          
-          // Boyut kontrolü - 2MB limit (500KB'dan 2MB'a çıkarıldı)
-          if (compressedDataUrl.length > 2 * 1024 * 1024) {
-            console.warn(`Resim çok büyük: ${compressedDataUrl.length} bytes`)
-            // Daha düşük kalitede tekrar dene
-            const lowQualityDataUrl = canvas.toDataURL('image/jpeg', 0.6)
-            resolve(lowQualityDataUrl)
-          } else {
-            resolve(compressedDataUrl)
-          }
-        } catch (error) {
-          reject(new Error(`Resim işleme hatası: ${error}`))
         }
+        
+        img.onerror = () => reject(new Error('Resim yüklenemedi'))
+        img.src = e.target?.result as string
       }
       
-      img.onerror = () => reject(new Error('Resim yüklenemedi'))
-      img.src = URL.createObjectURL(file)
+      reader.onerror = () => reject(new Error('Dosya okunamadı'))
+      reader.readAsDataURL(file)
     })
   }
 
