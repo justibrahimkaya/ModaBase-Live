@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 import dynamicImport from 'next/dynamic'
 import Header from '@/components/Header'
 import WhatsAppButton from '@/components/WhatsAppButton'
-import { prisma } from '@/lib/prisma'
+import { buildSafePrisma } from '@/lib/buildSafePrisma'
 
 // Lazy load heavy components
 const FeaturedProducts = dynamicImport(() => import('@/components/FeaturedProducts'), {
@@ -203,7 +203,9 @@ async function SpecialOffers() {
   let discountedProducts: any[] = []
   
   try {
-    discountedProducts = await prisma.product.findMany({
+    // Build sırasında veritabanı bağlantısını devre dışı bırak
+    if (process.env.DATABASE_URL) {
+      discountedProducts = await buildSafePrisma.product.findMany({
       where: {
         originalPrice: { not: null }
       },
@@ -226,6 +228,7 @@ async function SpecialOffers() {
       orderBy: { createdAt: 'desc' },
       take: 4
     })
+    }
   } catch (error) {
     console.error('Database error in SpecialOffers:', error)
     // Hata durumunda boş array döner
@@ -395,8 +398,11 @@ export default async function Home() {
   // GEÇİCİ değişken kaldırıldı (lint için)
   
   try {
-    // ⚡ FAST: En popüler/öne çıkan ürünleri getir - OPTIMIZED
-    const products = await prisma.product.findMany({
+    // Build sırasında veritabanı bağlantısını devre dışı bırak
+    let products: any[] = []
+    if (process.env.DATABASE_URL) {
+      // ⚡ FAST: En popüler/öne çıkan ürünleri getir - OPTIMIZED
+      products = await buildSafePrisma.product.findMany({
       select: {
         id: true,
         name: true,
@@ -454,6 +460,7 @@ export default async function Home() {
         category: product.category
       }
     })
+    }
   } catch (error: any) {
     console.error('Database error in Home page:', {
       message: error?.message || 'Unknown error',

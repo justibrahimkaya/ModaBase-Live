@@ -1,8 +1,20 @@
 import { MetadataRoute } from 'next'
-import { prisma } from '@/lib/prisma'
+import { buildSafePrisma } from '@/lib/buildSafePrisma'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.modabase.com.tr'
+
+  // Build sırasında veritabanı bağlantısını devre dışı bırak
+  if (process.env.VERCEL_ENV === 'production' && !process.env.DATABASE_URL) {
+    return [
+      {
+        url: baseUrl,
+        lastModified: new Date(),
+        changeFrequency: 'daily' as const,
+        priority: 1,
+      },
+    ]
+  }
 
   // Statik sayfalar
   const staticPages = [
@@ -118,7 +130,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   // Kategoriler
-  const categories = await prisma.category.findMany({
+  const categories = await buildSafePrisma.category.findMany({
     where: { isActive: true },
     select: { slug: true, updatedAt: true }
   })
@@ -131,7 +143,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   // Ürünler
-  const products = await prisma.product.findMany({
+  const products = await buildSafePrisma.product.findMany({
     select: { id: true, slug: true, updatedAt: true }
   })
 
@@ -145,7 +157,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
 
   // Blog yazıları
-  const blogPosts = await prisma.blogPost.findMany({
+  const blogPosts = await buildSafePrisma.blogPost.findMany({
     where: { isPublished: true },
     select: { slug: true, updatedAt: true }
   })
