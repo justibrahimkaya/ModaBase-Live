@@ -5,6 +5,7 @@ import { Heart, Star } from 'lucide-react'
 interface Product {
   id: string;
   name: string;
+  slug: string;
   price: number;
   originalPrice?: number;
   rating: number;
@@ -27,7 +28,7 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
       {products.map((product) => (
         <div key={product.id} className="group relative bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 touch-manipulation performance-optimized">
-          <a href={`/product/${product.id}`} className="block">
+          <a href={`/product/${product.slug || product.id}`} className="block">
             {/* Image Container - Fixed for display */}
             <div className="relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 aspect-square">
               {product.image ? (

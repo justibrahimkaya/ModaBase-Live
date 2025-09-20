@@ -207,8 +207,20 @@ async function SpecialOffers() {
       where: {
         originalPrice: { not: null }
       },
-      include: {
-        category: true,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        price: true,
+        originalPrice: true,
+        images: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        },
         _count: { select: { reviews: true } }
       },
       orderBy: { createdAt: 'desc' },
@@ -239,7 +251,7 @@ async function SpecialOffers() {
             return (
               <a
                 key={product.id}
-                href={`/product/${product.id}`}
+                href={`/product/${product.slug || product.id}`}
                 className="group block"
               >
                 <div className="bg-white rounded-2xl p-6 shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2">
@@ -388,6 +400,7 @@ export default async function Home() {
       select: {
         id: true,
         name: true,
+        slug: true,
         price: true,
         originalPrice: true,
         images: true,
@@ -430,6 +443,7 @@ export default async function Home() {
       return {
         id: product.id,
         name: product.name,
+        slug: product.slug,
         price,
         originalPrice,
         rating: Math.round(averageRating * 10) / 10,
