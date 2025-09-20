@@ -53,13 +53,6 @@ export default function CheckoutPage() {
   const [cargoQuotes, setCargoQuotes] = useState<ShippingQuote[]>([])
   const [isLoadingCargo, setIsLoadingCargo] = useState(false)
   const [isPlacingOrder, setIsPlacingOrder] = useState(false)
-  const [couponCode, setCouponCode] = useState('')
-  const [couponStatus, setCouponStatus] = useState<'idle' | 'success' | 'error'>('idle')
-  const [discount, setDiscount] = useState(0)
-  const validCoupons: Record<string, number> = {
-    "MODA10": 0.10, // %10 indirim
-    "MODA20": 0.20  // %20 indirim
-  }
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'paytr' | 'bank-transfer'>('paytr')
   const [bankTransferData, setBankTransferData] = useState({
@@ -269,33 +262,21 @@ export default function CheckoutPage() {
     }
   }
 
-  const handleApplyCoupon = () => {
-    const code = couponCode.trim().toUpperCase()
-    if (validCoupons[code]) {
-      setDiscount(validCoupons[code])
-      setCouponStatus('success')
-    } else {
-      setDiscount(0)
-      setCouponStatus('error')
-    }
-  }
 
   const subtotal = getTotal()
   const shippingCost = getShippingCost()
-  const discountedSubtotal = subtotal * (1 - discount)
   
   // KDV Hesaplaması (Türkiye'de fiyatlar genelde KDV dahil gösterilir)
-  // Giyim ürünleri için KDV oranı %8 (bazı ürünlerde %1, %18 olabilir)
-  const TAX_RATE = 0.08 // %8 KDV (giyim ürünleri için standart)
+  const TAX_RATE = 0.10 // %10 KDV
   
   // KDV dahil fiyattan KDV'yi hesapla
   // KDV Matrahı = KDV Dahil Fiyat / (1 + KDV Oranı)
   // KDV Tutarı = KDV Dahil Fiyat - KDV Matrahı
-  const taxBase = discountedSubtotal / (1 + TAX_RATE) // KDV matrahı
-  const taxAmount = discountedSubtotal - taxBase // KDV tutarı
+  const taxBase = subtotal / (1 + TAX_RATE) // KDV matrahı
+  const taxAmount = subtotal - taxBase // KDV tutarı
   
   // Toplam tutar (KDV dahil ürün fiyatı + kargo)
-  const total = discountedSubtotal + shippingCost
+  const total = subtotal + shippingCost
 
   // PayTR ile ödeme başlat
   const handlePaytrPayment = async () => {
@@ -320,8 +301,6 @@ export default function CheckoutPage() {
         })),
         total: total,
         subtotal: subtotal,
-        discount: discount,
-        discountAmount: subtotal * discount,
         taxBase: taxBase,
         taxRate: TAX_RATE,
         taxAmount: taxAmount,
@@ -503,8 +482,6 @@ export default function CheckoutPage() {
         })),
         total: total,
         subtotal: subtotal,
-        discount: discount,
-        discountAmount: subtotal * discount,
         taxBase: taxBase,
         taxRate: TAX_RATE,
         taxAmount: taxAmount,
@@ -956,32 +933,6 @@ export default function CheckoutPage() {
               <div className="flex justify-end">
                 <button type="submit" className="btn-primary px-8 py-3 text-lg">Kaydet ve Devam Et</button>
               </div>
-              {/* Kupon Alanı */}
-              <div className="mt-8">
-                <label className="block text-sm font-medium text-gray-700 mb-2">İndirim Kuponu</label>
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    value={couponCode}
-                    onChange={e => { setCouponCode(e.target.value); setCouponStatus('idle') }}
-                    placeholder="Kupon kodunuz (örn: MODA10)"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleApplyCoupon}
-                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
-                  >
-                    Uygula
-                  </button>
-                </div>
-                {couponStatus === 'success' && (
-                  <span className="text-green-600 text-sm mt-2 block">Kupon başarıyla uygulandı! %{discount * 100} indirim</span>
-                )}
-                {couponStatus === 'error' && (
-                  <span className="text-red-600 text-sm mt-2 block">Geçersiz kupon kodu</span>
-                )}
-              </div>
             </form>
           )}
 
@@ -1155,12 +1106,6 @@ export default function CheckoutPage() {
                   <span className="font-semibold text-gray-900">Ara Toplam:</span>
                   <span className="font-bold text-md text-gray-900">₺{subtotal.toFixed(2)}</span>
                 </div>
-                {discount > 0 && (
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold text-green-700">İndirim (%{discount * 100}):</span>
-                    <span className="font-bold text-md text-green-700">-₺{(subtotal * discount).toFixed(2)}</span>
-                  </div>
-                )}
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-600">KDV Matrahı:</span>
                   <span className="text-gray-600">₺{taxBase.toFixed(2)}</span>
