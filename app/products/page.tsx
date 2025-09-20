@@ -189,7 +189,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": pagination.totalCount,
-      "itemListElement": products.slice(0, 12).map((product, index) => {
+      "itemListElement": products.slice(0, 12).map((product: any, index: number) => {
         // Image URL belirle - base64'leri reddet, default kullan
         const getValidImageUrl = () => {
           if (product.images && product.images.length > 0) {

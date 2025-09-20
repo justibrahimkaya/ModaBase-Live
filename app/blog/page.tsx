@@ -7,7 +7,7 @@ import {
   BookOpen
 } from 'lucide-react'
 import Link from 'next/link'
-import { prisma } from '@/lib/prisma'
+import { buildSafePrisma } from '@/lib/buildSafePrisma'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
 
 async function getBlogPosts(): Promise<BlogPost[]> {
   try {
-    const posts = await prisma.blogPost.findMany({
+    const posts = await buildSafePrisma.blogPost.findMany({
       where: {
         isPublished: true
       },
@@ -111,7 +111,7 @@ export default async function BlogPage() {
       "name": "ModaBase",
       "url": "https://modabase.com.tr"
     },
-    "blogPost": posts.slice(0, 10).map((post) => ({
+    "blogPost": posts.slice(0, 10).map((post: any) => ({
       "@type": "BlogPosting",
       "headline": post.title,
       "url": `https://modabase.com.tr/blog/${post.slug}`,
@@ -166,7 +166,7 @@ export default async function BlogPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {posts.map((post) => (
+              {posts.map((post: any) => (
                 <article key={post.id} className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
                   {/* Image */}
                   <div className="aspect-video bg-gray-200 relative overflow-hidden">
@@ -214,7 +214,7 @@ export default async function BlogPage() {
 
                     {/* Tags */}
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {(post.tags ? post.tags.split(',').slice(0, 3) : []).map((tag) => (
+                      {(post.tags ? post.tags.split(',').slice(0, 3) : []).map((tag: any) => (
                         <span
                           key={tag}
                           className="bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-sm"

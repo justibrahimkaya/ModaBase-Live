@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import { prisma } from '@/lib/prisma'
+import { buildSafePrisma } from '@/lib/buildSafePrisma'
 import Link from 'next/link'
 import { Star, ShoppingBag, Heart } from 'lucide-react'
 
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
 
 async function getTrikoProducts() {
   try {
-    const products = await prisma.product.findMany({
+    const products = await buildSafePrisma.product.findMany({
       where: {
         OR: [
           { name: { contains: 'triko' } },
@@ -68,10 +68,10 @@ async function getTrikoProducts() {
       take: 20
     })
 
-    return products.map(product => {
+    return products.map((product: any) => {
       const images = JSON.parse(product.images || '[]')
       const averageRating = product.reviews.length > 0
-        ? product.reviews.reduce((sum, r) => sum + r.rating, 0) / product.reviews.length
+        ? product.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / product.reviews.length
         : 0
       
       return {
@@ -101,8 +101,8 @@ export default async function TrikoPage() {
       "@type": "ItemList",
       "numberOfItems": products.length,
       "itemListElement": products.slice(0, 10)
-        .filter(product => product.name !== 'Bluzlar' && product.name !== 'Elbiseler')
-        .map((product, index) => {
+        .filter((product: any) => product.name !== 'Bluzlar' && product.name !== 'Elbiseler')
+        .map((product: any, index: number) => {
           // Image URL belirle - base64'leri reddet, default kullan
           const getValidImageUrl = () => {
             if (product.images && product.images.length > 0) {
@@ -281,7 +281,7 @@ export default async function TrikoPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((product) => (
+            {products.map((product: any) => (
               <article key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
                 <Link href={`/product/${product.id}`}>
                   <div className="relative">

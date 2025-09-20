@@ -435,7 +435,7 @@ export default async function Home() {
     featuredProducts = products.map((product) => {
       const reviews = product.reviews
       const averageRating = reviews.length > 0
-        ? reviews.reduce((sum: number, r) => sum + r.rating, 0) / reviews.length
+        ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length
         : 0
       
       const { originalPrice, price } = product

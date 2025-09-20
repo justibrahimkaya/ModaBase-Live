@@ -5,7 +5,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.modabase.com.tr'
 
   // Build sırasında veritabanı bağlantısını devre dışı bırak
-  if (process.env.VERCEL_ENV === 'production' && !process.env.DATABASE_URL) {
+  if (!process.env.DATABASE_URL || process.env.NODE_ENV === 'production') {
     return [
       {
         url: baseUrl,
@@ -135,7 +135,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     select: { slug: true, updatedAt: true }
   })
 
-  const categoryPages = categories.map((category) => ({
+  const categoryPages = categories.map((category: any) => ({
     url: `${baseUrl}/products?category=${category.slug}`,
     lastModified: category.updatedAt,
     changeFrequency: 'weekly' as const,
@@ -148,8 +148,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   })
 
   const productPages = products
-    .filter(product => product.slug) // Sadece slug'ı olan ürünler
-    .map((product) => ({
+    .filter((product: any) => product.slug) // Sadece slug'ı olan ürünler
+    .map((product: any) => ({
       url: `${baseUrl}/product/${product.slug}`,
       lastModified: product.updatedAt,
       changeFrequency: 'weekly' as const,
@@ -162,7 +162,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     select: { slug: true, updatedAt: true }
   })
 
-  const blogPages = blogPosts.map((post) => ({
+  const blogPages = blogPosts.map((post: any) => ({
     url: `${baseUrl}/blog/${post.slug}`,
     lastModified: post.updatedAt,
     changeFrequency: 'monthly' as const,
