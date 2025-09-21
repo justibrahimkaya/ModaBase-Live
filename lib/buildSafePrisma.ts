@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client'
 // Build sırasında veritabanı bağlantısını güvenli hale getir
 export function createBuildSafePrisma() {
   // Build sırasında veritabanı bağlantısını devre dışı bırak
-  if (process.env.VERCEL_ENV === 'production') {
+  if (true) { // Her zaman mock kullan
     return {
       product: {
         findMany: () => Promise.resolve([]),
