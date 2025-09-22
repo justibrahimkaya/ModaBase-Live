@@ -18,8 +18,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  let email: string | undefined;
+  
   try {
-    const { email, password } = await request.json()
+    const requestData = await request.json()
+    email = requestData.email
+    const { password } = requestData
     
     if (!email || !password) {
       return NextResponse.json({ error: 'E-posta ve şifre zorunlu.' }, { status: 400 })
