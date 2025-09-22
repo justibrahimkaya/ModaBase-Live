@@ -126,6 +126,7 @@ export function middleware(request: NextRequest) {
                        pathname === '/favicon.ico' ||
                        pathname === '/robots.txt' ||
                        pathname === '/sitemap.xml' ||
+                       pathname === '/' ||  // ✅ Ana sayfa herkese açık
                        pathname === '/products' ||
                        pathname === '/triko' ||
                        pathname === '/kadin-elbise' ||
@@ -137,7 +138,13 @@ export function middleware(request: NextRequest) {
                        pathname === '/siyah-elbise' ||
                        pathname === '/kadin-tisort' ||
                        pathname.startsWith('/product/') ||
-                       pathname.startsWith('/blog/')
+                       pathname.startsWith('/blog/') ||
+                       pathname.startsWith('/category/') ||  // ✅ Kategori sayfaları
+                       pathname.startsWith('/search') ||     // ✅ Arama sayfası
+                       pathname.startsWith('/about') ||      // ✅ Hakkımızda
+                       pathname.startsWith('/contact') ||    // ✅ İletişim
+                       pathname.startsWith('/privacy') ||    // ✅ Gizlilik
+                       pathname.startsWith('/terms')         // ✅ Şartlar
     
     if (!isAdminPath) {
       // Normal site sayfalarına erişim engelle - admin paneline yönlendir
