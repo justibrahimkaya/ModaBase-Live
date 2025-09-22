@@ -26,7 +26,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Business hesabını bul - Raw SQL kullanarak mevcut alanları getir
-    const businessResult = await prisma.$queryRaw`
+    const businessResult = await prisma.$queryRaw<Array<{
+      id: string;
+      email: string;
+      businessName: string;
+      contactName: string;
+      contactSurname: string;
+      password: string;
+      isActive: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+    }>>`
       SELECT id, email, businessName, contactName, contactSurname, password, isActive, createdAt, updatedAt
       FROM Business 
       WHERE email = ${email.toLowerCase().trim()}
