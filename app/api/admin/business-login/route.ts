@@ -25,23 +25,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'E-posta ve şifre zorunlu.' }, { status: 400 })
     }
 
-    // Business hesabını bul
-    const business = await prisma.business.findUnique({
-      where: { email: email.toLowerCase().trim() },
-      select: {
-        id: true,
-        email: true,
-        businessName: true,
-        contactName: true,
-        contactSurname: true,
-        password: true,
-        adminStatus: true,
-        isActive: true,
-        approvedAt: true,
-        rejectionReason: true,
-        lastLoginAt: true
-      }
-    })
+    // Business hesabını bul - Raw SQL kullanarak mevcut alanları getir
+    const businessResult = await prisma.$queryRaw`
+      SELECT id, email, businessName, contactName, contactSurname, password, isActive, createdAt, updatedAt
+      FROM Business 
+      WHERE email = ${email.toLowerCase().trim()}
+    `
+    
+    const business = businessResult.length > 0 ? businessResult[0] : null
 
     if (!business) {
       Logger.security('Business login attempt for non-existent account', { 
@@ -51,27 +42,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Geçersiz e-posta veya şifre.' }, { status: 401 })
     }
 
-    // Admin onay durumunu kontrol et
-    if (business.adminStatus === 'PENDING') {
-      return NextResponse.json({ 
-        error: 'Başvurunuz henüz değerlendirilmedi. 48 saat içinde email ile bilgilendirileceksiniz.',
-        status: 'PENDING'
-      }, { status: 403 })
-    }
-
-    if (business.adminStatus === 'REJECTED') {
-      return NextResponse.json({ 
-        error: `Başvurunuz reddedildi. Sebep: ${business.rejectionReason || 'Belirtilmemiş'}`,
-        status: 'REJECTED'
-      }, { status: 403 })
-    }
-
-    if (business.adminStatus !== 'APPROVED') {
-      return NextResponse.json({ error: 'Hesap durumunuz bilinmiyor. Lütfen destek ile iletişime geçin.' }, { status: 403 })
-    }
-
+    // Hesap aktiflik durumunu kontrol et
     if (!business.isActive) {
-      return NextResponse.json({ error: 'Hesabınız aktif değil.' }, { status: 401 })
+      return NextResponse.json({ error: 'Hesabınız aktif değil. Lütfen destek ile iletişime geçin.' }, { status: 403 })
     }
 
     // Şifreyi doğrula
@@ -85,11 +58,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Geçersiz e-posta veya şifre.' }, { status: 401 })
     }
 
-    // Başarılı giriş - son giriş tarihini güncelle
-    await prisma.business.update({
-      where: { id: business.id },
-      data: { lastLoginAt: new Date() }
-    })
+    // Başarılı giriş - updatedAt tarihini güncelle
+    await prisma.$queryRaw`
+      UPDATE Business 
+      SET updatedAt = NOW() 
+      WHERE id = ${business.id}
+    `
 
     Logger.info('Business login successful', { 
       businessId: business.id,
@@ -107,7 +81,7 @@ export async function POST(request: NextRequest) {
         surname: business.contactSurname,
         businessName: business.businessName,
         role: 'BUSINESS_ADMIN',
-        lastLoginAt: business.lastLoginAt
+        lastLoginAt: new Date().toISOString()
       }
     })
 
