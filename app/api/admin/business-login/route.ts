@@ -106,10 +106,25 @@ export async function POST(request: NextRequest) {
     return response
 
   } catch (error) {
-    Logger.error('Business login error', { 
-      error: error instanceof Error ? error.message : 'Unknown error',
+    console.error('🚨 Business login error:', error)
+    console.error('🚨 Error details:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack',
+      email: email?.substring(0, 3) + '***',
       ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
     })
-    return NextResponse.json({ error: 'Giriş yapılırken bir hata oluştu.' }, { status: 500 })
+    
+    Logger.error('Business login error', { 
+      error: error instanceof Error ? error.message : 'Unknown error',
+      errorName: error instanceof Error ? error.name : 'Unknown',
+      stack: error instanceof Error ? error.stack : 'No stack',
+      ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    })
+    
+    return NextResponse.json({ 
+      error: 'Giriş yapılırken bir hata oluştu.',
+      details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'Unknown error') : undefined
+    }, { status: 500 })
   }
 }
